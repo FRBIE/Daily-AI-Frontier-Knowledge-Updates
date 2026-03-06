@@ -1,0 +1,15 @@
+[server]
+host = "0.0.0.0"
+port = "8081"
+
+[database]
+path = "/home/ubuntu/.openclaw/workspace/browserwing-runtime/browserwing.db"
+
+[browser]
+bin_path = "/usr/bin/google-chrome"
+user_data_dir = "/home/ubuntu/.openclaw/workspace/browserwing-runtime/browserwing-user-data"
+control_url = "http://127.0.0.1:9222"
+
+[log]
+level = "info"
+file = "/home/ubuntu/.openclaw/workspace/browserwing-runtime/browserwing.log"
