@@ -1,0 +1,20 @@
+@startuml
+skinparam defaultFontName Noto Sans CJK SC
+skinparam dpi 160
+start
+:采集患者基础信息与检验指标;
+:OCR/接口导入并结构化;
+:缺失值处理与特征标准化;
+if (数据质量通过?) then (是)
+  :模型推理计算风险评分;
+  if (风险 >= 阈值) then (高风险)
+    :触发医生告警与复诊建议;
+  else (中低风险)
+    :生成健康管理建议;
+  endif
+  :记录结果并回写病历;
+else (否)
+  :提示补录关键字段;
+endif
+stop
+@enduml

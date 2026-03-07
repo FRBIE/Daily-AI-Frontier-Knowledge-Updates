@@ -1,0 +1,30 @@
+@startuml
+skinparam defaultFontName Noto Sans CJK SC
+skinparam dpi 160
+left to right direction
+package "前端" {
+  [医生端Web]
+  [患者端小程序]
+}
+package "平台服务层" {
+  [认证与权限]
+  [病历管理]
+  [问答服务]
+  [风险预测服务]
+  [模板与Prompt管理]
+}
+package "AI与数据层" {
+  [向量检索库]
+  [结构化病历库]
+  [模型服务\n(OCR/RAG/分类器)]
+}
+[医生端Web] --> [认证与权限]
+[患者端小程序] --> [认证与权限]
+[认证与权限] --> [病历管理]
+[病历管理] --> [结构化病历库]
+[问答服务] --> [向量检索库]
+[问答服务] --> [模型服务\n(OCR/RAG/分类器)]
+[风险预测服务] --> [模型服务\n(OCR/RAG/分类器)]
+[风险预测服务] --> [结构化病历库]
+[模板与Prompt管理] --> [问答服务]
+@enduml
