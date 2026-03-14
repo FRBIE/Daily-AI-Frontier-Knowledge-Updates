@@ -1,18 +1,20 @@
-# Daily AI Frontier Knowledge Updates - 2026-03-14
+# Daily AI Frontier - 2026-03-14
 
-## Top Updates (3)
+## 高价值 AI 资讯（4）
 
-- **Claude Code changelog full range整理完成（中英双语）**：已覆盖完整版本脉络与关键变更，方便快速追踪功能演进与稳定性修复节奏。  
-  Source: `inbox/claude-code-changelog-full-range-guide-zh-en.md`
+- **Anthropic 发布 Claude Sonnet 4.6（2026-02-17）**：官方称其在编程、代理执行与专业工作流上达到前沿性能，且面向规模化生产场景。
+  来源：https://www.anthropic.com/news
 
-- **Claude Code 2026-03-13版本解读（中英）**：针对最新变更提供了可落地说明，适合团队直接用于开发流程与工具链升级判断。  
-  Source: `inbox/claude-code-changelog-zh-en-2026-03-13.md`
+- **Anthropic 重申 Claude 保持无广告策略（2026-02-04）**：明确将“无广告”作为产品长期原则，强调与用户信任和助手目标一致性。
+  来源：https://www.anthropic.com/news
 
-- **AI Coding Agents竞争格局报告更新**：新增对主流AI编程助手能力差异与定位判断，有助于后续选型和工作流优化。  
-  Source: `inbox/ai-coding-agents-competitive-report-2026-03-13.md`
+- **Anthropic 披露 Claude 参与火星车辅助驾驶（2026-01-30）**：官方披露 Claude 协助 NASA“毅力号”在火星完成约 400 米行驶，体现 AI 在高风险任务中的辅助价值。
+  来源：https://www.anthropic.com/news
 
-## Why It Matters
+- **Stability AI 加入 Tech Coalition（2026-02-11）**：公司宣布加入全球科技联盟，重点协同打击线上儿童性剥削与滥用内容，反映生成式 AI 企业在安全治理上的组织化投入。
+  来源：https://stability.ai/news
 
-- 把“原始更新日志”转成了“可执行知识”，便于日更沉淀与复盘。
-- 形成连续的 AI 编码工具演进观察样本，便于评估生产可用性。
-- 为 GitHub 日更仓库提供了结构化内容基础（可持续追加）。
+## 研判
+
+- 2026 年 Q1 的主线不只在模型能力刷新，也在“可规模化部署 + 安全治理 + 价值观定位”的三线并进。
+- 对团队实践的启示：评估模型时应同时关注能力、商业激励结构（如广告模式）、以及合规/安全协作能力。
