@@ -1,0 +1,283 @@
+{"level":"info","msg":"[Start] MCP server started","time":"2026-03-07 00:58:55"}
+{"level":"info","msg":"[loadMCPScripts] Loaded 0 MCP commands","time":"2026-03-07 00:58:55"}
+{"level":"info","msg":"[Start] Registered 21 executor tools","time":"2026-03-07 00:58:55"}
+{"level":"warning","msg":"[NewAgentManager] Failed to load LLM configuration: no available LLM configs (Please configure in LLM Management page)","time":"2026-03-07 00:58:55"}
+{"level":"info","msg":"[Info] Loaded 0 sessions from database","time":"2026-03-07 00:58:55"}
+{"level":"info","msg":"[startMCPWatcher] ✓ MCP command listener has started","time":"2026-03-07 00:58:55"}
+{"level":"info","msg":"[Navigate] [Navigate] Starting navigation to https://example.com","time":"2026-03-07 00:59:04","trace_id":"e3ae3533-95f7-4615-96e6-8b77a6e6829c"}
+{"level":"info","msg":"[Start] Starting browser...","time":"2026-03-07 00:59:04","trace_id":"e3ae3533-95f7-4615-96e6-8b77a6e6829c"}
+{"level":"warning","msg":"[Start] Default browser configuration not found, using system defaults","time":"2026-03-07 00:59:04","trace_id":"e3ae3533-95f7-4615-96e6-8b77a6e6829c"}
+{"level":"info","msg":"[getDefaultBrowserConfig] detected browser environment: OS=linux, DISPLAY=, WAYLAND_DISPLAY=, headless=true","time":"2026-03-07 00:59:04"}
+{"level":"info","msg":"[Start] Loaded 0 site-specific configurations","time":"2026-03-07 00:59:04","trace_id":"e3ae3533-95f7-4615-96e6-8b77a6e6829c"}
+{"level":"info","msg":"[Start] Using default configuration: 默认配置","time":"2026-03-07 00:59:04","trace_id":"e3ae3533-95f7-4615-96e6-8b77a6e6829c"}
+{"level":"info","msg":"[Info] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━","time":"2026-03-07 00:59:04","trace_id":"e3ae3533-95f7-4615-96e6-8b77a6e6829c"}
+{"level":"info","msg":"[Start] Using remote Chrome browser","time":"2026-03-07 00:59:04","trace_id":"e3ae3533-95f7-4615-96e6-8b77a6e6829c"}
+{"level":"info","msg":"[Info] Control URL: http://127.0.0.1:9222","time":"2026-03-07 00:59:04","trace_id":"e3ae3533-95f7-4615-96e6-8b77a6e6829c"}
+{"level":"info","msg":"[Start] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━","time":"2026-03-07 00:59:04","trace_id":"e3ae3533-95f7-4615-96e6-8b77a6e6829c"}
+{"level":"info","msg":"[New] Resolved WebSocket URL: ws://127.0.0.1:9222/devtools/browser/0c08fef1-2283-433b-ade8-8b021e806a2b","time":"2026-03-07 00:59:04","trace_id":"e3ae3533-95f7-4615-96e6-8b77a6e6829c"}
+{"level":"info","msg":"[Info] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━","time":"2026-03-07 00:59:04","trace_id":"e3ae3533-95f7-4615-96e6-8b77a6e6829c"}
+{"level":"info","msg":"[Start] Browser version information:","time":"2026-03-07 00:59:04","trace_id":"e3ae3533-95f7-4615-96e6-8b77a6e6829c"}
+{"level":"info","msg":"[Start]   Product: Chrome/145.0.7632.159","time":"2026-03-07 00:59:04","trace_id":"e3ae3533-95f7-4615-96e6-8b77a6e6829c"}
+{"level":"info","msg":"[Info]   User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.0.0 Safari/537.36","time":"2026-03-07 00:59:04","trace_id":"e3ae3533-95f7-4615-96e6-8b77a6e6829c"}
+{"level":"info","msg":"[Start] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━","time":"2026-03-07 00:59:04","trace_id":"e3ae3533-95f7-4615-96e6-8b77a6e6829c"}
+{"level":"info","msg":"[Start] No saved Cookies found","time":"2026-03-07 00:59:04","trace_id":"e3ae3533-95f7-4615-96e6-8b77a6e6829c"}
+{"level":"info","msg":"[Start] Download directory created: /home/ubuntu/.openclaw/workspace/downloads","time":"2026-03-07 00:59:04","trace_id":"e3ae3533-95f7-4615-96e6-8b77a6e6829c"}
+{"level":"info","msg":"[Start] Download behavior set: allow, path: /home/ubuntu/.openclaw/workspace/downloads","time":"2026-03-07 00:59:04","trace_id":"e3ae3533-95f7-4615-96e6-8b77a6e6829c"}
+{"level":"info","msg":"[Start] ✓ Clipboard permissions granted (read/write)","time":"2026-03-07 00:59:04","trace_id":"e3ae3533-95f7-4615-96e6-8b77a6e6829c"}
+{"level":"info","msg":"[Start] Browser started successfully","time":"2026-03-07 00:59:04","trace_id":"e3ae3533-95f7-4615-96e6-8b77a6e6829c"}
+{"level":"info","msg":"[Info] [Navigate] Browser started","time":"2026-03-07 00:59:04","trace_id":"e3ae3533-95f7-4615-96e6-8b77a6e6829c"}
+{"level":"info","msg":"[Navigate] [Navigate] Browser is running","time":"2026-03-07 00:59:04","trace_id":"e3ae3533-95f7-4615-96e6-8b77a6e6829c"}
+{"level":"info","msg":"[Info] [Navigate] Using timeout: 1m0s, wait_until: load","time":"2026-03-07 00:59:04","trace_id":"e3ae3533-95f7-4615-96e6-8b77a6e6829c"}
+{"level":"info","msg":"[Navigate] [Navigate] Getting active page...","time":"2026-03-07 00:59:04","trace_id":"e3ae3533-95f7-4615-96e6-8b77a6e6829c"}
+{"level":"info","msg":"[Info] [Navigate] No active page","time":"2026-03-07 00:59:04","trace_id":"e3ae3533-95f7-4615-96e6-8b77a6e6829c"}
+{"level":"info","msg":"[Navigate] [Navigate] Creating new page...","time":"2026-03-07 00:59:04","trace_id":"e3ae3533-95f7-4615-96e6-8b77a6e6829c"}
+{"level":"info","msg":"[getConfigForURL] Starting URL matching: https://example.com, total 0 site configurations","time":"2026-03-07 00:59:04"}
+{"level":"info","msg":"[getConfigForURL] No matching site configuration found, using default configuration","time":"2026-03-07 00:59:04"}
+{"level":"info","msg":"[OpenPage] URL: https://example.com, using configuration: 默认配置, language: zh-CN","time":"2026-03-07 00:59:04"}
+{"level":"info","msg":"[OpenPage] Using Stealth mode","time":"2026-03-07 00:59:04"}
+{"level":"info","msg":"[setPageWindow] Detected screen size: 800x600","time":"2026-03-07 00:59:04"}
+{"level":"info","msg":"[setPageWindow] Calculated window size: 720x540","time":"2026-03-07 00:59:04"}
+{"level":"info","msg":"[setPageWindow] Calculated viewport size: 600x440","time":"2026-03-07 00:59:04"}
+{"level":"info","msg":"[OpenPage] ✓ Clipboard permissions granted for page: https://example.com/","time":"2026-03-07 00:59:09"}
+{"level":"info","msg":"[OpenPage] Page opened: https://example.com","time":"2026-03-07 00:59:09"}
+{"level":"info","msg":"[Navigate] [Navigate] Page opened successfully","time":"2026-03-07 00:59:09","trace_id":"e3ae3533-95f7-4615-96e6-8b77a6e6829c"}
+{"level":"info","msg":"[Navigate] [Navigate] Got active page","time":"2026-03-07 00:59:09","trace_id":"e3ae3533-95f7-4615-96e6-8b77a6e6829c"}
+{"level":"info","msg":"[Navigate] [Navigate] Waiting for page load (condition: load)...","time":"2026-03-07 00:59:09","trace_id":"e3ae3533-95f7-4615-96e6-8b77a6e6829c"}
+{"level":"info","msg":"[Navigate] [Navigate] Page load completed","time":"2026-03-07 00:59:09","trace_id":"e3ae3533-95f7-4615-96e6-8b77a6e6829c"}
+{"level":"info","msg":"[Info] [Navigate] Successfully navigated to https://example.com","time":"2026-03-07 00:59:09","trace_id":"e3ae3533-95f7-4615-96e6-8b77a6e6829c"}
+{"level":"info","msg":"[Navigate] [Navigate] Starting semantic tree extraction...","time":"2026-03-07 00:59:09","trace_id":"e3ae3533-95f7-4615-96e6-8b77a6e6829c"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Fetching new accessibility snapshot","time":"2026-03-07 00:59:09"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Starting extraction","time":"2026-03-07 00:59:09"}
+{"level":"info","msg":"[Info] [GetAccessibilitySnapshot] Context is active","time":"2026-03-07 00:59:09"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Disabling accessibility...","time":"2026-03-07 00:59:09"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Enabling accessibility...","time":"2026-03-07 00:59:09"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Accessibility enabled","time":"2026-03-07 00:59:09"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Getting full AX tree...","time":"2026-03-07 00:59:09"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Got AX tree with 16 nodes","time":"2026-03-07 00:59:09"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Building accessibility snapshot...","time":"2026-03-07 00:59:09"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Building AX node map...","time":"2026-03-07 00:59:09"}
+{"level":"info","msg":"[Info] [GetAccessibilitySnapshot] AX node map built with 16 nodes","time":"2026-03-07 00:59:09"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Converting to accessibility nodes...","time":"2026-03-07 00:59:09"}
+{"level":"info","msg":"[Info] [GetAccessibilitySnapshot] Converted 16 nodes to 16 accessibility nodes","time":"2026-03-07 00:59:09"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Checking cursor:pointer elements...","time":"2026-03-07 00:59:09"}
+{"level":"info","msg":"[markCursorPointerElements] [markCursorPointerElements] Found 1 elements with cursor:pointer","time":"2026-03-07 00:59:09"}
+{"level":"info","msg":"[markCursorPointerElements] [markCursorPointerElements] Marked 3 nodes as cursor:pointer","time":"2026-03-07 00:59:09"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Accessibility snapshot extraction completed successfully","time":"2026-03-07 00:59:09"}
+{"level":"info","msg":"[func1] [GetAccessibilitySnapshot] Cleaning up - disabling accessibility","time":"2026-03-07 00:59:09"}
+{"level":"info","msg":"[Info] [assignRefIDs] Assigning RefIDs to 2 clickable elements","time":"2026-03-07 00:59:09"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] e1 -\u003e role=link, name=Learn more, nth=0, backendID=13","time":"2026-03-07 00:59:09"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] e2 -\u003e role=StaticText, name=Learn more, nth=0, backendID=16","time":"2026-03-07 00:59:09"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] Assigned 2 RefIDs to clickable elements","time":"2026-03-07 00:59:09"}
+{"level":"info","msg":"[Info] [assignRefIDs] Processing 0 input elements","time":"2026-03-07 00:59:09"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] Assigned 0 RefIDs to input elements","time":"2026-03-07 00:59:09"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] Total RefIDs in map: 2 (using semantic locators)","time":"2026-03-07 00:59:09"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Cached new snapshot with 2 refs (TTL: 5m0s)","time":"2026-03-07 00:59:09"}
+{"level":"info","msg":"[Navigate] [Navigate] Successfully extracted accessibility snapshot with 16 elements","time":"2026-03-07 00:59:09","trace_id":"e3ae3533-95f7-4615-96e6-8b77a6e6829c"}
+{"level":"info","msg":"[SetLLMConfig] ✓ LLM configuration loaded successfully: openai (gpt-5.3-codex) @ https://api.codexzh.com/v1","time":"2026-03-07 00:59:16"}
+{"level":"warning","msg":"[SetLLMConfig] ⚠ Warning: Model gpt-5.3-codex (openai) may not support function calling","time":"2026-03-07 00:59:16"}
+{"level":"warning","msg":"[SetLLMConfig]   Recommended models that support function calling: GPT-4o, Claude-3.5-Sonnet, Gemini-1.5-Pro, Qwen-Max, etc.","time":"2026-03-07 00:59:16"}
+{"level":"info","msg":"[Navigate] [Navigate] Starting navigation to https://codexzh.com/","time":"2026-03-07 01:04:12","trace_id":"c190bb35-6c8f-444d-8803-5a4798abfc5c"}
+{"level":"info","msg":"[Navigate] [Navigate] Browser is running","time":"2026-03-07 01:04:12","trace_id":"c190bb35-6c8f-444d-8803-5a4798abfc5c"}
+{"level":"info","msg":"[Info] [Navigate] Using timeout: 1m30s, wait_until: networkidle","time":"2026-03-07 01:04:12","trace_id":"c190bb35-6c8f-444d-8803-5a4798abfc5c"}
+{"level":"info","msg":"[Navigate] [Navigate] Getting active page...","time":"2026-03-07 01:04:12","trace_id":"c190bb35-6c8f-444d-8803-5a4798abfc5c"}
+{"level":"info","msg":"[Navigate] [Navigate] Checking if existing page is still valid...","time":"2026-03-07 01:04:12","trace_id":"c190bb35-6c8f-444d-8803-5a4798abfc5c"}
+{"level":"info","msg":"[Navigate] [Navigate] Existing page is valid","time":"2026-03-07 01:04:13","trace_id":"c190bb35-6c8f-444d-8803-5a4798abfc5c"}
+{"level":"info","msg":"[Navigate] [Navigate] Using existing page, navigating...","time":"2026-03-07 01:04:13","trace_id":"c190bb35-6c8f-444d-8803-5a4798abfc5c"}
+{"level":"info","msg":"[Navigate] [Navigate] Navigation completed","time":"2026-03-07 01:04:13","trace_id":"c190bb35-6c8f-444d-8803-5a4798abfc5c"}
+{"level":"info","msg":"[Navigate] [Navigate] Waiting for page load (condition: networkidle)...","time":"2026-03-07 01:04:13","trace_id":"c190bb35-6c8f-444d-8803-5a4798abfc5c"}
+{"level":"info","msg":"[Navigate] [Navigate] Page load completed","time":"2026-03-07 01:04:15","trace_id":"c190bb35-6c8f-444d-8803-5a4798abfc5c"}
+{"level":"info","msg":"[Info] [Navigate] Successfully navigated to https://codexzh.com/","time":"2026-03-07 01:04:15","trace_id":"c190bb35-6c8f-444d-8803-5a4798abfc5c"}
+{"level":"info","msg":"[Navigate] [Navigate] Starting semantic tree extraction...","time":"2026-03-07 01:04:15","trace_id":"c190bb35-6c8f-444d-8803-5a4798abfc5c"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Fetching new accessibility snapshot","time":"2026-03-07 01:04:15"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Starting extraction","time":"2026-03-07 01:04:15"}
+{"level":"info","msg":"[Info] [GetAccessibilitySnapshot] Context is active","time":"2026-03-07 01:04:15"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Disabling accessibility...","time":"2026-03-07 01:04:15"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Enabling accessibility...","time":"2026-03-07 01:04:15"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Accessibility enabled","time":"2026-03-07 01:04:15"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Getting full AX tree...","time":"2026-03-07 01:04:15"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Got AX tree with 312 nodes","time":"2026-03-07 01:04:15"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Building accessibility snapshot...","time":"2026-03-07 01:04:15"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Building AX node map...","time":"2026-03-07 01:04:15"}
+{"level":"info","msg":"[Info] [GetAccessibilitySnapshot] AX node map built with 312 nodes","time":"2026-03-07 01:04:15"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Converting to accessibility nodes...","time":"2026-03-07 01:04:15"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Processed 100/312 nodes, kept 100","time":"2026-03-07 01:04:15"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Processed 200/312 nodes, kept 200","time":"2026-03-07 01:04:15"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Processed 300/312 nodes, kept 300","time":"2026-03-07 01:04:15"}
+{"level":"info","msg":"[Info] [GetAccessibilitySnapshot] Converted 312 nodes to 312 accessibility nodes","time":"2026-03-07 01:04:15"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Checking cursor:pointer elements...","time":"2026-03-07 01:04:15"}
+{"level":"info","msg":"[markCursorPointerElements] [markCursorPointerElements] Found 39 elements with cursor:pointer","time":"2026-03-07 01:04:15"}
+{"level":"info","msg":"[markCursorPointerElements] [markCursorPointerElements] Marked 57 nodes as cursor:pointer","time":"2026-03-07 01:04:15"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Accessibility snapshot extraction completed successfully","time":"2026-03-07 01:04:15"}
+{"level":"info","msg":"[func1] [GetAccessibilitySnapshot] Cleaning up - disabling accessibility","time":"2026-03-07 01:04:15"}
+{"level":"info","msg":"[Info] [assignRefIDs] Assigning RefIDs to 40 clickable elements","time":"2026-03-07 01:04:15"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] e1 -\u003e role=StaticText, name=体验 CodexZH 的 AI 自动代码审查功能，实时获取优化建议和潜在问题预警, nth=0, backendID=495","time":"2026-03-07 01:04:15"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] e2 -\u003e role=link, name=服务条款, nth=0, backendID=399","time":"2026-03-07 01:04:15"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] e3 -\u003e role=StaticText, name=服务条款, nth=0, backendID=519","time":"2026-03-07 01:04:15"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] e4 -\u003e role=StaticText, name=使用 CodexZH 自动将代码逻辑转换为清晰的流程图，轻松理解复杂系统架构, nth=0, backendID=497","time":"2026-03-07 01:04:15"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] e5 -\u003e role=link, name=隐私政策, nth=0, backendID=398","time":"2026-03-07 01:04:15"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] e6 -\u003e role=StaticText, name=CodexZH 功能演示, nth=0, backendID=492","time":"2026-03-07 01:04:15"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] e7 -\u003e role=button, name=CodexZH 流程图生成器 使用 CodexZH 自动将代码逻辑转换为清晰的流程图，轻松理解复杂系统架构, nth=0, backendID=219","time":"2026-03-07 01:04:15"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] e8 -\u003e role=heading, name=CodexZH AI驱动的编程助手, nth=0, backendID=145","time":"2026-03-07 01:04:15"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] e9 -\u003e role=StaticText, name=使用文档, nth=0, backendID=513","time":"2026-03-07 01:04:15"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] e10 -\u003e role=StaticText, name=教程指南, nth=0, backendID=514","time":"2026-03-07 01:04:15"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] Assigned 40 RefIDs to clickable elements","time":"2026-03-07 01:04:15"}
+{"level":"info","msg":"[Info] [assignRefIDs] Processing 0 input elements","time":"2026-03-07 01:04:15"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] Assigned 0 RefIDs to input elements","time":"2026-03-07 01:04:15"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] Total RefIDs in map: 40 (using semantic locators)","time":"2026-03-07 01:04:15"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Cached new snapshot with 40 refs (TTL: 5m0s)","time":"2026-03-07 01:04:15"}
+{"level":"info","msg":"[Navigate] [Navigate] Successfully extracted accessibility snapshot with 312 elements","time":"2026-03-07 01:04:15","trace_id":"c190bb35-6c8f-444d-8803-5a4798abfc5c"}
+{"level":"info","msg":"[saveScreenshot] Screenshot saved to: screenshots/screenshot_20260307_010425.png","time":"2026-03-07 01:04:25","trace_id":"aa4cd2f9-44ce-455e-9872-ae5f95d691eb"}
+{"level":"info","msg":"[Navigate] [Navigate] Starting navigation to https://codexzh.com/","time":"2026-03-07 01:15:02","trace_id":"de18b4da-1184-4fa3-89b4-0316bf9b3a22"}
+{"level":"info","msg":"[Navigate] [Navigate] Browser is running","time":"2026-03-07 01:15:02","trace_id":"de18b4da-1184-4fa3-89b4-0316bf9b3a22"}
+{"level":"info","msg":"[Info] [Navigate] Using timeout: 1m30s, wait_until: networkidle","time":"2026-03-07 01:15:02","trace_id":"de18b4da-1184-4fa3-89b4-0316bf9b3a22"}
+{"level":"info","msg":"[Navigate] [Navigate] Getting active page...","time":"2026-03-07 01:15:02","trace_id":"de18b4da-1184-4fa3-89b4-0316bf9b3a22"}
+{"level":"info","msg":"[Navigate] [Navigate] Checking if existing page is still valid...","time":"2026-03-07 01:15:02","trace_id":"de18b4da-1184-4fa3-89b4-0316bf9b3a22"}
+{"level":"info","msg":"[Navigate] [Navigate] Existing page is valid","time":"2026-03-07 01:15:02","trace_id":"de18b4da-1184-4fa3-89b4-0316bf9b3a22"}
+{"level":"info","msg":"[Navigate] [Navigate] Using existing page, navigating...","time":"2026-03-07 01:15:02","trace_id":"de18b4da-1184-4fa3-89b4-0316bf9b3a22"}
+{"level":"info","msg":"[Navigate] [Navigate] Navigation completed","time":"2026-03-07 01:15:02","trace_id":"de18b4da-1184-4fa3-89b4-0316bf9b3a22"}
+{"level":"info","msg":"[Navigate] [Navigate] Waiting for page load (condition: networkidle)...","time":"2026-03-07 01:15:02","trace_id":"de18b4da-1184-4fa3-89b4-0316bf9b3a22"}
+{"level":"info","msg":"[Navigate] [Navigate] Page load completed","time":"2026-03-07 01:15:03","trace_id":"de18b4da-1184-4fa3-89b4-0316bf9b3a22"}
+{"level":"info","msg":"[Info] [Navigate] Successfully navigated to https://codexzh.com/","time":"2026-03-07 01:15:03","trace_id":"de18b4da-1184-4fa3-89b4-0316bf9b3a22"}
+{"level":"info","msg":"[Navigate] [Navigate] Starting semantic tree extraction...","time":"2026-03-07 01:15:03","trace_id":"de18b4da-1184-4fa3-89b4-0316bf9b3a22"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Fetching new accessibility snapshot","time":"2026-03-07 01:15:03"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Starting extraction","time":"2026-03-07 01:15:03"}
+{"level":"info","msg":"[Info] [GetAccessibilitySnapshot] Context is active","time":"2026-03-07 01:15:03"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Disabling accessibility...","time":"2026-03-07 01:15:03"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Enabling accessibility...","time":"2026-03-07 01:15:03"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Accessibility enabled","time":"2026-03-07 01:15:03"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Getting full AX tree...","time":"2026-03-07 01:15:03"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Got AX tree with 312 nodes","time":"2026-03-07 01:15:03"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Building accessibility snapshot...","time":"2026-03-07 01:15:03"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Building AX node map...","time":"2026-03-07 01:15:03"}
+{"level":"info","msg":"[Info] [GetAccessibilitySnapshot] AX node map built with 312 nodes","time":"2026-03-07 01:15:03"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Converting to accessibility nodes...","time":"2026-03-07 01:15:03"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Processed 100/312 nodes, kept 100","time":"2026-03-07 01:15:03"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Processed 200/312 nodes, kept 200","time":"2026-03-07 01:15:03"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Processed 300/312 nodes, kept 300","time":"2026-03-07 01:15:03"}
+{"level":"info","msg":"[Info] [GetAccessibilitySnapshot] Converted 312 nodes to 312 accessibility nodes","time":"2026-03-07 01:15:03"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Checking cursor:pointer elements...","time":"2026-03-07 01:15:03"}
+{"level":"info","msg":"[markCursorPointerElements] [markCursorPointerElements] Found 39 elements with cursor:pointer","time":"2026-03-07 01:15:03"}
+{"level":"info","msg":"[markCursorPointerElements] [markCursorPointerElements] Marked 57 nodes as cursor:pointer","time":"2026-03-07 01:15:03"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Accessibility snapshot extraction completed successfully","time":"2026-03-07 01:15:03"}
+{"level":"info","msg":"[func1] [GetAccessibilitySnapshot] Cleaning up - disabling accessibility","time":"2026-03-07 01:15:03"}
+{"level":"info","msg":"[Info] [assignRefIDs] Assigning RefIDs to 40 clickable elements","time":"2026-03-07 01:15:03"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] e1 -\u003e role=link, name=Cookie 政策, nth=0, backendID=922","time":"2026-03-07 01:15:03"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] e2 -\u003e role=StaticText, name=体验 CodexZH 的 AI 自动代码审查功能，实时获取优化建议和潜在问题预警, nth=0, backendID=1017","time":"2026-03-07 01:15:03"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] e3 -\u003e role=StaticText, name=CodexZH 智能代码审查, nth=0, backendID=1023","time":"2026-03-07 01:15:03"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] e4 -\u003e role=link, name=Email, nth=0, backendID=894","time":"2026-03-07 01:15:03"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] e5 -\u003e role=link, name=隐私政策, nth=0, backendID=920","time":"2026-03-07 01:15:03"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] e6 -\u003e role=StaticText, name=教程指南, nth=0, backendID=1036","time":"2026-03-07 01:15:03"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] e7 -\u003e role=button, name=CodexZH 流程图生成器 使用 CodexZH 自动将代码逻辑转换为清晰的流程图，轻松理解复杂系统架构, nth=0, backendID=741","time":"2026-03-07 01:15:03"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] e8 -\u003e role=link, name=使用文档, nth=0, backendID=907","time":"2026-03-07 01:15:03"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] e9 -\u003e role=button, name=关闭雪花特效, nth=0, backendID=642","time":"2026-03-07 01:15:03"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] e10 -\u003e role=StaticText, name=© 2025 CodexZH. 版权所有, nth=0, backendID=1039","time":"2026-03-07 01:15:03"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] Assigned 40 RefIDs to clickable elements","time":"2026-03-07 01:15:03"}
+{"level":"info","msg":"[Info] [assignRefIDs] Processing 0 input elements","time":"2026-03-07 01:15:03"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] Assigned 0 RefIDs to input elements","time":"2026-03-07 01:15:03"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] Total RefIDs in map: 40 (using semantic locators)","time":"2026-03-07 01:15:03"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Cached new snapshot with 40 refs (TTL: 5m0s)","time":"2026-03-07 01:15:03"}
+{"level":"info","msg":"[Navigate] [Navigate] Successfully extracted accessibility snapshot with 312 elements","time":"2026-03-07 01:15:03","trace_id":"de18b4da-1184-4fa3-89b4-0316bf9b3a22"}
+{"level":"info","msg":"[saveScreenshot] Screenshot saved to: screenshots/screenshot_20260307_011504.png","time":"2026-03-07 01:15:04","trace_id":"b7285f08-ae99-4d88-88ab-efc52eed7888"}
+{"level":"info","msg":"[Navigate] [Navigate] Starting navigation to https://codexzh.com/","time":"2026-03-07 01:16:23","trace_id":"0b77341a-75b7-4bb4-bc04-699b3de847dd"}
+{"level":"info","msg":"[Navigate] [Navigate] Browser is running","time":"2026-03-07 01:16:23","trace_id":"0b77341a-75b7-4bb4-bc04-699b3de847dd"}
+{"level":"info","msg":"[Info] [Navigate] Using timeout: 1m30s, wait_until: networkidle","time":"2026-03-07 01:16:23","trace_id":"0b77341a-75b7-4bb4-bc04-699b3de847dd"}
+{"level":"info","msg":"[Navigate] [Navigate] Getting active page...","time":"2026-03-07 01:16:23","trace_id":"0b77341a-75b7-4bb4-bc04-699b3de847dd"}
+{"level":"info","msg":"[Navigate] [Navigate] Checking if existing page is still valid...","time":"2026-03-07 01:16:23","trace_id":"0b77341a-75b7-4bb4-bc04-699b3de847dd"}
+{"level":"warning","msg":"[Navigate] [Navigate] Existing page session is invalid (error: write tcp 127.0.0.1:51546-\u003e127.0.0.1:9222: use of closed network connection), will create new page","time":"2026-03-07 01:16:23","trace_id":"0b77341a-75b7-4bb4-bc04-699b3de847dd"}
+{"level":"info","msg":"[Navigate] [Navigate] Creating new page...","time":"2026-03-07 01:16:23","trace_id":"0b77341a-75b7-4bb4-bc04-699b3de847dd"}
+{"level":"error","msg":"[OpenPage] Browser connection check failed: failed to get browser pages: connection may be closed: write tcp 127.0.0.1:51546-\u003e127.0.0.1:9222: use of closed network connection","time":"2026-03-07 01:16:23"}
+{"level":"error","msg":"[Navigate] [Navigate] Failed to open page: browser connection is closed or invalid: failed to get browser pages: connection may be closed: write tcp 127.0.0.1:51546-\u003e127.0.0.1:9222: use of closed network connection","time":"2026-03-07 01:16:23","trace_id":"0b77341a-75b7-4bb4-bc04-699b3de847dd"}
+{"level":"info","msg":"[Stop] Agent manager stopped","time":"2026-03-07 01:16:33"}
+{"level":"info","msg":"[Stop] MCP server stopped","time":"2026-03-07 01:16:33"}
+{"level":"info","msg":"[Stop] Disconnecting from remote browser...","time":"2026-03-07 01:16:33"}
+{"level":"warning","msg":"[Stop] Error when closing browser connection: write tcp 127.0.0.1:51546-\u003e127.0.0.1:9222: use of closed network connection","time":"2026-03-07 01:16:33"}
+{"level":"info","msg":"[Info] Disconnected from remote browser successfully","time":"2026-03-07 01:16:33"}
+{"level":"info","msg":"[Start] MCP server started","time":"2026-03-07 01:16:40"}
+{"level":"info","msg":"[loadMCPScripts] Loaded 0 MCP commands","time":"2026-03-07 01:16:40"}
+{"level":"info","msg":"[Start] Registered 21 executor tools","time":"2026-03-07 01:16:40"}
+{"level":"info","msg":"[SetLLMConfig] ✓ LLM configuration loaded successfully: openai (gpt-5.3-codex) @ https://api.codexzh.com/v1","time":"2026-03-07 01:16:40"}
+{"level":"warning","msg":"[SetLLMConfig] ⚠ Warning: Model gpt-5.3-codex (openai) may not support function calling","time":"2026-03-07 01:16:40"}
+{"level":"warning","msg":"[SetLLMConfig]   Recommended models that support function calling: GPT-4o, Claude-3.5-Sonnet, Gemini-1.5-Pro, Qwen-Max, etc.","time":"2026-03-07 01:16:40"}
+{"level":"info","msg":"[Info] Loaded 0 sessions from database","time":"2026-03-07 01:16:40"}
+{"level":"info","msg":"[startMCPWatcher] ✓ MCP command listener has started","time":"2026-03-07 01:16:40"}
+{"level":"info","msg":"[Navigate] [Navigate] Starting navigation to https://codexzh.com/","time":"2026-03-07 01:16:57","trace_id":"06e0937a-1947-4e92-9bf7-11935db28c9f"}
+{"level":"info","msg":"[Start] Starting browser...","time":"2026-03-07 01:16:57","trace_id":"06e0937a-1947-4e92-9bf7-11935db28c9f"}
+{"level":"warning","msg":"[Start] Default browser configuration not found, using system defaults","time":"2026-03-07 01:16:57","trace_id":"06e0937a-1947-4e92-9bf7-11935db28c9f"}
+{"level":"info","msg":"[getDefaultBrowserConfig] detected browser environment: OS=linux, DISPLAY=, WAYLAND_DISPLAY=, headless=true","time":"2026-03-07 01:16:57"}
+{"level":"info","msg":"[Start] Loaded 0 site-specific configurations","time":"2026-03-07 01:16:57","trace_id":"06e0937a-1947-4e92-9bf7-11935db28c9f"}
+{"level":"info","msg":"[Start] Using default configuration: 默认配置","time":"2026-03-07 01:16:57","trace_id":"06e0937a-1947-4e92-9bf7-11935db28c9f"}
+{"level":"info","msg":"[Info] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━","time":"2026-03-07 01:16:57","trace_id":"06e0937a-1947-4e92-9bf7-11935db28c9f"}
+{"level":"info","msg":"[Start] Using remote Chrome browser","time":"2026-03-07 01:16:57","trace_id":"06e0937a-1947-4e92-9bf7-11935db28c9f"}
+{"level":"info","msg":"[Info] Control URL: http://127.0.0.1:9222","time":"2026-03-07 01:16:57","trace_id":"06e0937a-1947-4e92-9bf7-11935db28c9f"}
+{"level":"info","msg":"[Start] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━","time":"2026-03-07 01:16:57","trace_id":"06e0937a-1947-4e92-9bf7-11935db28c9f"}
+{"level":"info","msg":"[New] Resolved WebSocket URL: ws://127.0.0.1:9222/devtools/browser/173538d7-60b5-4ae2-8868-daab76f602b4","time":"2026-03-07 01:16:57","trace_id":"06e0937a-1947-4e92-9bf7-11935db28c9f"}
+{"level":"info","msg":"[Info] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━","time":"2026-03-07 01:16:57","trace_id":"06e0937a-1947-4e92-9bf7-11935db28c9f"}
+{"level":"info","msg":"[Start] Browser version information:","time":"2026-03-07 01:16:57","trace_id":"06e0937a-1947-4e92-9bf7-11935db28c9f"}
+{"level":"info","msg":"[Start]   Product: Chrome/145.0.7632.159","time":"2026-03-07 01:16:57","trace_id":"06e0937a-1947-4e92-9bf7-11935db28c9f"}
+{"level":"info","msg":"[Info]   User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.0.0 Safari/537.36","time":"2026-03-07 01:16:57","trace_id":"06e0937a-1947-4e92-9bf7-11935db28c9f"}
+{"level":"info","msg":"[Start] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━","time":"2026-03-07 01:16:57","trace_id":"06e0937a-1947-4e92-9bf7-11935db28c9f"}
+{"level":"info","msg":"[Start] No saved Cookies found","time":"2026-03-07 01:16:57","trace_id":"06e0937a-1947-4e92-9bf7-11935db28c9f"}
+{"level":"info","msg":"[Start] Download behavior set: allow, path: /home/ubuntu/.openclaw/workspace/downloads","time":"2026-03-07 01:16:57","trace_id":"06e0937a-1947-4e92-9bf7-11935db28c9f"}
+{"level":"info","msg":"[Start] ✓ Clipboard permissions granted (read/write)","time":"2026-03-07 01:16:57","trace_id":"06e0937a-1947-4e92-9bf7-11935db28c9f"}
+{"level":"info","msg":"[Start] Browser started successfully","time":"2026-03-07 01:16:57","trace_id":"06e0937a-1947-4e92-9bf7-11935db28c9f"}
+{"level":"info","msg":"[Info] [Navigate] Browser started","time":"2026-03-07 01:16:57","trace_id":"06e0937a-1947-4e92-9bf7-11935db28c9f"}
+{"level":"info","msg":"[Navigate] [Navigate] Browser is running","time":"2026-03-07 01:16:57","trace_id":"06e0937a-1947-4e92-9bf7-11935db28c9f"}
+{"level":"info","msg":"[Info] [Navigate] Using timeout: 1m30s, wait_until: networkidle","time":"2026-03-07 01:16:57","trace_id":"06e0937a-1947-4e92-9bf7-11935db28c9f"}
+{"level":"info","msg":"[Navigate] [Navigate] Getting active page...","time":"2026-03-07 01:16:57","trace_id":"06e0937a-1947-4e92-9bf7-11935db28c9f"}
+{"level":"info","msg":"[Info] [Navigate] No active page","time":"2026-03-07 01:16:57","trace_id":"06e0937a-1947-4e92-9bf7-11935db28c9f"}
+{"level":"info","msg":"[Navigate] [Navigate] Creating new page...","time":"2026-03-07 01:16:57","trace_id":"06e0937a-1947-4e92-9bf7-11935db28c9f"}
+{"level":"info","msg":"[getConfigForURL] Starting URL matching: https://codexzh.com/, total 0 site configurations","time":"2026-03-07 01:16:57"}
+{"level":"info","msg":"[getConfigForURL] No matching site configuration found, using default configuration","time":"2026-03-07 01:16:57"}
+{"level":"info","msg":"[OpenPage] URL: https://codexzh.com/, using configuration: 默认配置, language: zh-CN","time":"2026-03-07 01:16:57"}
+{"level":"info","msg":"[OpenPage] Using Stealth mode","time":"2026-03-07 01:16:57"}
+{"level":"info","msg":"[setPageWindow] Detected screen size: 800x600","time":"2026-03-07 01:16:57"}
+{"level":"info","msg":"[setPageWindow] Calculated window size: 720x540","time":"2026-03-07 01:16:57"}
+{"level":"info","msg":"[setPageWindow] Calculated viewport size: 600x440","time":"2026-03-07 01:16:57"}
+{"level":"warning","msg":"[Info] Failed to wait for page load: context deadline exceeded","time":"2026-03-07 01:17:58"}
+{"level":"info","msg":"[OpenPage] ✓ Clipboard permissions granted for page: https://codexzh.com/","time":"2026-03-07 01:17:58"}
+{"level":"info","msg":"[OpenPage] Page opened: https://codexzh.com/","time":"2026-03-07 01:17:58"}
+{"level":"info","msg":"[Navigate] [Navigate] Page opened successfully","time":"2026-03-07 01:17:58","trace_id":"06e0937a-1947-4e92-9bf7-11935db28c9f"}
+{"level":"info","msg":"[Navigate] [Navigate] Got active page","time":"2026-03-07 01:17:58","trace_id":"06e0937a-1947-4e92-9bf7-11935db28c9f"}
+{"level":"info","msg":"[Navigate] [Navigate] Waiting for page load (condition: networkidle)...","time":"2026-03-07 01:17:58","trace_id":"06e0937a-1947-4e92-9bf7-11935db28c9f"}
+{"level":"info","msg":"[Navigate] [Navigate] Page load completed","time":"2026-03-07 01:17:58","trace_id":"06e0937a-1947-4e92-9bf7-11935db28c9f"}
+{"level":"info","msg":"[Info] [Navigate] Successfully navigated to https://codexzh.com/","time":"2026-03-07 01:17:58","trace_id":"06e0937a-1947-4e92-9bf7-11935db28c9f"}
+{"level":"info","msg":"[Navigate] [Navigate] Starting semantic tree extraction...","time":"2026-03-07 01:17:58","trace_id":"06e0937a-1947-4e92-9bf7-11935db28c9f"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Fetching new accessibility snapshot","time":"2026-03-07 01:17:58"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Starting extraction","time":"2026-03-07 01:17:58"}
+{"level":"info","msg":"[Info] [GetAccessibilitySnapshot] Context is active","time":"2026-03-07 01:17:58"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Disabling accessibility...","time":"2026-03-07 01:17:58"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Enabling accessibility...","time":"2026-03-07 01:17:58"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Accessibility enabled","time":"2026-03-07 01:17:58"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Getting full AX tree...","time":"2026-03-07 01:17:58"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Got AX tree with 313 nodes","time":"2026-03-07 01:17:58"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Building accessibility snapshot...","time":"2026-03-07 01:17:58"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Building AX node map...","time":"2026-03-07 01:17:58"}
+{"level":"info","msg":"[Info] [GetAccessibilitySnapshot] AX node map built with 313 nodes","time":"2026-03-07 01:17:58"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Converting to accessibility nodes...","time":"2026-03-07 01:17:58"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Processed 100/313 nodes, kept 100","time":"2026-03-07 01:17:58"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Processed 200/313 nodes, kept 200","time":"2026-03-07 01:17:58"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Processed 300/313 nodes, kept 300","time":"2026-03-07 01:17:58"}
+{"level":"info","msg":"[Info] [GetAccessibilitySnapshot] Converted 313 nodes to 313 accessibility nodes","time":"2026-03-07 01:17:58"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Checking cursor:pointer elements...","time":"2026-03-07 01:17:58"}
+{"level":"info","msg":"[markCursorPointerElements] [markCursorPointerElements] Found 39 elements with cursor:pointer","time":"2026-03-07 01:17:58"}
+{"level":"info","msg":"[markCursorPointerElements] [markCursorPointerElements] Marked 57 nodes as cursor:pointer","time":"2026-03-07 01:17:58"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Accessibility snapshot extraction completed successfully","time":"2026-03-07 01:17:58"}
+{"level":"info","msg":"[func1] [GetAccessibilitySnapshot] Cleaning up - disabling accessibility","time":"2026-03-07 01:17:58"}
+{"level":"info","msg":"[Info] [assignRefIDs] Assigning RefIDs to 40 clickable elements","time":"2026-03-07 01:17:58"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] e1 -\u003e role=StaticText, name=CodexZH, nth=0, backendID=509","time":"2026-03-07 01:17:58"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] e2 -\u003e role=link, name=定价方案, nth=0, backendID=386","time":"2026-03-07 01:17:58"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] e3 -\u003e role=button, name=CodexZH 流程图生成器 使用 CodexZH 自动将代码逻辑转换为清晰的流程图，轻松理解复杂系统架构, nth=0, backendID=225","time":"2026-03-07 01:17:58"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] e4 -\u003e role=StaticText, name=CodexZH 流程图生成器, nth=0, backendID=497","time":"2026-03-07 01:17:58"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] e5 -\u003e role=heading, name=CodexZH AI驱动的编程助手, nth=0, backendID=150","time":"2026-03-07 01:17:58"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] e6 -\u003e role=link, name=教程指南, nth=0, backendID=393","time":"2026-03-07 01:17:58"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] e7 -\u003e role=StaticText, name=CodexZH 功能演示, nth=0, backendID=493","time":"2026-03-07 01:17:58"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] e8 -\u003e role=StaticText, name=定价方案, nth=0, backendID=512","time":"2026-03-07 01:17:58"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] e9 -\u003e role=button, name=立即体验 CodexZH, nth=0, backendID=360","time":"2026-03-07 01:17:58"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] e10 -\u003e role=StaticText, name=CodexZH, nth=1, backendID=483","time":"2026-03-07 01:17:58"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] Assigned 40 RefIDs to clickable elements","time":"2026-03-07 01:17:58"}
+{"level":"info","msg":"[Info] [assignRefIDs] Processing 0 input elements","time":"2026-03-07 01:17:58"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] Assigned 0 RefIDs to input elements","time":"2026-03-07 01:17:58"}
+{"level":"info","msg":"[assignRefIDs] [assignRefIDs] Total RefIDs in map: 40 (using semantic locators)","time":"2026-03-07 01:17:58"}
+{"level":"info","msg":"[GetAccessibilitySnapshot] [GetAccessibilitySnapshot] Cached new snapshot with 40 refs (TTL: 5m0s)","time":"2026-03-07 01:17:58"}
+{"level":"info","msg":"[Navigate] [Navigate] Successfully extracted accessibility snapshot with 313 elements","time":"2026-03-07 01:17:58","trace_id":"06e0937a-1947-4e92-9bf7-11935db28c9f"}
+{"level":"info","msg":"[saveScreenshot] Screenshot saved to: screenshots/screenshot_20260307_011759.png","time":"2026-03-07 01:17:59","trace_id":"b80e0b29-296a-490f-8545-f5ef8d0d67a7"}
