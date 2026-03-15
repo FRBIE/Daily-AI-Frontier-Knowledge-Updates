@@ -265,8 +265,8 @@
 
         <section class="studio">
           <div class="studio-head">
-            <div><strong>Ops 工坊画布</strong></div>
-            <div class="studio-note">空间化沉浸：控制塔视角 + lane 纵深 + station 动线</div>
+            <div><strong>行动剧场</strong></div>
+            <div class="studio-note">单智能体拟人可视化：我现在在做什么、为什么、下一步是什么</div>
           </div>
           <div id="lanes"></div>
         </section>
@@ -311,9 +311,7 @@
 
       const stations = ["Planning", "Search", "Build", "Verify", "Delivery"];
       const agents = [
-        { id: "agent-main", name: "Main", status: "idle", active: "Planning", queue: [], ring: false },
-        { id: "agent-r1", name: "Research", status: "idle", active: "Search", queue: [], ring: false },
-        { id: "agent-r2", name: "Builder", status: "idle", active: "Build", queue: [], ring: false }
+        { id: "agent-main", name: "我", status: "idle", active: "Planning", queue: [], ring: false }
       ];
       const agentMap = Object.fromEntries(agents.map((a) => [a.id, a]));
 
@@ -363,25 +361,29 @@
         return "Planning";
       }
 
+      function canonicalAgentId(id) {
+        return agentMap[id] ? id : "agent-main";
+      }
+
       function renderLanes() {
-        el.lanes.innerHTML = agents
-          .map((a) => {
-            const queue = a.queue.slice(0, 4).map((q) => `<span class="q-item">${q}</span>`).join("");
-            const s = stations
-              .map((x) => `<div class="station ${a.active === x && a.status === "exec" ? "active" : ""}">${x}</div>`)
-              .join("");
-            return `
-              <div class="lane" data-agent="${a.id}">
-                <div class="lane-head">
-                  <div class="agent-chip"><span class="dot ${a.status === "exec" ? "exec" : a.status === "block" ? "block" : "idle"}"></span>${a.name}</div>
-                  <div class="queue">${queue}</div>
-                  <div style="display:flex;justify-content:flex-end;"><div class="ring ${a.ring ? "on" : ""}"></div></div>
-                </div>
-                <div class="stations">${s}</div>
-              </div>
-            `;
-          })
+        const a = agents[0];
+        const queue = a.queue.slice(0, 5).map((q) => `<span class="q-item">${q}</span>`).join("");
+        const s = stations
+          .map((x) => `<div class="station ${a.active === x && a.status === "exec" ? "active" : ""}">${x}</div>`)
           .join("");
+        const doing = a.status === "exec" ? `正在${a.active}` : a.status === "block" ? "遇到阻塞" : "待命中";
+
+        el.lanes.innerHTML = `
+          <div class="lane" data-agent="${a.id}">
+            <div class="lane-head">
+              <div class="agent-chip"><span class="dot ${a.status === "exec" ? "exec" : a.status === "block" ? "block" : "idle"}"></span>${a.name}</div>
+              <div class="queue">${queue}</div>
+              <div style="display:flex;justify-content:flex-end;"><div class="ring ${a.ring ? "on" : ""}"></div></div>
+            </div>
+            <div class="t-sub" style="color:#f6e8d4;margin-bottom:8px;">角色状态：${doing}</div>
+            <div class="stations">${s}</div>
+          </div>
+        `;
       }
 
       function eventKind(e) {
@@ -398,18 +400,25 @@
       }
 
       function renderTimeline() {
-        const list = filteredEvents().slice(-120);
+        const list = filteredEvents().slice(-140);
         const nearBottom = el.timelineScroller.scrollHeight - el.timelineScroller.scrollTop - el.timelineScroller.clientHeight < 36;
         if (nearBottom) state.timelineStickToBottom = true;
 
+        let prevBucket = "";
         el.timeline.innerHTML = list
           .map((e, idx) => {
+            const ts = new Date(e._ts || Date.now());
+            const bucket = `${ts.getFullYear()}-${ts.getMonth() + 1}-${ts.getDate()} ${ts.getHours()}:${ts.getMinutes()}`;
+            const showBucket = bucket !== prevBucket;
+            prevBucket = bucket;
+
             const clsRisk = e.risk === "high" ? "high" : e.risk === "medium" ? "medium" : "";
             const side = idx % 2 === 0 ? "left" : "right";
             const cls = `${clsRisk} ${side}`.trim();
             const title = e.title || e.event;
             const sub = (e.payload && (e.payload.out || e.payload.why)) || "-";
-            return `<div class="timeline-item ${cls}" data-i="${idx}"><div><strong>${title}</strong></div><div class="t-sub">${sub}</div></div>`;
+            const time = ts.toLocaleTimeString();
+            return `${showBucket ? `<div class="small" style="text-align:center;margin:10px 0 6px 0;">${bucket}</div>` : ""}<div class="timeline-item ${cls}" data-i="${idx}"><div><strong>${title}</strong></div><div class="t-sub">${sub}</div><div class="t-sub">${time}</div></div>`;
           })
           .join("");
 
@@ -469,6 +478,7 @@
 
       function onEvent(evt) {
         if (!evt || state.paused) return;
+        evt._ts = evt._ts || Date.now();
         state.events.push(evt);
         if (state.events.length > 600) state.events.shift();
 
@@ -487,12 +497,12 @@
         }
 
         if (evt.event === "queue.updated") {
-          const id = evt.payload?.agentId;
+          const id = canonicalAgentId(evt.payload?.agentId);
           if (agentMap[id]) agentMap[id].queue = evt.payload?.items || [];
         }
 
         if (["step.started", "tool.started"].includes(evt.event)) {
-          const id = evt.payload?.agentId || "agent-main";
+          const id = canonicalAgentId(evt.payload?.agentId || "agent-main");
           const a = agentMap[id];
           if (a) {
             a.status = "exec";
@@ -502,20 +512,17 @@
               setTimeout(() => { a.ring = false; renderLanes(); }, 1800);
             }
           }
-          agents.filter((x) => x.id !== id).forEach((x) => {
-            if (x.status !== "block") x.status = "idle";
-          });
           pushStdout(evt.payload?.out || evt.title || evt.event);
           focus(evt);
         }
 
         if (["step.completed", "tool.completed"].includes(evt.event)) {
-          const id = evt.payload?.agentId || "agent-main";
+          const id = canonicalAgentId(evt.payload?.agentId || "agent-main");
           if (agentMap[id] && agentMap[id].status !== "block") agentMap[id].status = "idle";
         }
 
         if (["tool.error", "session.failed"].includes(evt.event)) {
-          const id = evt.payload?.agentId || "agent-main";
+          const id = canonicalAgentId(evt.payload?.agentId || "agent-main");
           if (agentMap[id]) agentMap[id].status = "block";
           pushStdout(evt.payload?.out || "error");
           focus(evt);
