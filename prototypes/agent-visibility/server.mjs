@@ -133,6 +133,10 @@ function firstText(content) {
   return t ? t.text.trim() : "";
 }
 
+function cleanReplyText(text = "") {
+  return text.replace(/^\[\[\s*reply_to[^\]]*\]\]\s*/i, "").trim();
+}
+
 function parseArguments(raw) {
   if (!raw) return {};
   if (typeof raw === "object") return raw;
@@ -174,7 +178,7 @@ function updateCommandFromEvent(evt) {
     target.progress = Math.min(90, target.progress + 10);
   }
 
-  if (evt.event === "step.started" && (evt.title || "").includes("生成回复")) {
+  if ((evt.event === "step.started" && (evt.title || "").includes("生成回复")) || evt.event === "assistant.reply") {
     target.status = "done";
     target.progress = 100;
     target.result = "收到助手回复，命令完成";
@@ -213,9 +217,10 @@ function parseLine(line) {
   const role = msg.role;
 
   if (role === "assistant") {
-    const text = firstText(msg.content);
-    if (text && !text.startsWith("[[reply_to_current]]") && text !== "NO_REPLY") {
+    const text = cleanReplyText(firstText(msg.content));
+    if (text && text !== "NO_REPLY") {
       out.push({ event: "step.started", title: "生成回复", risk: "low", payload: { agentId: "agent-main", why: "回应用户", out: text.slice(0, 240), next: "等待后续消息" } });
+      out.push({ event: "assistant.reply", title: "消息已发送", risk: "low", payload: { agentId: "agent-main", out: text.slice(0, 240) } });
     }
 
     if (Array.isArray(msg.content)) {
