@@ -3,694 +3,556 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Agent Visibility Console Prototype</title>
+    <title>Agent Ops Studio</title>
     <style>
       :root {
-        --bg: #f2efe9;
-        --panel: #fffdfa;
-        --ink: #1f2933;
-        --muted: #697586;
-        --brand: #0f766e;
-        --danger: #b91c1c;
+        --bg: #ebe7df;
+        --panel: #f9f7f2;
+        --ink: #1f2a37;
+        --muted: #6b7280;
+        --line: #d6d1c7;
+        --brand: #0e7490;
         --ok: #166534;
-        --line: #dfd8cc;
+        --warn: #b45309;
+        --danger: #b91c1c;
       }
       * { box-sizing: border-box; }
       body {
         margin: 0;
         font-family: "IBM Plex Sans", "Noto Sans SC", sans-serif;
         color: var(--ink);
-        background: radial-gradient(circle at 20% 0%, #fffdf8 0%, #f2efe9 45%, #ece7de 100%);
+        background: radial-gradient(circle at 20% 0%, #f7f4ee 0%, #ece8df 40%, #e2ddd2 100%);
       }
-      .app { max-width: 1400px; margin: 0 auto; padding: 14px; }
+      .app { max-width: 1450px; margin: 0 auto; padding: 14px; }
       .topbar {
         display: grid;
-        grid-template-columns: 1fr auto auto;
+        grid-template-columns: 1fr auto auto auto;
         gap: 10px;
         align-items: center;
-        padding: 12px;
         border: 1px solid var(--line);
         border-radius: 12px;
         background: var(--panel);
+        padding: 12px;
       }
-      .title { font-weight: 700; letter-spacing: 0.2px; }
-      .status {
-        padding: 6px 10px;
+      .title { font-weight: 700; }
+      .badge {
+        font-size: 12px;
         border-radius: 999px;
-        font-size: 13px;
-        background: #d1fae5;
-        color: var(--ok);
-        border: 1px solid #a7f3d0;
+        padding: 5px 10px;
+        border: 1px solid transparent;
       }
+      .badge.run { background: #dcfce7; color: var(--ok); border-color: #86efac; }
+      .badge.pause { background: #fef3c7; color: var(--warn); border-color: #fcd34d; }
+      .badge.stop, .badge.fail { background: #fee2e2; color: var(--danger); border-color: #fca5a5; }
+      .badge.off { background: #e5e7eb; color: #374151; border-color: #cbd5e1; }
       button {
         border: 0;
         border-radius: 10px;
-        padding: 9px 12px;
-        cursor: pointer;
-        background: var(--brand);
-        color: white;
+        padding: 8px 12px;
         font-weight: 600;
+        cursor: pointer;
+        color: white;
+        background: var(--brand);
       }
       .danger { background: var(--danger); }
-
-      .scene {
-        margin-top: 12px;
-        border: 1px solid #8b6b4a;
-        border-radius: 14px;
-        background: linear-gradient(180deg, #2a1f1b 0%, #4b2f24 50%, #6d4632 100%);
-        padding: 12px;
-        color: #f8f1e4;
-      }
-      .scene-head {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 8px;
-      }
-      .scene-title { font-size: 14px; font-weight: 700; }
-      .scene-note { color: #eadbc8; font-size: 12px; }
-      .world-wrap {
-        display: grid;
-        grid-template-columns: 1fr 280px;
-        gap: 10px;
-      }
-      .world {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 10px;
-      }
-      .room {
-        position: relative;
-        min-height: 170px;
-        border: 2px solid #7a5737;
-        border-radius: 12px;
-        overflow: hidden;
-        background: #e9d6bd;
-      }
-      .room-header {
-        font-size: 12px;
-        color: #fff5e8;
-        padding: 8px;
-        border-bottom: 1px dashed #9a744f;
-        background: rgba(79, 46, 29, 0.8);
-      }
-      .room-floor {
-        position: absolute;
-        bottom: 0;
-        width: 100%;
-        height: 42%;
-        background: repeating-linear-gradient(
-          45deg,
-          #b88d62,
-          #b88d62 8px,
-          #cca47a 8px,
-          #cca47a 16px
-        );
-      }
-      .bench {
-        position: absolute;
-        right: 10px;
-        bottom: 56px;
-        width: 76px;
-        height: 30px;
-        border-radius: 8px 8px 4px 4px;
-        background: #cba77b;
-        border: 1px solid #ae8356;
-      }
-      .agent {
-        position: absolute;
-        left: 18px;
-        bottom: 48px;
-        width: 44px;
-        height: 74px;
-        transition: transform 0.45s ease;
-      }
-      .agent .head {
-        width: 22px;
-        height: 22px;
-        border-radius: 50%;
-        background: #ffd6a5;
-        margin: 0 auto;
-        border: 1px solid #d4a373;
-      }
-      .agent .body {
-        margin: 4px auto 0;
-        width: 30px;
-        height: 38px;
-        border-radius: 10px;
-        background: #93c5fd;
-        border: 1px solid #60a5fa;
-      }
-      .agent .tag {
-        font-size: 10px;
-        text-align: center;
-        margin-top: 3px;
-        color: #334155;
-      }
-      .agent.work {
-        animation: work-bob 1s infinite alternate ease-in-out;
-      }
-      .agent.rest {
-        animation: rest-breathe 2.3s infinite ease-in-out;
-        opacity: 0.86;
-      }
-      .agent.walk {
-        animation: walk-cycle 1.2s infinite linear;
-      }
-      .task-bubble {
-        position: absolute;
-        left: 60px;
-        top: 34px;
-        font-size: 11px;
-        padding: 4px 8px;
-        border-radius: 999px;
-        border: 1px solid #bae6fd;
-        background: #ecfeff;
-      }
-      .bell {
-        position: absolute;
-        right: 10px;
-        top: 28px;
-        width: 18px;
-        height: 18px;
-        border-radius: 50%;
-        background: #f59e0b;
-        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.5);
-        opacity: 0;
-      }
-      .queue {
-        position: absolute;
-        left: 10px;
-        right: 10px;
-        top: 28px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 5px;
-      }
-      .queue-item {
-        font-size: 10px;
-        padding: 2px 6px;
-        border-radius: 999px;
-        border: 1px solid #c7d2fe;
-        background: #eef2ff;
-        color: #334155;
-      }
-      .bell.ring {
-        opacity: 1;
-        animation: ring-pulse 1s infinite;
-      }
-      .scene-legend {
-        margin-top: 10px;
-        display: flex;
-        gap: 12px;
-        color: #f2e5d5;
-        font-size: 12px;
-      }
-      .roster {
-        border: 2px solid #7a5737;
-        border-radius: 12px;
-        background: rgba(42, 26, 19, 0.7);
-        padding: 10px;
-      }
-      .roster-title {
-        font-size: 12px;
-        color: #f8e6cc;
-        margin-bottom: 8px;
-      }
-      .roster-item {
-        display: grid;
-        grid-template-columns: 30px 1fr;
-        gap: 8px;
-        align-items: center;
-        padding: 6px;
-        border-radius: 10px;
-        background: rgba(255, 244, 230, 0.1);
-        margin-bottom: 6px;
-      }
-      .avatar {
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        border: 2px solid #f8d8aa;
-        background: #f59e0b;
-      }
-      .roster-name { font-size: 12px; color: #fff6ea; }
-      .roster-task { font-size: 11px; color: #f0dcc2; }
-
-      .grid {
+      .layout {
         margin-top: 12px;
         display: grid;
-        grid-template-columns: 320px 1fr 320px;
+        grid-template-columns: 320px 1fr 340px;
         gap: 12px;
       }
       .panel {
         border: 1px solid var(--line);
-        background: var(--panel);
         border-radius: 12px;
-        min-height: 220px;
+        background: var(--panel);
         overflow: hidden;
       }
       .panel h3 {
         margin: 0;
-        font-size: 14px;
         padding: 10px 12px;
+        font-size: 14px;
+        background: #f2eee7;
         border-bottom: 1px solid var(--line);
-        background: #f9f5ee;
       }
       .content { padding: 10px 12px; }
-      .timeline-item {
-        border-left: 3px solid #c7d2fe;
-        padding: 8px 8px 8px 10px;
-        margin: 8px 0;
-        background: #fafafa;
-        border-radius: 8px;
-      }
-      .timeline-item.running { border-left-color: #67e8f9; }
-      .timeline-item.risk { border-left-color: #fbbf24; }
-      .small { color: var(--muted); font-size: 12px; }
-      .now-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
-      pre {
-        background: #111827;
-        color: #e5e7eb;
-        padding: 12px;
-        border-radius: 10px;
-        min-height: 180px;
-        overflow: auto;
-      }
-      .kpi { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-      .kpi div {
-        border: 1px solid var(--line);
-        border-radius: 10px;
-        padding: 8px;
-        background: #fcfbf9;
-      }
-      .risk-card {
-        border: 1px solid #facc15;
-        border-radius: 10px;
-        padding: 10px;
-        background: #fffbeb;
-        margin-top: 10px;
-      }
-      .artifacts { margin-top: 12px; }
-      .artifact-item {
-        display: inline-block;
-        margin-right: 8px;
-        margin-bottom: 8px;
-        padding: 6px 10px;
-        background: #ecfeff;
-        border: 1px solid #a5f3fc;
+
+      .filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+      .filters button {
+        background: #e5e7eb;
+        color: #374151;
+        padding: 5px 10px;
         border-radius: 999px;
         font-size: 12px;
       }
+      .filters .active { background: #dbeafe; color: #1d4ed8; }
+      .timeline-item {
+        border-left: 3px solid #93c5fd;
+        background: #fbfbfa;
+        border-radius: 8px;
+        padding: 8px;
+        margin: 7px 0;
+        cursor: pointer;
+      }
+      .timeline-item.high { border-left-color: #f87171; }
+      .timeline-item.medium { border-left-color: #fbbf24; }
+      .t-sub { font-size: 12px; color: var(--muted); margin-top: 3px; }
 
-      @keyframes work-bob {
-        from { transform: translateY(0px) rotate(0deg); }
-        to { transform: translateY(-4px) rotate(-2deg); }
+      .studio {
+        border: 1px solid #7c5b3e;
+        border-radius: 12px;
+        background: linear-gradient(180deg, #2f231c 0%, #513629 45%, #6f4d37 100%);
+        color: #f9f2e7;
+        padding: 12px;
       }
-      @keyframes rest-breathe {
-        0% { transform: translateY(0px) scale(1); }
-        50% { transform: translateY(-2px) scale(0.98); }
-        100% { transform: translateY(0px) scale(1); }
+      .studio-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+      .studio-note { font-size: 12px; color: #eadfcf; }
+      .lane {
+        border: 1px solid #916a49;
+        border-radius: 10px;
+        background: rgba(255, 246, 232, 0.08);
+        padding: 8px;
+        margin-bottom: 8px;
       }
-      @keyframes walk-cycle {
-        0% { transform: translateX(0px); }
-        50% { transform: translateX(8px); }
-        100% { transform: translateX(0px); }
+      .lane-head {
+        display: grid;
+        grid-template-columns: 130px 1fr 120px;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 6px;
       }
-      @keyframes ring-pulse {
-        0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.6); transform: scale(1); }
-        100% { box-shadow: 0 0 0 12px rgba(245, 158, 11, 0); transform: scale(1.15); }
+      .agent-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 12px;
       }
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #94a3b8;
+      }
+      .dot.exec { background: #22c55e; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6); animation: pulse 1.2s infinite; }
+      .dot.block { background: #ef4444; box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); animation: pulse 1s infinite; }
+      .dot.idle { background: #94a3b8; }
 
-      @media (max-width: 1100px) {
-        .world-wrap { grid-template-columns: 1fr; }
-        .world { grid-template-columns: 1fr; }
-        .grid { grid-template-columns: 1fr; }
+      .stations { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; }
+      .station {
+        border: 1px solid #a27a56;
+        border-radius: 8px;
+        padding: 6px;
+        text-align: center;
+        font-size: 11px;
+        background: rgba(255, 245, 230, 0.1);
+      }
+      .station.active {
+        border-color: #5eead4;
+        background: rgba(45, 212, 191, 0.2);
+        animation: drift 1.6s infinite alternate ease-in-out;
+      }
+      .queue {
+        display: flex;
+        gap: 4px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+      .q-item {
+        font-size: 10px;
+        border: 1px solid #93c5fd;
+        background: rgba(147, 197, 253, 0.2);
+        border-radius: 999px;
+        padding: 2px 6px;
+      }
+      .ring {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #f59e0b;
+        opacity: 0;
+      }
+      .ring.on { opacity: 1; animation: bell 1.1s infinite; }
+
+      .kpi { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 10px; }
+      .kpi div { border: 1px solid var(--line); border-radius: 8px; padding: 7px; background: #fdfcf9; }
+      .small { font-size: 12px; color: var(--muted); }
+      pre {
+        margin: 0;
+        background: #111827;
+        color: #e5e7eb;
+        border-radius: 10px;
+        min-height: 170px;
+        max-height: 260px;
+        overflow: auto;
+        padding: 10px;
+      }
+      .risk-card {
+        border: 1px solid #fcd34d;
+        border-radius: 8px;
+        background: #fffbeb;
+        padding: 8px;
+        margin: 10px 0;
+      }
+      .artifacts { display: flex; gap: 6px; flex-wrap: wrap; }
+      .artifact { font-size: 12px; border-radius: 999px; padding: 4px 9px; border: 1px solid #a5f3fc; background: #ecfeff; }
+
+      @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.55); }
+        100% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+      }
+      @keyframes drift {
+        from { transform: translateY(0px); }
+        to { transform: translateY(-2px); }
+      }
+      @keyframes bell {
+        0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.5); transform: scale(1); }
+        100% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); transform: scale(1.15); }
+      }
+      @media (max-width: 1120px) {
+        .layout { grid-template-columns: 1fr; }
       }
     </style>
   </head>
   <body>
     <div class="app">
       <div class="topbar">
-        <div class="title">Agent Visibility Console · sess_20260315_01</div>
-        <div class="status" id="status">RUNNING</div>
+        <div class="title">Agent Ops Studio · session <span id="sessionKey">agent:main:main</span></div>
+        <div class="badge run" id="status">RUNNING</div>
+        <div class="badge run" id="conn">CONNECTED</div>
         <div>
           <button id="pauseBtn">Pause</button>
-          <button class="danger" id="stopBtn">Stop</button>
+          <button id="stopBtn" class="danger">Stop</button>
         </div>
       </div>
 
-      <section class="scene">
-        <div class="scene-head">
-          <div class="scene-title">可视化工坊（动画视图）</div>
-          <div class="scene-note">多个 agent 会在不同房间工作、休息或巡游</div>
-        </div>
-        <div class="world-wrap">
-          <div class="world" id="world"></div>
-          <aside class="roster">
-            <div class="roster-title">Agent 角色列表</div>
-            <div id="roster"></div>
-          </aside>
-        </div>
-        <div class="scene-legend">
-          <div>蓝色气泡: 正在执行任务</div>
-          <div>橙色铃铛: 定时任务触发</div>
-          <div>静止/呼吸: 空闲休息</div>
-        </div>
-      </section>
-
-      <div class="grid">
+      <div class="layout">
         <section class="panel">
-          <h3>执行时间线</h3>
-          <div class="content" id="timeline"></div>
-        </section>
-
-        <section class="panel">
-          <h3>当前步骤</h3>
+          <h3>事件时间线</h3>
           <div class="content">
-            <div class="now-title" id="nowTitle">等待事件流...</div>
-            <div class="small" id="nowWhy">why: -</div>
-            <pre id="stdout"></pre>
-            <div class="small" id="nextAction">next: -</div>
+            <div class="filters" id="filters"></div>
+            <div id="timeline"></div>
           </div>
         </section>
 
+        <section class="studio">
+          <div class="studio-head">
+            <div><strong>Ops 工坊画布</strong></div>
+            <div class="studio-note">真实事件驱动：lane + station + queue + ring</div>
+          </div>
+          <div id="lanes"></div>
+        </section>
+
         <section class="panel">
-          <h3>控制与风险</h3>
+          <h3>Inspector</h3>
           <div class="content">
             <div class="kpi">
-              <div><div class="small">耗时</div><strong id="elapsed">0s</strong></div>
-              <div><div class="small">Token</div><strong id="tokens">0</strong></div>
-              <div><div class="small">预估成本</div><strong id="cost">$0.0000</strong></div>
-              <div><div class="small">重试次数</div><strong id="retry">0</strong></div>
+              <div><div class="small">Elapsed</div><strong id="elapsed">0s</strong></div>
+              <div><div class="small">Tokens</div><strong id="tokens">0</strong></div>
+              <div><div class="small">Cost</div><strong id="cost">$0.0000</strong></div>
+              <div><div class="small">Retry</div><strong id="retry">0</strong></div>
             </div>
-            <div class="risk-card" id="riskCard">
-              <strong>风险提示</strong>
-              <div class="small">暂无高风险操作</div>
-            </div>
+
+            <div><strong id="focusTitle">等待事件...</strong></div>
+            <div class="small" id="focusWhy">why: -</div>
+            <div class="small" id="focusNext">next: -</div>
+
+            <div class="risk-card" id="risk">风险: low</div>
+            <pre id="stdout"></pre>
+
+            <div style="margin-top:10px;"><strong>Artifacts</strong></div>
+            <div class="artifacts" id="artifacts"></div>
           </div>
         </section>
       </div>
-
-      <section class="panel artifacts">
-        <h3>产物</h3>
-        <div class="content" id="artifacts"></div>
-      </section>
     </div>
 
     <script>
-      const timelineEl = document.getElementById("timeline");
-      const stdoutEl = document.getElementById("stdout");
-      const nowTitleEl = document.getElementById("nowTitle");
-      const nowWhyEl = document.getElementById("nowWhy");
-      const nextActionEl = document.getElementById("nextAction");
-      const elapsedEl = document.getElementById("elapsed");
-      const tokensEl = document.getElementById("tokens");
-      const costEl = document.getElementById("cost");
-      const retryEl = document.getElementById("retry");
-      const artifactsEl = document.getElementById("artifacts");
-      const riskCard = document.getElementById("riskCard");
-      const statusEl = document.getElementById("status");
-      const pauseBtn = document.getElementById("pauseBtn");
-      const worldEl = document.getElementById("world");
-      const rosterEl = document.getElementById("roster");
-
       const state = {
         start: Date.now(),
+        paused: false,
+        connected: false,
+        stream: null,
+        filter: "all",
         tokens: 0,
         cost: 0,
         retry: 0,
-        paused: false,
-        connected: false,
-        currentStep: "-"
+        events: []
       };
 
+      const stations = ["Planning", "Search", "Build", "Verify", "Delivery"];
       const agents = [
-        { id: "agent-main", name: "Agent 主控", room: "规划室", mood: "rest", task: "待命", queue: [] },
-        { id: "agent-r1", name: "Agent 研究", room: "资料室", mood: "rest", task: "待命", queue: [] },
-        { id: "agent-r2", name: "Agent 构建", room: "工坊", mood: "rest", task: "待命", queue: [] }
+        { id: "agent-main", name: "Main", status: "idle", active: "Planning", queue: [], ring: false },
+        { id: "agent-r1", name: "Research", status: "idle", active: "Search", queue: [], ring: false },
+        { id: "agent-r2", name: "Builder", status: "idle", active: "Build", queue: [], ring: false }
       ];
       const agentMap = Object.fromEntries(agents.map((a) => [a.id, a]));
 
-      function renderWorld() {
-        worldEl.innerHTML = agents.map((a) => `
-          <div class="room" id="room-${a.id}">
-            <div class="room-header">${a.room}</div>
-            <div class="queue" id="queue-${a.id}"></div>
-            <div class="task-bubble" id="bubble-${a.id}">${a.task}</div>
-            <div class="bell" id="bell-${a.id}"></div>
-            <div class="bench"></div>
-            <div class="agent ${a.mood}" id="${a.id}">
-              <div class="head"></div>
-              <div class="body"></div>
-              <div class="tag">${a.name}</div>
-            </div>
-            <div class="room-floor"></div>
-          </div>
-        `).join("");
-        agents.forEach((a) => renderQueue(a.id));
-        renderRoster();
+      const el = {
+        status: document.getElementById("status"),
+        conn: document.getElementById("conn"),
+        pauseBtn: document.getElementById("pauseBtn"),
+        stopBtn: document.getElementById("stopBtn"),
+        timeline: document.getElementById("timeline"),
+        lanes: document.getElementById("lanes"),
+        elapsed: document.getElementById("elapsed"),
+        tokens: document.getElementById("tokens"),
+        cost: document.getElementById("cost"),
+        retry: document.getElementById("retry"),
+        focusTitle: document.getElementById("focusTitle"),
+        focusWhy: document.getElementById("focusWhy"),
+        focusNext: document.getElementById("focusNext"),
+        risk: document.getElementById("risk"),
+        stdout: document.getElementById("stdout"),
+        artifacts: document.getElementById("artifacts"),
+        filters: document.getElementById("filters"),
+        sessionKey: document.getElementById("sessionKey")
+      };
+
+      const filterDefs = ["all", "tool", "risk", "file", "error"];
+
+      function renderFilters() {
+        el.filters.innerHTML = filterDefs
+          .map((f) => `<button class="${state.filter === f ? "active" : ""}" data-filter="${f}">${f}</button>`)
+          .join("");
+        [...el.filters.querySelectorAll("button")].forEach((b) => {
+          b.onclick = () => {
+            state.filter = b.dataset.filter;
+            renderFilters();
+            renderTimeline();
+          };
+        });
       }
 
-      function renderRoster() {
-        rosterEl.innerHTML = agents.map((a, idx) =>
-          '<div class="roster-item">' +
-          '  <div class="avatar" style="background:' + (idx === 0 ? '#f59e0b' : idx === 1 ? '#38bdf8' : '#34d399') + '"></div>' +
-          '  <div><div class="roster-name">' + a.name + '</div><div class="roster-task" id="roster-task-' + a.id + '">' + a.task + '</div></div>' +
-          '</div>'
-        ).join("");
+      function stationFromEvent(evt) {
+        const t = (evt.title || "").toLowerCase();
+        if (t.includes("search") || t.includes("web") || t.includes("read") || t.includes("检索")) return "Search";
+        if (t.includes("build") || t.includes("write") || t.includes("edit") || t.includes("生成") || t.includes("更新")) return "Build";
+        if (t.includes("verify") || t.includes("test") || t.includes("检查")) return "Verify";
+        if (t.includes("deliver") || t.includes("send") || t.includes("回复")) return "Delivery";
+        return "Planning";
       }
 
-      function renderQueue(agentId) {
-        const q = document.getElementById('queue-' + agentId);
-        const agent = agentMap[agentId];
-        if (!q || !agent) return;
-        q.innerHTML = agent.queue.slice(0, 4).map((item) => '<span class="queue-item">' + item + '</span>').join("");
+      function renderLanes() {
+        el.lanes.innerHTML = agents
+          .map((a) => {
+            const queue = a.queue.slice(0, 4).map((q) => `<span class="q-item">${q}</span>`).join("");
+            const s = stations
+              .map((x) => `<div class="station ${a.active === x && a.status === "exec" ? "active" : ""}">${x}</div>`)
+              .join("");
+            return `
+              <div class="lane" data-agent="${a.id}">
+                <div class="lane-head">
+                  <div class="agent-chip"><span class="dot ${a.status === "exec" ? "exec" : a.status === "block" ? "block" : "idle"}"></span>${a.name}</div>
+                  <div class="queue">${queue}</div>
+                  <div style="display:flex;justify-content:flex-end;"><div class="ring ${a.ring ? "on" : ""}"></div></div>
+                </div>
+                <div class="stations">${s}</div>
+              </div>
+            `;
+          })
+          .join("");
       }
 
-      function setAgentState(agentId, mood, task, ringing) {
-        const node = document.getElementById(agentId);
-        const bubble = document.getElementById('bubble-' + agentId);
-        const bell = document.getElementById('bell-' + agentId);
-        if (!node || !bubble || !bell) return;
-        node.className = 'agent ' + mood;
-        bubble.textContent = task;
-        bell.className = ringing ? 'bell ring' : 'bell';
-        if (agentMap[agentId]) agentMap[agentId].task = task;
-        const rosterTask = document.getElementById('roster-task-' + agentId);
-        if (rosterTask) rosterTask.textContent = task;
+      function eventKind(e) {
+        if (e.event && e.event.includes("tool")) return "tool";
+        if (e.event === "file.changed" || e.event === "artifact.created") return "file";
+        if (e.event && (e.event.includes("error") || e.event.includes("failed"))) return "error";
+        if (e.risk === "high" || e.event === "approval.required") return "risk";
+        return "all";
       }
 
-      function addTimeline(item, cls) {
-        const div = document.createElement("div");
-        div.className = 'timeline-item ' + cls;
-        div.innerHTML = '<div><strong>' + item.title + '</strong></div><div class="small">' + new Date().toLocaleTimeString() + '</div>';
-        timelineEl.prepend(div);
+      function filteredEvents() {
+        if (state.filter === "all") return state.events;
+        return state.events.filter((e) => eventKind(e) === state.filter);
+      }
+
+      function renderTimeline() {
+        const list = filteredEvents().slice(-60).reverse();
+        el.timeline.innerHTML = list
+          .map((e, idx) => {
+            const cls = e.risk === "high" ? "high" : e.risk === "medium" ? "medium" : "";
+            const title = e.title || e.event;
+            const sub = (e.payload && (e.payload.out || e.payload.why)) || "-";
+            return `<div class="timeline-item ${cls}" data-i="${idx}"><div><strong>${title}</strong></div><div class="t-sub">${sub}</div></div>`;
+          })
+          .join("");
+
+        [...el.timeline.querySelectorAll(".timeline-item")].forEach((n) => {
+          n.onclick = () => {
+            const e = list[Number(n.dataset.i)];
+            focus(e);
+          };
+        });
+      }
+
+      function focus(e) {
+        if (!e) return;
+        el.focusTitle.textContent = e.title || e.event;
+        el.focusWhy.textContent = `why: ${e.payload?.why || "-"}`;
+        el.focusNext.textContent = `next: ${e.payload?.next || "-"}`;
+        const risk = e.risk || (e.event === "approval.required" ? "high" : "low");
+        el.risk.textContent = `风险: ${risk}`;
+        if (risk === "high") {
+          el.risk.style.borderColor = "#ef4444";
+          el.risk.style.background = "#fef2f2";
+        } else if (risk === "medium") {
+          el.risk.style.borderColor = "#f59e0b";
+          el.risk.style.background = "#fffbeb";
+        } else {
+          el.risk.style.borderColor = "#fcd34d";
+          el.risk.style.background = "#fffbeb";
+        }
+      }
+
+      function pushStdout(text) {
+        el.stdout.textContent += `[${new Date().toLocaleTimeString()}] ${text}\n`;
+        el.stdout.scrollTop = el.stdout.scrollHeight;
       }
 
       function addArtifact(name) {
         if (!name) return;
-        const a = document.createElement("span");
-        a.className = "artifact-item";
-        a.textContent = name;
-        artifactsEl.appendChild(a);
+        const tag = document.createElement("span");
+        tag.className = "artifact";
+        tag.textContent = name;
+        el.artifacts.prepend(tag);
       }
 
-      function tickKpi() {
-        const sec = Math.floor((Date.now() - state.start) / 1000);
-        elapsedEl.textContent = sec + 's';
-        tokensEl.textContent = String(state.tokens);
-        costEl.textContent = '$' + state.cost.toFixed(4);
-        retryEl.textContent = String(state.retry);
+      function setStatus(text, cls) {
+        el.status.textContent = text;
+        el.status.className = `badge ${cls}`;
       }
 
-      function renderRisk(level) {
-        if (level === "high") {
-          riskCard.innerHTML = "<strong>风险提示</strong><div class='small'>高风险: 即将执行外部操作，请先审批</div>";
-          riskCard.style.borderColor = "#ef4444";
-          riskCard.style.background = "#fef2f2";
-        } else if (level === "medium") {
-          riskCard.innerHTML = "<strong>风险提示</strong><div class='small'>中风险: 将修改本地文件</div>";
-          riskCard.style.borderColor = "#f59e0b";
-          riskCard.style.background = "#fffbeb";
-        } else {
-          riskCard.innerHTML = "<strong>风险提示</strong><div class='small'>暂无高风险操作</div>";
-          riskCard.style.borderColor = "#facc15";
-          riskCard.style.background = "#fffbeb";
-        }
+      function setConn(text, cls) {
+        el.conn.textContent = text;
+        el.conn.className = `badge ${cls}`;
       }
 
-      function applyEvent(evt) {
+      function onEvent(evt) {
         if (!evt || state.paused) return;
+        state.events.push(evt);
+        if (state.events.length > 600) state.events.shift();
 
-        if (evt.event === "session.started") {
-          state.connected = true;
-          state.start = Date.now();
-          statusEl.textContent = "RUNNING";
-          return;
-        }
-
-        if (evt.event === "session.completed") {
-          statusEl.textContent = "COMPLETED";
-          statusEl.style.background = "#dcfce7";
-          agents.forEach((a) => setAgentState(a.id, "rest", "休息中", false));
-          return;
-        }
-
-        if (evt.event === "session.failed") {
-          statusEl.textContent = "FAILED";
-          statusEl.style.background = "#fecaca";
-          stdoutEl.textContent += '\n[error] ' + (evt.payload && evt.payload.error ? evt.payload.error : 'unknown error');
-          return;
-        }
+        if (evt.event === "session.started") setStatus("RUNNING", "run");
+        if (evt.event === "session.completed") setStatus("COMPLETED", "run");
+        if (evt.event === "session.failed") setStatus("FAILED", "fail");
 
         if (evt.event === "cost.updated") {
-          state.tokens = evt.payload && evt.payload.tokens ? evt.payload.tokens : state.tokens;
-          state.cost = evt.payload && evt.payload.cost ? evt.payload.cost : state.cost;
-          state.retry = evt.payload && evt.payload.retry ? evt.payload.retry : state.retry;
-          return;
+          state.tokens = evt.payload?.tokens || state.tokens;
+          state.cost = evt.payload?.cost || state.cost;
+          state.retry = evt.payload?.retry || state.retry;
         }
 
-        if (evt.event === "file.changed" || evt.event === "artifact.created") {
-          addArtifact(evt.payload && (evt.payload.name || evt.payload.path) ? (evt.payload.name || evt.payload.path) : 'artifact');
-          return;
+        if (evt.event === "artifact.created" || evt.event === "file.changed") {
+          addArtifact(evt.payload?.name || evt.payload?.path || "artifact");
         }
 
         if (evt.event === "queue.updated") {
-          const agentId = evt.payload ? evt.payload.agentId : null;
-          if (agentMap[agentId]) {
-            agentMap[agentId].queue = evt.payload.items || [];
-            renderQueue(agentId);
-          }
-          return;
+          const id = evt.payload?.agentId;
+          if (agentMap[id]) agentMap[id].queue = evt.payload?.items || [];
         }
 
-        if (evt.event === "step.started" || evt.event === "tool.started") {
-          const agentId = evt.payload && evt.payload.agentId ? evt.payload.agentId : 'agent-main';
-          const title = evt.title || (evt.payload && evt.payload.title) || evt.event;
-          const why = evt.payload && evt.payload.why ? evt.payload.why : '执行实时任务';
-          const next = evt.payload && evt.payload.next ? evt.payload.next : '等待下一事件';
-          const risk = evt.risk || (evt.payload && evt.payload.risk) || 'low';
-          const scheduled = !!(evt.payload && evt.payload.scheduled === true);
-
-          state.currentStep = title;
-          nowTitleEl.textContent = title;
-          nowWhyEl.textContent = 'why: ' + why;
-          nextActionEl.textContent = 'next: ' + next;
-          stdoutEl.textContent += '[' + new Date().toLocaleTimeString() + '] ' + ((evt.payload && evt.payload.out) ? evt.payload.out : title) + '\n';
-          addTimeline({ title }, risk === 'high' ? 'risk' : 'running');
-          renderRisk(risk);
-
-          agents.forEach((a) => {
-            if (a.id === agentId) {
-              setAgentState(a.id, 'work', title, scheduled);
-              if (a.queue.length > 0 && a.queue[0] === title) {
-                a.queue.shift();
-                renderQueue(a.id);
-              }
-            } else {
-              setAgentState(a.id, 'rest', '休息中', false);
+        if (["step.started", "tool.started"].includes(evt.event)) {
+          const id = evt.payload?.agentId || "agent-main";
+          const a = agentMap[id];
+          if (a) {
+            a.status = "exec";
+            a.active = stationFromEvent(evt);
+            if (evt.payload?.scheduled) {
+              a.ring = true;
+              setTimeout(() => { a.ring = false; renderLanes(); }, 1800);
             }
+          }
+          agents.filter((x) => x.id !== id).forEach((x) => {
+            if (x.status !== "block") x.status = "idle";
           });
-          return;
+          pushStdout(evt.payload?.out || evt.title || evt.event);
+          focus(evt);
         }
 
-        if (evt.event === "step.completed" || evt.event === "tool.completed") {
-          const agentId = evt.payload && evt.payload.agentId ? evt.payload.agentId : 'agent-main';
-          if (agentMap[agentId]) setAgentState(agentId, 'walk', '巡游中', false);
-          return;
+        if (["step.completed", "tool.completed"].includes(evt.event)) {
+          const id = evt.payload?.agentId || "agent-main";
+          if (agentMap[id] && agentMap[id].status !== "block") agentMap[id].status = "idle";
+        }
+
+        if (["tool.error", "session.failed"].includes(evt.event)) {
+          const id = evt.payload?.agentId || "agent-main";
+          if (agentMap[id]) agentMap[id].status = "block";
+          pushStdout(evt.payload?.out || "error");
+          focus(evt);
         }
 
         if (evt.event === "approval.required") {
-          renderRisk('high');
-          stdoutEl.textContent += '\n[approval] ' + (evt.payload && evt.payload.reason ? evt.payload.reason : '需要审批');
+          focus({ ...evt, risk: "high", title: evt.title || "需要审批" });
+          pushStdout(evt.payload?.reason || "approval required");
         }
+
+        renderLanes();
+        renderTimeline();
       }
 
-      function startSSE() {
-        const params = new URLSearchParams(window.location.search);
-        const streamUrl = params.get('stream') || '/api/agent-events';
-        try {
-          const es = new EventSource(streamUrl);
-          es.onopen = () => {
-            state.connected = true;
-            statusEl.textContent = 'RUNNING';
-            statusEl.style.background = '#d1fae5';
-            stdoutEl.textContent += '[system] Connected to ' + streamUrl + '\n';
-          };
-          es.onmessage = (msg) => {
-            try {
-              const evt = JSON.parse(msg.data);
-              applyEvent(evt);
-            } catch {
-              stdoutEl.textContent += '[warn] Invalid event: ' + msg.data + '\n';
-            }
-          };
-          es.onerror = () => {
-            state.connected = false;
-            statusEl.textContent = 'DISCONNECTED';
-            statusEl.style.background = '#fef3c7';
-          };
-          return es;
-        } catch {
-          statusEl.textContent = 'DISCONNECTED';
-          statusEl.style.background = '#fef3c7';
-          stdoutEl.textContent += '[system] EventSource unavailable\n';
-          return null;
-        }
+      function connect() {
+        const p = new URLSearchParams(location.search);
+        const sk = p.get("sessionKey") || "agent:main:main";
+        el.sessionKey.textContent = sk;
+        const url = p.get("stream") || `/api/agent-events?sessionKey=${encodeURIComponent(sk)}`;
+
+        const es = new EventSource(url);
+        state.stream = es;
+
+        es.onopen = () => {
+          state.connected = true;
+          setConn("CONNECTED", "run");
+          if (!state.paused) setStatus("RUNNING", "run");
+          pushStdout(`connected -> ${url}`);
+        };
+
+        es.onmessage = (msg) => {
+          try {
+            const evt = JSON.parse(msg.data);
+            onEvent(evt);
+          } catch {
+            pushStdout(`invalid event: ${msg.data}`);
+          }
+        };
+
+        es.onerror = () => {
+          state.connected = false;
+          setConn("DISCONNECTED", "off");
+          if (!state.paused) setStatus("OFFLINE", "off");
+        };
       }
 
-      function startFallbackMock() {
-        const samples = [
-          { event: 'session.started' },
-          { event: 'queue.updated', payload: { agentId: 'agent-r1', items: ['检索官网', '提炼要点'] } },
-          { event: 'step.started', title: '检索官网', payload: { agentId: 'agent-r1', why: '补充事实依据', out: '抓取公开资料', next: '提炼要点', risk: 'low' } },
-          { event: 'cost.updated', payload: { tokens: 620, cost: 0.0031, retry: 0 } },
-          { event: 'step.completed', payload: { agentId: 'agent-r1' } },
-          { event: 'queue.updated', payload: { agentId: 'agent-r2', items: ['更新 UI', '回归检查'] } },
-          { event: 'step.started', title: '更新 UI', payload: { agentId: 'agent-r2', why: '实现动画工坊', out: '写入 index.html', next: '回归检查', risk: 'medium' } },
-          { event: 'artifact.created', payload: { name: 'index.html' } },
-          { event: 'step.started', title: '定时任务: 状态巡检', payload: { agentId: 'agent-main', why: 'cron 触发', out: '执行巡检', next: '恢复待命', risk: 'low', scheduled: true } },
-          { event: 'approval.required', payload: { reason: '外部消息发送' } },
-          { event: 'step.started', title: '申请高风险操作确认', payload: { agentId: 'agent-main', why: '外部写入', out: '等待审批', next: '审批后执行', risk: 'high' } },
-          { event: 'session.completed' }
-        ];
-        let i = 0;
-        const id = setInterval(() => {
-          if (state.paused) return;
-          if (i >= samples.length) return clearInterval(id);
-          applyEvent(samples[i]);
-          i += 1;
-        }, 2200);
+      function tick() {
+        const sec = Math.floor((Date.now() - state.start) / 1000);
+        el.elapsed.textContent = `${sec}s`;
+        el.tokens.textContent = String(state.tokens);
+        el.cost.textContent = `$${Number(state.cost || 0).toFixed(4)}`;
+        el.retry.textContent = String(state.retry);
       }
 
-      renderWorld();
-      setInterval(tickKpi, 400);
-      const stream = startSSE();
-      const params = new URLSearchParams(window.location.search);
-      if (params.get('mock') === '1') {
-        stdoutEl.textContent += '[system] Mock mode enabled (?mock=1)\n';
-        startFallbackMock();
-      }
-
-      pauseBtn.addEventListener('click', () => {
+      el.pauseBtn.onclick = () => {
         state.paused = !state.paused;
-        pauseBtn.textContent = state.paused ? 'Resume' : 'Pause';
-        statusEl.textContent = state.paused ? 'PAUSED' : (state.connected ? 'RUNNING' : 'DISCONNECTED');
-        statusEl.style.background = state.paused ? '#fee2e2' : (state.connected ? '#d1fae5' : '#fef3c7');
+        el.pauseBtn.textContent = state.paused ? "Resume" : "Pause";
         if (state.paused) {
-          agents.forEach((a) => setAgentState(a.id, 'rest', '暂停中', false));
+          setStatus("PAUSED", "pause");
+          agents.forEach((a) => { if (a.status !== "block") a.status = "idle"; });
+          renderLanes();
+        } else {
+          setStatus(state.connected ? "RUNNING" : "OFFLINE", state.connected ? "run" : "off");
         }
-      });
+      };
 
-      document.getElementById('stopBtn').addEventListener('click', () => {
+      el.stopBtn.onclick = () => {
         state.paused = true;
-        statusEl.textContent = 'STOPPED';
-        statusEl.style.background = '#fecaca';
-        stdoutEl.textContent += '\n[system] Session stopped by user.';
-        agents.forEach((a) => setAgentState(a.id, 'rest', '已停止', false));
-        if (stream) stream.close();
-      });
+        setStatus("STOPPED", "stop");
+        if (state.stream) state.stream.close();
+        pushStdout("session stopped by operator");
+      };
+
+      renderFilters();
+      renderLanes();
+      renderTimeline();
+      connect();
+      setInterval(tick, 400);
     </script>
   </body>
 </html>

@@ -1,137 +1,132 @@
-# Agent Visibility Console - Product Prototype (v0.1)
+# Agent Ops Studio PRD (v1.0)
 
-## 1. Problem
-User cannot clearly see what the agent is doing in real time, causing:
-- low trust ("did it actually do anything?")
-- low controllability ("can I pause before risky operations?")
-- hard debugging ("where did it fail?")
+## 1. Product Vision
+让用户在 3 秒内回答三个问题：
+1) 我现在在做什么？
+2) 为什么做这一步？
+3) 如果有风险，我该怎么介入？
 
-## 2. Goal
-Build a visual, near-real-time interface that makes agent execution transparent and controllable.
+这是一个“可观测 + 可控 + 可回放”的实时 Agent 操作台，不是纯数据大盘，也不是纯动画展示。
 
-Primary goal:
-- answer within 3 seconds: "What is the agent doing now?"
+## 2. Problem Statement
+当前版本的问题：
+- 视觉叙事偏娱乐化，任务语义不够清晰
+- 动画与真实事件绑定不稳定，用户难以信任
+- 风险、审批、失败恢复路径不够产品化
 
-Secondary goals:
-- replay full execution path after completion
-- surface risks before external/destructive actions
-- correlate cost/time with task outcomes
-
-## 3. Personas
-- Operator (you): tracks progress, intervenes when needed
-- Builder (dev): debugs prompts/tools/performance
+## 3. Target Users
+- 主操作者（Owner）：希望像看“控制塔”一样看懂系统状态
+- 协作者（Operator）：负责异常排查和审批
+- 开发者（Builder）：调试工具调用链与性能
 
 ## 4. Design Principles
-- Progressive disclosure: first show high-level state, then drill down
-- Explainability by default: every action has reason + evidence + output
-- Safety-first UX: risky actions are highlighted before execution
-- Human tempo: stream updates in chunks, not noisy token spam
+- 真相优先：所有动画必须由真实事件驱动
+- 语义可读：每个状态具备“动作 + 目的 + 结果”
+- 介入可达：高风险动作一跳可审批/暂停
+- 渐进披露：先看全局，再看单 Agent 细节
 
-## 5. Core Use Cases
-1) Live watch
-- see current step, tool call, elapsed time, and recent logs
+## 5. Core Scenarios
+### S1 实时观察
+- 看到活跃 Agent、当前步骤、已耗时、最近工具输出
 
-2) Intervention
-- pause/continue
-- approve/deny risky action
-- modify next instruction
+### S2 风险干预
+- 在 `approval.required` 或高风险事件出现时，快速暂停/确认
 
-3) Replay and diagnosis
-- review timeline of steps and tool calls
-- inspect inputs/outputs and failures
+### S3 失败诊断
+- 从失败事件回溯到工具调用、输入参数、错误输出
 
-4) Cost and quality review
-- token/cost/latency breakdown
-- failure clusters and retry reasons
+### S4 多 Agent 协作理解
+- 明确谁在执行、谁在等待、谁阻塞
 
 ## 6. Information Architecture
-Top bar:
-- session selector
-- global status (idle/running/blocked/completed)
-- pause/resume button
+### A. 顶部控制栏
+- 会话选择器（sessionKey）
+- 全局状态（RUNNING/PAUSED/FAILED/COMPLETED）
+- Pause / Resume / Stop
+- 实时连接状态（SSE connected/disconnected）
 
-Left pane (Execution Timeline):
-- step cards in chronological order
-- grouped by phase: plan -> fetch -> edit -> verify -> deliver
+### B. 中央主画布（Ops Studio）
+- **Agent 泳道卡（Lane）**：Main / Research / Builder
+- **工坊节点（Station）**：Planning、Search、Build、Verify、Delivery
+- 动画规则：
+  - executing: 脉冲高亮 + 连接线流动
+  - queued: 队列标签轻微浮动
+  - idle: 低频呼吸
+  - blocked: 红色闪烁边框
+  - scheduled trigger: 铃铛扩散波纹
 
-Center pane (Now Running):
-- current action title
-- reason (why this step)
-- live stdout/tool output
-- expected next action
+### C. 左侧时间流（Timeline）
+- 按时间倒序展示 step/tool/cost/risk/file 事件
+- 支持过滤：all / tool / risk / file / error
 
-Right pane (Controls + Risk):
-- controls: pause, stop, approve, deny, edit instruction
-- risk card: permission scope, external effect, confidence
-- resource card: elapsed, tokens, cost, retries
+### D. 右侧检查器（Inspector）
+- 当前事件详情（why/out/next）
+- 风险等级与原因
+- 资源指标（elapsed/tokens/cost/retry）
+- 产物列表（文件、截图、报告）
 
-Bottom pane (Artifacts):
-- files changed
-- snapshots/screenshots
-- final answer draft
+## 7. Event Contract (Real-time)
+输入源：OpenClaw session JSONL 实时增量解析
 
-## 7. Event Model (for real-time UI)
-Event schema (SSE/WebSocket):
+统一前端事件：
 ```json
 {
-  "ts": "2026-03-15T15:20:10+08:00",
-  "sessionId": "sess_123",
   "event": "tool.started",
-  "stepId": "step_07",
-  "title": "Reading PRD template",
+  "title": "调用工具: write",
+  "risk": "medium",
   "payload": {
-    "tool": "read",
-    "path": "docs/template.md"
-  },
-  "risk": "low"
+    "agentId": "agent-r2",
+    "why": "执行当前步骤所需操作",
+    "out": "write -> prototypes/agent-visibility/index.html",
+    "next": "等待工具输出"
+  }
 }
 ```
 
-Recommended event types:
-- session.started | session.completed | session.failed
-- step.started | step.updated | step.completed
-- tool.started | tool.output | tool.completed | tool.error
-- approval.required | approval.granted | approval.denied
-- file.changed | artifact.created
-- cost.updated
+必备事件类型：
+- `session.started | session.completed | session.failed`
+- `step.started | step.completed`
+- `tool.started | tool.completed | tool.error`
+- `approval.required`
+- `queue.updated`
+- `file.changed | artifact.created`
+- `cost.updated`
 
-## 8. v0 MVP Scope (2 weeks)
+## 8. Status Mapping Rules
+- `tool.started` -> 对应 Agent 进入 `executing`
+- `tool.completed` -> Agent 短暂 `walking`, 然后 `idle`
+- `tool.error` / `session.failed` -> `blocked`
+- `queue.updated` -> 更新该 Agent 队列
+- `approval.required` -> 全局 risk 面板升为 high
+- `cost.updated` -> KPI 实时刷新
+
+## 9. UX Interaction Spec
+- 点击时间线条目：右侧 Inspector 定位到该事件详情
+- 点击 Agent 泳道：过滤出该 Agent 的事件
+- 鼠标悬停工坊节点：显示最近一次输入输出摘要
+- 断连状态：顶部显示 `DISCONNECTED` 且主画布暂停动画
+
+## 10. MVP Scope (v1)
 In scope:
-- live timeline streaming
-- current step panel
-- animated workshop scene (multi-agent avatars + room states)
-- idle/rest/work/walk state animations
-- scheduled task bell/pulse cue
-- basic controls: pause/resume/stop
-- risky action approval modal
-- simple metrics: elapsed + token + estimated cost
+- 真实事件流驱动的 Ops Studio 画布
+- 多 Agent 泳道 + 工坊节点状态动画
+- 时间线过滤与 Inspector 联动
+- 风险提示与基础控制（pause/resume/stop）
+- KPI 与产物区
 
 Out of scope:
-- multi-agent graph view
-- historical analytics dashboards
-- custom role/permission system
+- 历史报表 BI
+- RBAC 权限系统
+- 跨租户多工作空间管理
 
-## 9. Success Metrics
-- Time-to-understand-current-state < 3s (p50)
-- Intervention success rate > 90%
-- Postmortem debugging time reduced by 40%
-- User trust score +2 (5-point scale)
+## 11. Success Metrics
+- 状态识别时间（TTS） <= 3 秒
+- 风险事件响应时间 <= 10 秒
+- 失败定位时间降低 40%
+- 主观可理解性评分 >= 4/5
 
-## 10. Reference Notes
-Observed common patterns from public observability materials:
-- Traces + timelines + monitoring + alerts are the core loop (LangSmith Observability page)
-- Good observability uses traces/metrics/logs together (OpenTelemetry observability primer)
-
-## 11. Next Build Plan
-1. Wire frontend to real SSE stream (`/api/agent-events` or `?stream=`)
-2. Map OpenClaw runtime events to the event schema above
-3. Keep mock mode only as fallback for demo (`?mock=1`)
-4. Add approval gate for risky actions
-5. Add persistent execution replay
-
-## 12. New Visual Layer (Animated Workshop)
-- Multi-agent avatars in separate rooms
-- Each room shows queue chips (pending tasks)
-- State animation: work / rest / walk / paused
-- Scheduled task visual cue: bell pulse (ring)
-- Data panel remains as the operational source of truth
+## 12. Delivery Plan
+- D1: 事件模型稳定化 + UI 框架
+- D2: 工坊动画与状态映射
+- D3: 时间线过滤 / Inspector 联动
+- D4: 稳定性测试（断连/错误/高频事件）
