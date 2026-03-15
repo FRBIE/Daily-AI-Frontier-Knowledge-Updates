@@ -100,6 +100,7 @@
           <button :class="{active:tab==='dashboard'}" @click="tab='dashboard'">总览</button>
           <button :class="{active:tab==='commands'}" @click="tab='commands'">命令中心</button>
           <button :class="{active:tab==='skills'}" @click="tab='skills'">Skills</button>
+          <button :class="{active:tab==='browserwing'}" @click="tab='browserwing'">Browserwing</button>
           <button :class="{active:tab==='logs'}" @click="tab='logs'">日志</button>
         </div>
         <div class="badge">{{conn}}</div>
@@ -224,6 +225,43 @@
         </section>
       </div>
 
+      <div class="layout" v-else-if="tab==='browserwing'">
+        <section class="card">
+          <h3>Browserwing 控制面板</h3>
+          <div class="content">
+            <div class="small">通过命令桥把浏览器自动化任务下发给我执行</div>
+            <input v-model="bw.url" placeholder="目标 URL，例如 https://example.com" style="margin-top:8px;" />
+            <select v-model="bw.action" style="margin-top:6px;">
+              <option value="navigate">navigate</option>
+              <option value="snapshot">snapshot</option>
+              <option value="click">click</option>
+              <option value="type">type</option>
+              <option value="evaluate">evaluate</option>
+              <option value="screenshot">screenshot</option>
+            </select>
+            <input v-model="bw.selector" placeholder="selector / ref（click/type 时可填）" style="margin-top:6px;" />
+            <input v-model="bw.text" placeholder="输入文本（type 时可填）" style="margin-top:6px;" />
+            <textarea v-model="bw.script" rows="4" placeholder="evaluate 的 JS 代码（可选）" style="margin-top:6px;"></textarea>
+            <div class="controls" style="margin-top:6px;">
+              <button @click="dispatchBrowserwing(false)">执行</button>
+              <button @click="dispatchBrowserwing(true)">紧急执行</button>
+              <button @click="quickBrowserwing('snapshot')">一键快照</button>
+              <button @click="quickBrowserwing('screenshot')">一键截图</button>
+            </div>
+          </div>
+        </section>
+        <section class="card" style="grid-column: span 2;">
+          <h3>Browserwing 最近执行</h3>
+          <div class="content log-list">
+            <div class="log-item" v-for="c in browserwingCommands" :key="c.id">
+              <strong>{{c.note}}</strong>
+              <div class="small">{{c.status}} · {{c.progress || 0}}%</div>
+              <div class="small">{{c.lastEvent || '-'}}</div>
+            </div>
+          </div>
+        </section>
+      </div>
+
       <div class="layout" v-else>
         <section class="card" style="grid-column: span 3;">
           <h3>实时日志</h3>
@@ -257,6 +295,7 @@
             skillFiles: [],
             skillSource: '-',
             openTabs: [],
+            bw: { url: 'https://example.com', action: 'snapshot', selector: '', text: '', script: '' },
             activeTab: '',
             editorTheme: 'vs-dark',
             jumpLine: '',
@@ -269,6 +308,9 @@
         computed: {
           commandList() {
             return [...this.commands].sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0, 50);
+          },
+          browserwingCommands() {
+            return this.commandList.filter((c) => (c.note || '').toLowerCase().includes('browserwing')).slice(0, 40);
           },
           plainFallback() {
             const tab = this.openTabs.find((t) => t.file === this.activeTab) || this.openTabs[0];
@@ -364,6 +406,27 @@
             if (!text) return;
             await this.sendControl(urgent ? 'dispatch_command_urgent' : 'dispatch_command', text);
             this.cmdText = '';
+          },
+          buildBrowserwingPrompt() {
+            const a = this.bw.action;
+            const bits = [
+              `请使用 browserwing-executor skill 执行浏览器操作。`,
+              this.bw.url ? `目标URL: ${this.bw.url}` : '',
+              `动作: ${a}`,
+              this.bw.selector ? `selector/ref: ${this.bw.selector}` : '',
+              this.bw.text ? `文本: ${this.bw.text}` : '',
+              this.bw.script ? `脚本:\n${this.bw.script}` : '',
+              `执行后请返回关键结果，并说明是否成功。`
+            ].filter(Boolean);
+            return `[browserwing] ${bits.join('\n')}`;
+          },
+          async dispatchBrowserwing(urgent) {
+            const note = this.buildBrowserwingPrompt();
+            await this.sendControl(urgent ? 'dispatch_command_urgent' : 'dispatch_command', note);
+          },
+          async quickBrowserwing(kind) {
+            this.bw.action = kind;
+            await this.dispatchBrowserwing(false);
           },
           async loadSkills() {
             const r = await this.api('/api/skills');
