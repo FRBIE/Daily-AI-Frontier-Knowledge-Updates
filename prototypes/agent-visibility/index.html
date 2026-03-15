@@ -69,26 +69,61 @@
       .t-sub { font-size: 12px; color: var(--muted); }
 
       .studio {
-        border: 1px solid #6e5039; border-radius: 12px; padding: 10px; color: #fff7ed;
-        background: linear-gradient(180deg, #8d6a4e 0%, #6d503d 48%, #4d382c 100%);
+        border: 1px solid #4a3a2a;
+        border-radius: 12px;
+        padding: 10px;
+        color: #fff7ed;
+        background: linear-gradient(180deg, #2e3f6b 0%, #27355a 38%, #1f2a48 100%);
       }
-      .desk-grid { display: grid; grid-template-columns: 180px 1fr 180px; gap: 10px; }
-      .mini, .actor { border: 1px solid #9d7b60; border-radius: 10px; padding: 8px; background: rgba(255, 248, 237, 0.16); }
-      .mini-title { font-size: 12px; margin-bottom: 6px; }
-      .note { font-size: 11px; border-radius: 8px; padding: 6px; margin-bottom: 6px; background: #fef3c7; color: #4b3b2a; }
-      .tool { display: inline-block; margin: 0 4px 6px 0; padding: 4px 8px; border-radius: 999px; font-size: 11px; background: #dbeafe; color: #1e3a8a; }
-      .avatar { height: 58px; display: flex; align-items: center; gap: 10px; }
-      .person {
-        width: 34px; height: 34px; border-radius: 50%; background: #f59e0b; display: inline-flex; align-items: center; justify-content: center;
-        color: #111; font-weight: 700;
+      .desk-grid { display: grid; grid-template-columns: 200px 1fr 200px; gap: 10px; }
+      .mini, .actor { border: 1px solid rgba(210, 225, 255, 0.35); border-radius: 10px; padding: 8px; background: rgba(210, 225, 255, 0.12); }
+      .mini-title { font-size: 12px; margin-bottom: 6px; color: #dbeafe; }
+      .note { font-size: 11px; border-radius: 6px; padding: 6px; margin-bottom: 6px; background: #fef3c7; color: #4b3b2a; }
+      .tool { display: inline-block; margin: 0 4px 6px 0; padding: 4px 8px; border-radius: 6px; font-size: 11px; background: #dbeafe; color: #1e3a8a; }
+
+      .actor {
+        background: linear-gradient(180deg, #3f5f8f 0%, #34527b 38%, #2a4468 100%);
       }
-      .person.typing { animation: bob 0.9s infinite alternate; }
-      .person.searching { animation: spin 1.3s infinite linear; }
-      .person.waiting { animation: breathe 2s infinite; }
-      .person.blocked { animation: shake 0.35s infinite; }
-      .stations { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 8px; }
-      .station { border: 1px solid #a27a56; border-radius: 8px; padding: 6px; text-align: center; font-size: 11px; background: rgba(255,245,230,0.14); }
-      .station.active { border-color: #5eead4; background: rgba(45,212,191,0.2); }
+      .world {
+        position: relative;
+        height: 230px;
+        border: 2px solid #203352;
+        border-radius: 8px;
+        background:
+          linear-gradient(180deg, rgba(130, 176, 255, 0.35) 0 35%, transparent 35%),
+          repeating-linear-gradient(0deg, #87a96b 0 16px, #7fa063 16px 32px),
+          repeating-linear-gradient(90deg, rgba(34, 58, 91, 0.22) 0 1px, transparent 1px 16px);
+        overflow: hidden;
+      }
+      .zone {
+        position: absolute;
+        border: 2px dashed rgba(244, 244, 245, 0.55);
+        border-radius: 6px;
+        font-size: 10px;
+        padding: 2px 5px;
+        color: #e2e8f0;
+        background: rgba(15, 23, 42, 0.3);
+      }
+      .zone.active { border-color: #34d399; color: #bbf7d0; }
+      .zone.plan { left: 8px; top: 12px; width: 100px; height: 58px; }
+      .zone.search { right: 8px; top: 12px; width: 110px; height: 58px; }
+      .zone.build { left: 20px; bottom: 16px; width: 120px; height: 66px; }
+      .zone.verify { right: 16px; bottom: 16px; width: 120px; height: 66px; }
+      .zone.delivery { left: 50%; transform: translateX(-50%); bottom: 84px; width: 120px; height: 56px; }
+
+      .avatar { position: absolute; width: 24px; height: 30px; left: 50%; top: 56%; transform: translate(-50%, -50%); transition: all 420ms ease; image-rendering: pixelated; }
+      .avatar::before { content: ""; position: absolute; width: 24px; height: 30px; background: linear-gradient(180deg, #fbbf24 0 30%, #1d4ed8 30% 100%); box-shadow: inset 0 0 0 2px #0f172a; }
+      .avatar::after { content: ""; position: absolute; width: 6px; height: 6px; border-radius: 1px; background: #0f172a; left: 9px; top: 8px; }
+      .avatar.typing { animation: bob 0.45s infinite alternate; }
+      .avatar.searching { animation: stepwalk 0.55s infinite steps(2); }
+      .avatar.waiting { animation: breathe 1.8s infinite; }
+      .avatar.blocked { animation: shake 0.25s infinite; }
+
+      .action-strip { margin-top: 8px; display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; }
+      .action-text { font-size: 12px; color: #dbeafe; }
+      .stations { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+      .station { border: 1px solid rgba(148, 163, 184, 0.8); border-radius: 6px; padding: 6px; text-align: center; font-size: 11px; background: rgba(15, 23, 42, 0.2); }
+      .station.active { border-color: #34d399; background: rgba(45, 212, 191, 0.22); }
 
       .kpi { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px; }
       .kpi div { border: 1px solid var(--line); border-radius: 8px; padding: 7px; background: #fdfcf9; }
@@ -99,10 +134,10 @@
       .approval-item { border: 1px solid #fca5a5; border-radius: 8px; background: #fff1f2; padding: 8px; margin-bottom: 6px; }
       .diag { border: 1px solid var(--line); border-radius: 8px; background: #fff; padding: 8px; font-size: 12px; }
 
-      @keyframes bob { from { transform: translateY(0); } to { transform: translateY(-3px); } }
-      @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-      @keyframes breathe { 0% { transform: scale(1); } 50% { transform: scale(0.94); } 100% { transform: scale(1); } }
-      @keyframes shake { 0% { transform: translateX(0); } 50% { transform: translateX(-2px); } 100% { transform: translateX(2px); } }
+      @keyframes bob { from { transform: translate(-50%, -50%) translateY(0); } to { transform: translate(-50%, -50%) translateY(-3px); } }
+      @keyframes stepwalk { from { transform: translate(-50%, -50%) translateX(-1px); } to { transform: translate(-50%, -50%) translateX(1px); } }
+      @keyframes breathe { 0% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(0.94); } 100% { transform: translate(-50%, -50%) scale(1); } }
+      @keyframes shake { 0% { transform: translate(-50%, -50%) translateX(0); } 50% { transform: translate(-50%, -50%) translateX(-2px); } 100% { transform: translate(-50%, -50%) translateX(2px); } }
       @media (max-width: 1140px) { .layout { grid-template-columns: 1fr; } .desk-grid { grid-template-columns: 1fr; } }
     </style>
   </head>
@@ -137,12 +172,22 @@
         </section>
 
         <section class="studio panel" style="overflow:visible;">
-          <h3 style="background:transparent;border-bottom:0;padding:0 0 8px 0;color:#fff7ed;">桌面工作流视图</h3>
+          <h3 style="background:transparent;border-bottom:0;padding:0 0 8px 0;color:#fff7ed;">第三人称像素行动视图</h3>
           <div class="desk-grid">
             <div class="mini"><div class="mini-title">待办便签</div><div id="todo"></div></div>
             <div class="actor">
-              <div class="avatar"><span class="person waiting" id="person">我</span><div id="doingText">我在待命</div></div>
-              <div class="stations" id="stations"></div>
+              <div class="world" id="world">
+                <div class="zone plan" data-stage="Planning">Planning</div>
+                <div class="zone search" data-stage="Search">Search</div>
+                <div class="zone build" data-stage="Build">Build</div>
+                <div class="zone verify" data-stage="Verify">Verify</div>
+                <div class="zone delivery" data-stage="Delivery">Delivery</div>
+                <div class="avatar waiting" id="person"></div>
+              </div>
+              <div class="action-strip">
+                <div class="action-text" id="doingText">我在待命</div>
+                <div class="stations" id="stations"></div>
+              </div>
             </div>
             <div class="mini"><div class="mini-title">工具抽屉</div><div id="tools"></div></div>
           </div>
@@ -232,7 +277,24 @@
         el.todo.innerHTML = (state.actor.todo.length ? state.actor.todo : ["等待新任务"]).slice(0, 6).map((x)=>`<div class="note">${x}</div>`).join("");
         el.tools.innerHTML = tools.map((t)=>`<span class="tool" style="opacity:${state.actor.actionText.includes(t)?1:0.75}">${t}</span>`).join("");
         el.stations.innerHTML = stations.map((s)=>`<div class="station ${state.actor.status==="exec"&&state.actor.stage===s?"active":""}">${s}</div>`).join("");
-        el.person.className = "person " + (state.actor.status === "exec" ? (state.actor.stage === "Search" ? "searching" : "typing") : state.actor.status === "block" ? "blocked" : "waiting");
+
+        const motion = state.actor.status === "exec" ? (state.actor.stage === "Search" ? "searching" : "typing") : state.actor.status === "block" ? "blocked" : "waiting";
+        el.person.className = "avatar " + motion;
+
+        const pos = {
+          Planning: { left: "18%", top: "24%" },
+          Search: { left: "82%", top: "24%" },
+          Build: { left: "26%", top: "76%" },
+          Verify: { left: "78%", top: "76%" },
+          Delivery: { left: "50%", top: "54%" }
+        }[state.actor.stage] || { left: "50%", top: "54%" };
+        el.person.style.left = pos.left;
+        el.person.style.top = pos.top;
+
+        document.querySelectorAll(".zone").forEach((z) => {
+          z.classList.toggle("active", z.dataset.stage === state.actor.stage && state.actor.status === "exec");
+        });
+
         el.doingText.textContent = state.actor.actionText;
       }
 
