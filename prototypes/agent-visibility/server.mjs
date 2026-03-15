@@ -8,6 +8,7 @@ const __dirname = path.dirname(__filename);
 const PORT = Number(process.env.PORT || 8787);
 const OPENCLAW_SESSIONS = "/home/ubuntu/.openclaw/agents/main/sessions/sessions.json";
 const APPROVAL_LOG = path.join(__dirname, ".runtime", "approvals.jsonl");
+const CONTROL_LOG = path.join(__dirname, ".runtime", "controls.jsonl");
 const LIVE_CLIENTS = new Set();
 
 const MIME = {
@@ -325,6 +326,40 @@ const server = http.createServer(async (req, res) => {
       };
       broadcast(evt);
       return send(res, 200, JSON.stringify({ ok: true, decision }), {
+        "Content-Type": MIME[".json"],
+        "Access-Control-Allow-Origin": "*"
+      });
+    } catch (err) {
+      return send(res, 400, JSON.stringify({ error: err.message || "invalid request" }), {
+        "Content-Type": MIME[".json"],
+        "Access-Control-Allow-Origin": "*"
+      });
+    }
+  }
+
+  if (url.pathname === "/api/control" && req.method === "POST") {
+    try {
+      const raw = await readBody(req);
+      const body = raw ? JSON.parse(raw) : {};
+      const action = String(body.action || "noop");
+      const note = String(body.note || "");
+      const cmd = { ts: Date.now(), action, note, source: "ops-studio" };
+      fs.mkdirSync(path.dirname(CONTROL_LOG), { recursive: true });
+      fs.appendFileSync(CONTROL_LOG, `${JSON.stringify(cmd)}\n`);
+
+      const evt = {
+        event: "control.applied",
+        title: `控制指令: ${action}`,
+        risk: "medium",
+        payload: {
+          agentId: "agent-main",
+          why: "用户在控制台下发调度指令",
+          out: note ? `${action} (${note})` : action,
+          next: "按新策略继续执行"
+        }
+      };
+      broadcast(evt);
+      return send(res, 200, JSON.stringify({ ok: true, command: cmd }), {
         "Content-Type": MIME[".json"],
         "Access-Control-Allow-Origin": "*"
       });

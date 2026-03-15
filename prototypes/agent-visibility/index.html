@@ -188,6 +188,11 @@
       .artifact { font-size: 12px; padding: 4px 8px; border-radius: 999px; background: #ecfeff; border: 1px solid #a5f3fc; }
       .approval-item { border: 1px solid #fca5a5; border-radius: 8px; background: #fff1f2; padding: 8px; margin-bottom: 6px; }
       .diag { border: 1px solid var(--line); border-radius: 8px; background: #fff; padding: 8px; font-size: 12px; }
+      .task-board { border: 1px solid var(--line); border-radius: 8px; background: #fff; padding: 8px; margin-top: 8px; }
+      .task-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; font-size: 12px; padding: 6px 0; border-bottom: 1px dashed #e5e7eb; }
+      .task-row:last-child { border-bottom: 0; }
+      .ctrls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px; }
+      .ctrls button { width: 100%; }
 
       @keyframes bob { from { transform: translate(-50%, -50%) translateY(0); } to { transform: translate(-50%, -50%) translateY(-3px); } }
       @keyframes stepwalk { from { transform: translate(-50%, -50%) translateX(-1px); } to { transform: translate(-50%, -50%) translateX(1px); } }
@@ -273,6 +278,18 @@
             <div id="approvals"></div>
             <div style="margin-top:8px;"><strong>失败诊断</strong></div>
             <div class="diag" id="diag">暂无异常</div>
+
+            <div style="margin-top:8px;"><strong>Task OS</strong></div>
+            <div class="task-board" id="taskBoard"></div>
+            <div class="ctrls">
+              <button data-control="retry_last">重试最近步骤</button>
+              <button data-control="skip_step">跳过当前步骤</button>
+              <button data-control="pause_risky">仅暂停高风险</button>
+              <button data-control="priority_speed">模式: 速度优先</button>
+              <button data-control="priority_safe">模式: 稳妥优先</button>
+              <button data-control="priority_cost">模式: 低成本优先</button>
+            </div>
+
             <div style="margin-top:8px;"><strong>Artifacts</strong></div>
             <div class="artifacts" id="artifacts"></div>
           </div>
@@ -286,7 +303,8 @@
       const state = {
         start: Date.now(), paused: false, connected: false, stream: null, filter: "all", skin: "desk",
         tokens: 0, cost: 0, retry: 0, events: [], approvals: [], unreadCount: 0, stickBottom: true,
-        replay: { mode: false, timer: null, idx: 0, source: [] }, taskId: 1, lastReadIdx: 0,
+        replay: { mode: false, timer: null, idx: 0, source: [] }, taskId: 1, lastReadIdx: 0, mode: "balanced",
+        tasks: [],
         actor: { status: "idle", stage: "Planning", prevStage: "Planning", facing: "face-down", walking: false, todo: [], actionText: "我在待命" }
       };
 
@@ -297,7 +315,7 @@
         tokens: document.getElementById("tokens"), cost: document.getElementById("cost"), retry: document.getElementById("retry"), elapsed: document.getElementById("elapsed"),
         todo: document.getElementById("todo"), tools: document.getElementById("tools"), stations: document.getElementById("stations"), person: document.getElementById("person"), pathGlow: document.getElementById("pathGlow"),
         doingText: document.getElementById("doingText"), artifacts: document.getElementById("artifacts"), approvals: document.getElementById("approvals"),
-        diag: document.getElementById("diag"), filters: document.getElementById("filters"), sessionKey: document.getElementById("sessionKey"),
+        diag: document.getElementById("diag"), taskBoard: document.getElementById("taskBoard"), filters: document.getElementById("filters"), sessionKey: document.getElementById("sessionKey"),
         pauseBtn: document.getElementById("pauseBtn"), stopBtn: document.getElementById("stopBtn"), jumpLatest: document.getElementById("jumpLatest"),
         skin: document.getElementById("skin"), replayBtn: document.getElementById("replayBtn")
       };
@@ -467,6 +485,31 @@
         el.diag.textContent = `最近异常: ${last.title || last.event}。建议: ${tip}`;
       }
 
+      function renderTaskBoard() {
+        const tasks = state.tasks.slice(-6).reverse();
+        if (!tasks.length) {
+          el.taskBoard.innerHTML = '<div class="t-sub">暂无任务，等待用户请求</div>';
+          return;
+        }
+        el.taskBoard.innerHTML = tasks.map((t) =>
+          `<div class="task-row"><div><strong>${t.name}</strong><div class="t-sub">${t.detail}</div></div><div>${t.status}</div></div>`
+        ).join("");
+      }
+
+      async function sendControl(action) {
+        try {
+          const resp = await fetch('/api/control', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action, note: `mode=${state.mode}` })
+          });
+          if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+          pushLog(`控制指令已下发: ${action}`);
+        } catch (err) {
+          pushLog(`控制指令失败: ${err.message || err}`);
+        }
+      }
+
       function focus(e) {
         if (!e) return;
         el.focusTitle.textContent = e.title || e.event;
@@ -491,6 +534,16 @@
         if (evt.event === "session.failed") setBadge(el.status, "FAILED", "fail");
         if (evt.event === "session.completed") setBadge(el.status, "COMPLETED", "run");
 
+        if (evt.event === "queue.updated") {
+          const items = evt.payload?.items || [];
+          state.tasks = items.map((name, i) => ({
+            id: `${evt._ts}-${i}`,
+            name,
+            detail: i === 0 ? "当前排队头部" : "等待执行",
+            status: i === 0 ? "queued" : "pending"
+          }));
+        }
+
         if (evt.event === "cost.updated") { state.tokens = evt.payload?.tokens || state.tokens; state.cost = evt.payload?.cost || state.cost; state.retry = evt.payload?.retry || state.retry; }
         if (["artifact.created", "file.changed"].includes(evt.event)) addArtifact(evt.payload?.name || evt.payload?.path || "artifact");
         if (evt.event === "queue.updated") state.actor.todo = evt.payload?.items || state.actor.todo;
@@ -508,10 +561,22 @@
             }, 520);
           }
           state.actor.actionText = evt.payload?.out ? `我正在: ${evt.payload.out}` : `我正在${state.actor.stage}`;
+          if (state.tasks.length) {
+            state.tasks[0].status = "running";
+            state.tasks[0].detail = evt.title || evt.payload?.out || "执行中";
+          }
           focus(evt);
           pushLog(evt.payload?.out || evt.title || evt.event);
         }
-        if (["step.completed", "tool.completed"].includes(evt.event)) { state.actor.status = "idle"; state.actor.walking = false; state.actor.actionText = "我在待命"; }
+        if (["step.completed", "tool.completed"].includes(evt.event)) {
+          state.actor.status = "idle";
+          state.actor.walking = false;
+          state.actor.actionText = "我在待命";
+          if (state.tasks.length) {
+            state.tasks[0].status = "done";
+            state.tasks[0].detail = "执行完成";
+          }
+        }
         if (["tool.error", "session.failed"].includes(evt.event)) { state.actor.status = "block"; state.actor.walking = false; state.actor.actionText = "我卡住了，等待处理"; }
 
         if (evt.event === "approval.required") {
@@ -521,10 +586,20 @@
           focus({ ...evt, risk: "high" });
         }
 
+        if (evt.event === "control.applied") {
+          state.tasks.unshift({
+            id: `ctrl-${evt._ts}`,
+            name: evt.title || "控制指令",
+            detail: evt.payload?.out || "已应用",
+            status: "applied"
+          });
+        }
+
         renderDesk();
         renderTimeline();
         renderApprovals();
         renderDiag();
+        renderTaskBoard();
       }
 
       function connect() {
@@ -581,6 +656,15 @@
       el.jumpLatest.onclick = () => { state.stickBottom = true; el.scroller.scrollTop = el.scroller.scrollHeight; state.unreadCount = 0; state.lastReadIdx = state.events.length; renderTimeline(); };
       el.skin.onchange = () => { document.body.dataset.skin = el.skin.value; };
       el.replayBtn.onclick = () => startReplay();
+      document.querySelectorAll('[data-control]').forEach((btn) => {
+        btn.onclick = async () => {
+          const action = btn.getAttribute('data-control');
+          if (action === 'priority_speed') state.mode = 'speed';
+          if (action === 'priority_safe') state.mode = 'safe';
+          if (action === 'priority_cost') state.mode = 'cost';
+          await sendControl(action);
+        };
+      });
       el.scroller.addEventListener("scroll", () => {
         const delta = el.scroller.scrollHeight - el.scroller.scrollTop - el.scroller.clientHeight;
         state.stickBottom = delta < 36;
@@ -588,7 +672,7 @@
       });
 
       if (window.Notification && Notification.permission === "default") Notification.requestPermission();
-      renderFilters(); renderDesk(); renderTimeline(); renderApprovals(); renderDiag();
+      renderFilters(); renderDesk(); renderTimeline(); renderApprovals(); renderDiag(); renderTaskBoard();
       syncApprovals();
       connect();
       setInterval(tick, 400);
