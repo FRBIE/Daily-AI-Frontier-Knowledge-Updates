@@ -4,767 +4,341 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Agent Ops Studio</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <style>
       :root {
-        --bg: #ece7de;
-        --panel: #f9f7f2;
+        --bg: #e9edf5;
+        --panel: #ffffff;
         --ink: #1f2a37;
-        --muted: #6b7280;
-        --line: #d8d1c4;
-        --brand: #0e7490;
-        --ok: #166534;
-        --warn: #b45309;
-        --danger: #b91c1c;
-      }
-      body[data-skin="night"] {
-        --bg: #1d1f24;
-        --panel: #2a2f37;
-        --ink: #eef2f7;
-        --muted: #a6b0bf;
-        --line: #3b4351;
-        --brand: #0284c7;
-      }
-      body[data-skin="focus"] {
-        --bg: #e7edf5;
-        --panel: #f7fbff;
-        --ink: #172533;
-        --muted: #5b6b7a;
-        --line: #cedae7;
+        --muted: #64748b;
+        --line: #d8e0ee;
         --brand: #2563eb;
       }
       * { box-sizing: border-box; }
       body { margin: 0; background: var(--bg); color: var(--ink); font-family: "IBM Plex Sans", "Noto Sans SC", sans-serif; }
       .app { max-width: 1500px; margin: 0 auto; padding: 12px; }
       .topbar {
-        display: grid; grid-template-columns: 1fr auto auto auto auto; gap: 8px; align-items: center;
-        border: 1px solid var(--line); border-radius: 12px; background: var(--panel); padding: 10px;
+        background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px;
+        display: grid; grid-template-columns: 1fr auto auto auto; gap: 8px; align-items: center;
       }
-      .title { font-weight: 700; }
-      .badge { border-radius: 999px; padding: 5px 10px; font-size: 12px; border: 1px solid transparent; }
-      .run { background: #dcfce7; color: var(--ok); border-color: #86efac; }
-      .warn { background: #fef3c7; color: var(--warn); border-color: #fcd34d; }
-      .fail { background: #fee2e2; color: var(--danger); border-color: #fca5a5; }
-      .off { background: #e5e7eb; color: #374151; border-color: #cbd5e1; }
-      button, select {
-        border: 1px solid var(--line); border-radius: 10px; background: #fff; color: #111; padding: 7px 10px; font-size: 12px;
-      }
-      body[data-skin="night"] button, body[data-skin="night"] select { background: #111827; color: #eef2f7; border-color: #475569; }
-
-      .layout { margin-top: 10px; display: grid; grid-template-columns: 340px 1fr 360px; gap: 10px; }
-      .panel { border: 1px solid var(--line); border-radius: 12px; background: var(--panel); overflow: hidden; }
-      .panel h3 { margin: 0; padding: 10px; font-size: 14px; border-bottom: 1px solid var(--line); }
+      .tabs { display: flex; gap: 6px; }
+      .tabs button { border: 1px solid var(--line); background: #f8fafc; border-radius: 8px; padding: 6px 10px; cursor: pointer; }
+      .tabs button.active { background: #dbeafe; color: #1d4ed8; }
+      .badge { border-radius: 999px; font-size: 12px; padding: 4px 10px; border: 1px solid #bfdbfe; background: #eff6ff; color: #1d4ed8; }
+      .layout { margin-top: 10px; display: grid; grid-template-columns: 360px 1fr 360px; gap: 10px; }
+      .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+      .card h3 { margin: 0; padding: 10px; border-bottom: 1px solid var(--line); font-size: 14px; }
       .content { padding: 10px; }
+      .log-list { max-height: 72vh; overflow: auto; }
+      .log-item { border: 1px solid #e2e8f0; background: #fff; border-radius: 10px; padding: 8px; margin-bottom: 7px; }
+      .small { color: var(--muted); font-size: 12px; }
 
-      .filters { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
-      .filters button.active { background: #dbeafe; color: #1d4ed8; }
-      .timeline-scroller { max-height: 72vh; overflow-y: auto; scroll-behavior: smooth; padding-right: 4px; }
-      .timeline-group { margin-bottom: 10px; }
-      .timeline-group-title { font-size: 11px; color: var(--muted); margin-bottom: 5px; }
-      .time-sep { text-align: center; color: var(--muted); font-size: 11px; margin: 8px 0 4px 0; }
-      .unread { text-align: center; color: #1d4ed8; font-size: 11px; margin: 8px 0; }
-      .timeline-item { width: 88%; border: 1px solid #dbe3ef; border-radius: 12px; padding: 8px; margin: 6px 0; background: #fff; cursor: pointer; }
-      .timeline-item.right { margin-left: auto; background: #eaf3ff; }
-      .timeline-item.high { border-color: #fca5a5; background: #fff1f2; }
-      .timeline-item.medium { border-color: #fcd34d; background: #fffbeb; }
-      .t-sub { font-size: 12px; color: var(--muted); }
-
-      .studio {
-        border: 1px solid #4a3a2a;
-        border-radius: 12px;
-        padding: 10px;
-        color: #fff7ed;
-        background: linear-gradient(180deg, #2e3f6b 0%, #27355a 38%, #1f2a48 100%);
-      }
-      .desk-grid { display: grid; grid-template-columns: 200px 1fr 200px; gap: 10px; }
-      .mini, .actor { border: 1px solid rgba(210, 225, 255, 0.35); border-radius: 10px; padding: 8px; background: rgba(210, 225, 255, 0.12); }
-      .mini-title { font-size: 12px; margin-bottom: 6px; color: #dbeafe; }
-      .note { font-size: 11px; border-radius: 6px; padding: 6px; margin-bottom: 6px; background: #fef3c7; color: #4b3b2a; }
-      .tool { display: inline-block; margin: 0 4px 6px 0; padding: 4px 8px; border-radius: 6px; font-size: 11px; background: #dbeafe; color: #1e3a8a; }
-
-      .actor {
-        background: linear-gradient(180deg, #3f5f8f 0%, #34527b 38%, #2a4468 100%);
-      }
       .world {
-        position: relative;
-        height: 260px;
-        border: 2px solid #1a2a44;
-        border-radius: 10px;
-        background:
-          radial-gradient(circle at 12% 8%, rgba(255, 255, 255, 0.26), transparent 32%),
-          radial-gradient(circle at 82% 18%, rgba(255, 255, 255, 0.18), transparent 40%),
-          linear-gradient(180deg, rgba(154, 197, 255, 0.45) 0 34%, transparent 34%),
-          repeating-linear-gradient(0deg, #82a763 0 14px, #769b58 14px 28px),
-          repeating-linear-gradient(90deg, rgba(22, 38, 66, 0.24) 0 1px, transparent 1px 14px);
-        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2), inset 0 -18px 30px rgba(8, 15, 25, 0.35);
+        position: relative; height: 290px; border: 2px solid #1a2a44; border-radius: 10px;
+        background: radial-gradient(circle at 12% 8%, rgba(255,255,255,0.24), transparent 32%), linear-gradient(180deg, rgba(154, 197, 255, 0.45) 0 34%, transparent 34%), repeating-linear-gradient(0deg, #82a763 0 14px, #769b58 14px 28px), repeating-linear-gradient(90deg, rgba(22, 38, 66, 0.24) 0 1px, transparent 1px 14px);
         overflow: hidden;
-        image-rendering: pixelated;
       }
-      .world::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0 3px, transparent 3px 6px);
-        pointer-events: none;
-      }
-      .zone {
-        position: absolute;
-        border: 2px solid rgba(230, 240, 255, 0.45);
-        border-radius: 7px;
-        font-size: 10px;
-        padding: 2px 6px;
-        color: #e2e8f0;
-        background: linear-gradient(180deg, rgba(15, 23, 42, 0.42), rgba(15, 23, 42, 0.22));
-        box-shadow: 0 2px 0 rgba(16, 25, 40, 0.45);
-      }
-      .zone.active {
-        border-color: #34d399;
-        color: #bbf7d0;
-        box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.25), 0 3px 0 rgba(16, 25, 40, 0.45);
-      }
-      .zone.plan { left: 8px; top: 12px; width: 100px; height: 58px; }
-      .zone.search { right: 8px; top: 12px; width: 110px; height: 58px; }
-      .zone.build { left: 20px; bottom: 16px; width: 120px; height: 66px; }
-      .zone.verify { right: 16px; bottom: 16px; width: 120px; height: 66px; }
-      .zone.delivery { left: 50%; transform: translateX(-50%); bottom: 84px; width: 120px; height: 56px; }
-      .path-glow {
-        position: absolute;
-        left: var(--from-x, 50%);
-        top: var(--from-y, 56%);
-        width: 2px;
-        height: 2px;
-        background: #7dd3fc;
-        box-shadow: 0 0 10px rgba(125, 211, 252, 0.8);
-        transform: translate(-50%, -50%);
-        opacity: 0;
-        pointer-events: none;
-      }
-      .path-glow.on {
-        opacity: 1;
-        animation: fly-path 520ms ease;
-      }
+      .zone { position: absolute; border: 2px solid rgba(230, 240, 255, 0.45); border-radius: 7px; font-size: 10px; padding: 2px 6px; color: #e2e8f0; background: rgba(15, 23, 42, 0.3); }
+      .zone.active { border-color: #34d399; color: #bbf7d0; box-shadow: 0 0 0 2px rgba(52,211,153,0.25); }
+      .plan { left: 8px; top: 12px; width: 110px; height: 58px; }
+      .search { right: 8px; top: 12px; width: 110px; height: 58px; }
+      .build { left: 20px; bottom: 16px; width: 120px; height: 66px; }
+      .verify { right: 16px; bottom: 16px; width: 120px; height: 66px; }
+      .delivery { left: 50%; transform: translateX(-50%); bottom: 92px; width: 120px; height: 56px; }
 
-      .avatar { position: absolute; width: 26px; height: 34px; left: 50%; top: 56%; transform: translate(-50%, -50%); transition: left 420ms ease, top 420ms ease; image-rendering: pixelated; z-index: 5; }
-      .avatar .shadow {
-        position: absolute;
-        width: 22px;
-        height: 6px;
-        left: 2px;
-        bottom: -4px;
-        background: rgba(10, 15, 25, 0.45);
-        border-radius: 50%;
-        filter: blur(0.5px);
+      .avatar {
+        position: absolute; width: 26px; height: 34px; transform: translate(-50%, -50%);
+        transition: left 420ms ease, top 420ms ease;
       }
-      .avatar::before {
-        content: "";
-        position: absolute;
-        width: 26px;
-        height: 34px;
-        background:
-          linear-gradient(180deg, #fde68a 0 26%, #3b82f6 26% 70%, #1e40af 70% 100%);
-        box-shadow: inset 0 0 0 2px #0f172a, inset 0 -4px 0 rgba(15, 23, 42, 0.35);
-      }
-      .avatar::after { content: ""; position: absolute; width: 6px; height: 6px; border-radius: 1px; background: #0f172a; left: 10px; top: 9px; }
-      .avatar.face-left::after { left: 6px; }
-      .avatar.face-right::after { left: 12px; }
-      .avatar.face-up::after { top: 6px; }
-      .avatar.face-down::after { top: 10px; }
-      .avatar.walking::before { animation: walk-frame 0.32s infinite steps(2); }
-      .avatar.typing { animation: bob 0.45s infinite alternate; }
-      .avatar.searching { animation: stepwalk 0.55s infinite steps(2); }
-      .avatar.waiting { animation: breathe 1.8s infinite; }
-      .avatar.blocked { animation: shake 0.25s infinite; }
+      .avatar::before { content: ""; position: absolute; width: 26px; height: 34px; background: linear-gradient(180deg, #fde68a 0 26%, #3b82f6 26% 70%, #1e40af 70%); box-shadow: inset 0 0 0 2px #0f172a; }
+      .avatar::after { content: ""; position: absolute; width: 6px; height: 6px; background: #0f172a; left: 10px; top: 9px; }
+      .face-left::after { left: 6px; }
+      .face-right::after { left: 12px; }
+      .face-up::after { top: 6px; }
+      .face-down::after { top: 10px; }
+      .walking::before { animation: walk 0.32s infinite steps(2); }
+      .typing { animation: bob 0.45s infinite alternate; }
+      .searching { animation: stepwalk 0.55s infinite steps(2); }
+      .waiting { animation: breathe 1.8s infinite; }
+      .blocked { animation: shake 0.25s infinite; }
 
-      .action-strip { margin-top: 8px; display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; }
-      .action-text { font-size: 12px; color: #dbeafe; }
-      .stations { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
-      .station { border: 1px solid rgba(148, 163, 184, 0.8); border-radius: 6px; padding: 6px; text-align: center; font-size: 11px; background: rgba(15, 23, 42, 0.2); }
-      .station.active { border-color: #34d399; background: rgba(45, 212, 191, 0.22); }
+      .cmd { border: 1px solid #dbeafe; border-radius: 10px; padding: 8px; margin-bottom: 8px; background: #f8fbff; }
+      .progress { height: 8px; border-radius: 999px; background: #e5e7eb; overflow: hidden; margin-top: 6px; }
+      .progress > span { display: block; height: 100%; background: linear-gradient(90deg, #60a5fa, #2563eb); }
+      .status { font-size: 11px; padding: 2px 6px; border-radius: 999px; background: #e2e8f0; }
 
-      .kpi { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px; }
-      .kpi div { border: 1px solid var(--line); border-radius: 8px; padding: 7px; background: #fdfcf9; }
-      .risk { border: 1px solid #fcd34d; border-radius: 8px; background: #fffbeb; padding: 8px; margin: 9px 0; }
-      pre { margin: 0; background: #111827; color: #e5e7eb; border-radius: 10px; min-height: 130px; max-height: 220px; overflow: auto; padding: 10px; }
-      .artifacts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-      .artifact { font-size: 12px; padding: 4px 8px; border-radius: 999px; background: #ecfeff; border: 1px solid #a5f3fc; }
-      .approval-item { border: 1px solid #fca5a5; border-radius: 8px; background: #fff1f2; padding: 8px; margin-bottom: 6px; }
-      .diag { border: 1px solid var(--line); border-radius: 8px; background: #fff; padding: 8px; font-size: 12px; }
-      .task-board { border: 1px solid var(--line); border-radius: 8px; background: #fff; padding: 8px; margin-top: 8px; }
-      .task-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; font-size: 12px; padding: 6px 0; border-bottom: 1px dashed #e5e7eb; }
-      .task-row:last-child { border-bottom: 0; }
-      .ctrls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px; }
-      .ctrls button { width: 100%; }
-      .skill-item { font-size: 12px; padding: 4px 6px; border: 1px solid rgba(191,219,254,0.6); border-radius: 6px; background: rgba(219,234,254,0.18); margin-bottom: 5px; cursor: pointer; }
-      .skill-item.active { border-color: #34d399; background: rgba(52,211,153,0.16); }
+      .controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+      input, textarea, button, select { width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 7px 8px; font-size: 12px; }
+      button { cursor: pointer; background: #eff6ff; }
+      pre { background: #111827; color: #e5e7eb; border-radius: 8px; padding: 8px; max-height: 180px; overflow: auto; }
 
+      @keyframes walk { from { filter: brightness(1); } to { filter: brightness(1.18); } }
       @keyframes bob { from { transform: translate(-50%, -50%) translateY(0); } to { transform: translate(-50%, -50%) translateY(-3px); } }
       @keyframes stepwalk { from { transform: translate(-50%, -50%) translateX(-1px); } to { transform: translate(-50%, -50%) translateX(1px); } }
       @keyframes breathe { 0% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(0.94); } 100% { transform: translate(-50%, -50%) scale(1); } }
       @keyframes shake { 0% { transform: translate(-50%, -50%) translateX(0); } 50% { transform: translate(-50%, -50%) translateX(-2px); } 100% { transform: translate(-50%, -50%) translateX(2px); } }
-      @keyframes walk-frame { from { filter: brightness(1); } to { filter: brightness(1.18); } }
-      @keyframes fly-path {
-        0% { transform: translate(-50%, -50%) scale(0.7); }
-        40% { transform: translate(calc(var(--dx, 0) * 0.4), calc(var(--dy, 0) * 0.4)) scale(1.1); }
-        100% { transform: translate(calc(var(--dx, 0)), calc(var(--dy, 0))) scale(0.7); opacity: 0; }
-      }
-      @media (max-width: 1140px) { .layout { grid-template-columns: 1fr; } .desk-grid { grid-template-columns: 1fr; } }
+      @media (max-width: 1160px) { .layout { grid-template-columns: 1fr; } }
     </style>
   </head>
-  <body data-skin="desk">
-    <div class="app">
+  <body>
+    <div id="app" class="app">
       <div class="topbar">
-        <div class="title">Agent Ops Studio · <span id="sessionKey">agent:main:main</span></div>
-        <div class="badge run" id="status">RUNNING</div>
-        <div class="badge run" id="conn">CONNECTED</div>
-        <div>
-          <button id="pauseBtn">Pause</button>
-          <button id="stopBtn">Stop</button>
-          <button id="jumpLatest">跳到最新</button>
+        <div><strong>Agent Ops Studio</strong> · {{sessionKey}}</div>
+        <div class="tabs">
+          <button :class="{active:tab==='dashboard'}" @click="tab='dashboard'">总览</button>
+          <button :class="{active:tab==='commands'}" @click="tab='commands'">命令中心</button>
+          <button :class="{active:tab==='skills'}" @click="tab='skills'">Skills</button>
+          <button :class="{active:tab==='logs'}" @click="tab='logs'">日志</button>
         </div>
-        <div>
-          <select id="skin">
-            <option value="desk">桌面叙事</option>
-            <option value="focus">极简企业</option>
-            <option value="night">夜间值守</option>
-          </select>
-          <button id="replayBtn">回放</button>
-        </div>
+        <div class="badge">{{conn}}</div>
+        <button @click="logout">退出登录</button>
       </div>
 
-      <div class="layout">
-        <section class="panel">
-          <h3>事件时间线</h3>
-          <div class="content">
-            <div class="filters" id="filters"></div>
-            <div class="timeline-scroller" id="timelineScroller"><div id="timeline"></div></div>
-          </div>
-        </section>
-
-        <section class="studio panel" style="overflow:visible;">
-          <h3 style="background:transparent;border-bottom:0;padding:0 0 8px 0;color:#fff7ed;">第三人称像素行动视图</h3>
-          <div class="desk-grid">
-            <div class="mini"><div class="mini-title">待办便签</div><div id="todo"></div></div>
-            <div class="actor">
-              <div class="world" id="world">
-                <div class="zone plan" data-stage="Planning">Planning</div>
-                <div class="zone search" data-stage="Search">Search</div>
-                <div class="zone build" data-stage="Build">Build</div>
-                <div class="zone verify" data-stage="Verify">Verify</div>
-                <div class="zone delivery" data-stage="Delivery">Delivery</div>
-                <div class="path-glow" id="pathGlow"></div>
-                <div class="avatar waiting" id="person"><div class="shadow"></div></div>
+      <div class="layout" v-if="tab==='dashboard'">
+        <section class="card">
+          <h3>命令进度（用户视角）</h3>
+          <div class="content log-list">
+            <div class="cmd" v-for="c in commandList" :key="c.id">
+              <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;">
+                <strong>{{c.note || c.action}}</strong>
+                <span class="status">{{c.status}}</span>
               </div>
-              <div class="action-strip">
-                <div class="action-text" id="doingText">我在待命</div>
-                <div class="stations" id="stations"></div>
-              </div>
-            </div>
-            <div class="mini">
-              <div class="mini-title">工具抽屉</div>
-              <div id="tools"></div>
-              <div class="mini-title" style="margin-top:8px;">Skills</div>
-              <div id="skillList" class="t-sub"></div>
+              <div class="small">{{c.lastEvent || '-'}} · {{new Date(c.ts).toLocaleTimeString()}}</div>
+              <div class="progress"><span :style="{width: (c.progress||0)+'%'}"></span></div>
             </div>
           </div>
         </section>
 
-        <section class="panel">
-          <h3>Inspector / 干预中心</h3>
+        <section class="card">
+          <h3>第三人称像素行动视图</h3>
           <div class="content">
-            <div class="kpi">
-              <div><div class="t-sub">Elapsed</div><strong id="elapsed">0s</strong></div>
-              <div><div class="t-sub">Tokens</div><strong id="tokens">0</strong></div>
-              <div><div class="t-sub">Cost</div><strong id="cost">$0.0000</strong></div>
-              <div><div class="t-sub">Retry</div><strong id="retry">0</strong></div>
+            <div class="world">
+              <div class="zone plan" :class="{active:actor.stage==='Planning'&&actor.status==='exec'}">Planning</div>
+              <div class="zone search" :class="{active:actor.stage==='Search'&&actor.status==='exec'}">Search</div>
+              <div class="zone build" :class="{active:actor.stage==='Build'&&actor.status==='exec'}">Build</div>
+              <div class="zone verify" :class="{active:actor.stage==='Verify'&&actor.status==='exec'}">Verify</div>
+              <div class="zone delivery" :class="{active:actor.stage==='Delivery'&&actor.status==='exec'}">Delivery</div>
+              <div class="avatar" :class="[actor.motion,actor.facing,{walking:actor.walking}]" :style="{left:actor.x+'%',top:actor.y+'%'}"></div>
             </div>
-            <div><strong id="focusTitle">等待事件...</strong></div>
-            <div class="t-sub" id="focusWhy">why: -</div>
-            <div class="t-sub" id="focusNext">next: -</div>
-            <div class="risk" id="risk">风险: low</div>
-            <pre id="stdout"></pre>
-            <div style="margin-top:8px;"><strong>审批中心</strong></div>
-            <div id="approvals"></div>
-            <div style="margin-top:8px;"><strong>失败诊断</strong></div>
-            <div class="diag" id="diag">暂无异常</div>
+            <div style="margin-top:8px;" class="small">{{actor.text}}</div>
+          </div>
+        </section>
 
-            <div style="margin-top:8px;"><strong>Task OS</strong></div>
-            <div class="task-board" id="taskBoard"></div>
-            <div class="ctrls">
-              <button data-control="retry_last">重试最近步骤</button>
-              <button data-control="skip_step">跳过当前步骤</button>
-              <button data-control="pause_risky">仅暂停高风险</button>
-              <button data-control="priority_speed">模式: 速度优先</button>
-              <button data-control="priority_safe">模式: 稳妥优先</button>
-              <button data-control="priority_cost">模式: 低成本优先</button>
+        <section class="card">
+          <h3>任务面板</h3>
+          <div class="content">
+            <div v-for="t in tasks" :key="t.id" class="cmd">
+              <strong>{{t.name}}</strong>
+              <div class="small">{{t.detail}}</div>
+              <div class="small">{{t.status}}</div>
             </div>
+          </div>
+        </section>
+      </div>
 
-            <div style="margin-top:8px;"><strong>命令下发区</strong></div>
-            <div class="task-board">
-              <input id="cmdInput" placeholder="例如: 重新检索 LangChain 文档并输出要点" style="width:100%;padding:7px;border:1px solid #cbd5e1;border-radius:8px;" />
-              <div style="display:flex;gap:6px;margin-top:6px;">
-                <button id="cmdSend" style="flex:1;">发送命令</button>
-                <button id="cmdUrgent" style="flex:1;">紧急插队</button>
-              </div>
+      <div class="layout" v-else-if="tab==='commands'">
+        <section class="card">
+          <h3>命令下发区</h3>
+          <div class="content">
+            <textarea v-model="cmdText" rows="4" placeholder="输入要下发给智能体的命令"></textarea>
+            <div class="controls" style="margin-top:6px;">
+              <button @click="dispatch(false)">发送命令</button>
+              <button @click="dispatch(true)">紧急插队</button>
+              <button @click="sendControl('retry_last')">重试最近步骤</button>
+              <button @click="sendControl('skip_step')">跳过当前步骤</button>
+              <button @click="sendControl('priority_speed')">速度优先</button>
+              <button @click="sendControl('priority_safe')">稳妥优先</button>
             </div>
-
-            <div style="margin-top:8px;"><strong>Skill 详情</strong></div>
-            <div class="task-board">
-              <div id="skillTitle" class="t-sub">点击左侧 Skill 查看介绍</div>
-              <pre id="skillDetail" style="min-height:120px;max-height:180px;">-</pre>
-              <div id="skillFiles" class="t-sub" style="margin-top:6px;"></div>
-              <pre id="skillSource" style="min-height:90px;max-height:140px;">-</pre>
+          </div>
+        </section>
+        <section class="card" style="grid-column: span 2;">
+          <h3>命令执行状态</h3>
+          <div class="content log-list">
+            <div class="cmd" v-for="c in commandList" :key="c.id">
+              <div style="display:flex;justify-content:space-between;gap:8px;"><strong>{{c.note||c.action}}</strong><span class="status">{{c.status}}</span></div>
+              <div class="small">进度: {{c.progress||0}}% · {{c.lastEvent||'-'}}</div>
+              <div class="progress"><span :style="{width:(c.progress||0)+'%'}"></span></div>
             </div>
+          </div>
+        </section>
+      </div>
 
-            <div style="margin-top:8px;"><strong>Artifacts</strong></div>
-            <div class="artifacts" id="artifacts"></div>
+      <div class="layout" v-else-if="tab==='skills'">
+        <section class="card">
+          <h3>Skill 列表</h3>
+          <div class="content">
+            <button v-for="s in skills" :key="s.name" @click="openSkill(s.name)" style="margin-bottom:6px;text-align:left;">{{s.name}}</button>
+          </div>
+        </section>
+        <section class="card" style="grid-column: span 2;">
+          <h3>{{skillTitle}}</h3>
+          <div class="content">
+            <pre>{{skillDetail}}</pre>
+            <div class="small" style="margin:8px 0;">文件</div>
+            <div class="controls">
+              <button v-for="f in skillFiles" :key="f" @click="openSource(f)">{{f}}</button>
+            </div>
+            <pre style="margin-top:8px;">{{skillSource}}</pre>
+          </div>
+        </section>
+      </div>
+
+      <div class="layout" v-else>
+        <section class="card" style="grid-column: span 3;">
+          <h3>实时日志</h3>
+          <div class="content log-list">
+            <div class="log-item" v-for="l in logs" :key="l._id">
+              <strong>{{l.title}}</strong>
+              <div class="small">{{l.out}}</div>
+              <div class="small">{{new Date(l.ts).toLocaleTimeString()}}</div>
+            </div>
           </div>
         </section>
       </div>
     </div>
 
     <script>
-      const stations = ["Planning", "Search", "Build", "Verify", "Delivery"];
-      const tools = ["read", "web_fetch", "edit", "write", "exec", "message"];
-      const state = {
-        start: Date.now(), paused: false, connected: false, stream: null, filter: "all", skin: "desk",
-        tokens: 0, cost: 0, retry: 0, events: [], approvals: [], unreadCount: 0, stickBottom: true,
-        replay: { mode: false, timer: null, idx: 0, source: [] }, taskId: 1, lastReadIdx: 0, mode: "balanced",
-        tasks: [],
-        actor: { status: "idle", stage: "Planning", prevStage: "Planning", facing: "face-down", walking: false, todo: [], actionText: "我在待命" }
-      };
-
-      const el = {
-        status: document.getElementById("status"), conn: document.getElementById("conn"), timeline: document.getElementById("timeline"),
-        scroller: document.getElementById("timelineScroller"), focusTitle: document.getElementById("focusTitle"), focusWhy: document.getElementById("focusWhy"),
-        focusNext: document.getElementById("focusNext"), risk: document.getElementById("risk"), stdout: document.getElementById("stdout"),
-        tokens: document.getElementById("tokens"), cost: document.getElementById("cost"), retry: document.getElementById("retry"), elapsed: document.getElementById("elapsed"),
-        todo: document.getElementById("todo"), tools: document.getElementById("tools"), stations: document.getElementById("stations"), person: document.getElementById("person"), pathGlow: document.getElementById("pathGlow"),
-        doingText: document.getElementById("doingText"), artifacts: document.getElementById("artifacts"), approvals: document.getElementById("approvals"),
-        diag: document.getElementById("diag"), taskBoard: document.getElementById("taskBoard"), filters: document.getElementById("filters"), sessionKey: document.getElementById("sessionKey"),
-        pauseBtn: document.getElementById("pauseBtn"), stopBtn: document.getElementById("stopBtn"), jumpLatest: document.getElementById("jumpLatest"),
-        skin: document.getElementById("skin"), replayBtn: document.getElementById("replayBtn"),
-        skillList: document.getElementById("skillList"), skillTitle: document.getElementById("skillTitle"), skillDetail: document.getElementById("skillDetail"),
-        skillFiles: document.getElementById("skillFiles"), skillSource: document.getElementById("skillSource"),
-        cmdInput: document.getElementById("cmdInput"), cmdSend: document.getElementById("cmdSend"), cmdUrgent: document.getElementById("cmdUrgent")
-      };
-
-      const filterDefs = ["all", "tool", "risk", "file", "error", "task"];
-
-      function setBadge(node, text, cls) { node.textContent = text; node.className = `badge ${cls}`; }
-      function tsToBucket(ts) { const d = new Date(ts); return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2,"0")}`; }
-      function timeOnly(ts) { return new Date(ts).toLocaleTimeString(); }
-      function stationFromTitle(t) {
-        const x = (t || "").toLowerCase();
-        if (x.includes("search") || x.includes("read") || x.includes("检索")) return "Search";
-        if (x.includes("build") || x.includes("write") || x.includes("edit") || x.includes("生成") || x.includes("更新")) return "Build";
-        if (x.includes("verify") || x.includes("test") || x.includes("检查")) return "Verify";
-        if (x.includes("deliver") || x.includes("send") || x.includes("回复")) return "Delivery";
-        return "Planning";
-      }
-
-      function eventKind(e) {
-        if (e.event?.includes("tool")) return "tool";
-        if (["file.changed", "artifact.created"].includes(e.event)) return "file";
-        if (e.event?.includes("error") || e.event?.includes("failed")) return "error";
-        if (e.risk === "high" || e.event === "approval.required") return "risk";
-        return "all";
-      }
-
-      function filteredEvents() {
-        if (state.filter === "all") return state.events;
-        if (state.filter === "task") return state.events.filter((e) => e.event === "user.request" || e.event === "session.started");
-        return state.events.filter((e) => eventKind(e) === state.filter);
-      }
-
-      function renderFilters() {
-        el.filters.innerHTML = filterDefs.map((f) => `<button class="${state.filter===f?"active":""}" data-f="${f}">${f}</button>`).join("");
-        [...el.filters.querySelectorAll("button")].forEach((b)=>b.onclick=()=>{ state.filter=b.dataset.f; renderFilters(); renderTimeline(); });
-      }
-
-      function renderDesk() {
-        el.todo.innerHTML = (state.actor.todo.length ? state.actor.todo : ["等待新任务"]).slice(0, 6).map((x)=>`<div class="note">${x}</div>`).join("");
-        el.tools.innerHTML = tools.map((t)=>`<span class="tool" style="opacity:${state.actor.actionText.includes(t)?1:0.75}">${t}</span>`).join("");
-        el.stations.innerHTML = stations.map((s)=>`<div class="station ${state.actor.status==="exec"&&state.actor.stage===s?"active":""}">${s}</div>`).join("");
-
-        const motion = state.actor.status === "exec" ? (state.actor.stage === "Search" ? "searching" : "typing") : state.actor.status === "block" ? "blocked" : "waiting";
-
-        const stagePos = {
-          Planning: { x: 18, y: 24 },
-          Search: { x: 82, y: 24 },
-          Build: { x: 26, y: 76 },
-          Verify: { x: 78, y: 76 },
-          Delivery: { x: 50, y: 54 }
-        };
-        const prev = stagePos[state.actor.prevStage] || stagePos.Planning;
-        const next = stagePos[state.actor.stage] || stagePos.Delivery;
-        const dx = next.x - prev.x;
-        const dy = next.y - prev.y;
-        if (Math.abs(dx) > Math.abs(dy)) {
-          state.actor.facing = dx >= 0 ? "face-right" : "face-left";
-        } else {
-          state.actor.facing = dy >= 0 ? "face-down" : "face-up";
-        }
-
-        if (state.actor.walking) {
-          el.pathGlow.style.setProperty("--from-x", `${prev.x}%`);
-          el.pathGlow.style.setProperty("--from-y", `${prev.y}%`);
-          el.pathGlow.style.setProperty("--dx", `${(next.x - prev.x) * 1}%`);
-          el.pathGlow.style.setProperty("--dy", `${(next.y - prev.y) * 1}%`);
-          el.pathGlow.classList.remove("on");
-          void el.pathGlow.offsetWidth;
-          el.pathGlow.classList.add("on");
-        }
-
-        el.person.className = `avatar ${motion} ${state.actor.facing} ${state.actor.walking ? "walking" : ""}`;
-        el.person.style.left = `${next.x}%`;
-        el.person.style.top = `${next.y}%`;
-
-        document.querySelectorAll(".zone").forEach((z) => {
-          z.classList.toggle("active", z.dataset.stage === state.actor.stage && state.actor.status === "exec");
-        });
-
-        el.doingText.textContent = state.actor.actionText;
-      }
-
-      function renderTimeline() {
-        const list = filteredEvents().slice(-160);
-        const nearBottom = el.scroller.scrollHeight - el.scroller.scrollTop - el.scroller.clientHeight < 36;
-        if (nearBottom) state.stickBottom = true;
-        let prevBucket = "";
-
-        el.timeline.innerHTML = list.map((e, i) => {
-          const bucket = tsToBucket(e._ts);
-          const sep = bucket !== prevBucket ? `<div class="time-sep">${bucket}</div>` : "";
-          prevBucket = bucket;
-          const unreadSep = e._idx === state.lastReadIdx + 1 && state.unreadCount > 0 ? `<div class="unread">--- ${state.unreadCount} 条新消息 ---</div>` : "";
-          const side = i % 2 === 0 ? "left" : "right";
-          const risk = e.risk === "high" ? "high" : e.risk === "medium" ? "medium" : "";
-          return `${sep}${unreadSep}<div class="timeline-item ${side} ${risk}" data-i="${i}"><div><strong>${e.title || e.event}</strong></div><div class="t-sub">${e.payload?.out || e.payload?.why || "-"}</div><div class="t-sub">${timeOnly(e._ts)}</div></div>`;
-        }).join("");
-
-        [...el.timeline.querySelectorAll(".timeline-item")].forEach((n)=>n.onclick=()=>focus(list[Number(n.dataset.i)]));
-        if (state.stickBottom) { el.scroller.scrollTop = el.scroller.scrollHeight; state.unreadCount = 0; state.lastReadIdx = state.events.length; }
-      }
-
-      function renderApprovals() {
-        el.approvals.innerHTML = state.approvals.map((a, i) =>
-          `<div class="approval-item"><div>${a.reason}</div><div style="margin-top:6px;"><button data-ok="${i}">同意</button> <button data-no="${i}">拒绝</button></div></div>`
-        ).join("") || '<div class="t-sub">无待审批</div>';
-
-        [...el.approvals.querySelectorAll("button[data-ok]")].forEach((b)=>b.onclick=()=>resolveApproval(Number(b.dataset.ok), true));
-        [...el.approvals.querySelectorAll("button[data-no]")].forEach((b)=>b.onclick=()=>resolveApproval(Number(b.dataset.no), false));
-      }
-
-      async function resolveApproval(idx, pass) {
-        const a = state.approvals[idx];
-        if (!a) return;
-        state.approvals.splice(idx, 1);
-        renderApprovals();
-        try {
-          const resp = await fetch("/api/approvals", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action: pass ? "approve" : "deny", reason: a.reason })
-          });
-          if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-          pushLog(pass ? "审批已提交: 同意" : "审批已提交: 拒绝");
-        } catch (err) {
-          pushLog(`审批提交失败: ${err.message || err}`);
-          applyEvent({
-            event: pass ? "approval.granted" : "approval.denied",
-            title: pass ? "审批通过(本地兜底)" : "审批拒绝(本地兜底)",
-            risk: pass ? "low" : "medium",
-            payload: { why: "人工干预", out: a.reason, next: pass ? "继续执行" : "终止高风险操作" }
-          });
-        }
-      }
-
-      async function syncApprovals() {
-        try {
-          const resp = await fetch("/api/approvals");
-          if (!resp.ok) return;
-          const data = await resp.json();
-          const items = Array.isArray(data.items) ? data.items : [];
-          for (const item of items.slice(-10)) {
-            if (item.action === "deny" || item.action === "approve") {
-              applyEvent({
-                event: item.action === "approve" ? "approval.granted" : "approval.denied",
-                title: item.action === "approve" ? "审批通过(历史)" : "审批拒绝(历史)",
-                risk: item.action === "approve" ? "low" : "medium",
-                _ts: item.ts,
-                payload: {
-                  why: "历史审批记录",
-                  out: item.reason || "manual decision",
-                  next: item.action === "approve" ? "继续执行" : "终止或改写方案"
-                }
-              });
+      const { createApp } = Vue;
+      createApp({
+        data() {
+          return {
+            tab: 'dashboard',
+            conn: 'CONNECTING',
+            sessionKey: new URLSearchParams(location.search).get('sessionKey') || 'agent:main:main',
+            logs: [],
+            tasks: [],
+            commands: [],
+            cmdText: '',
+            skills: [],
+            skillName: '',
+            skillTitle: 'Skill 详情',
+            skillDetail: '-',
+            skillFiles: [],
+            skillSource: '-',
+            actor: { stage: 'Planning', status: 'idle', motion: 'waiting', facing: 'face-down', x: 50, y: 54, text: '待命', walking: false }
+          }
+        },
+        computed: {
+          commandList() {
+            return [...this.commands].sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0, 50);
+          }
+        },
+        methods: {
+          async api(path, options) {
+            const r = await fetch(path, options);
+            if (r.status === 401) { location.href = '/login.html'; throw new Error('unauthorized'); }
+            return r;
+          },
+          pushLog(title, out) {
+            this.logs.push({ _id: crypto.randomUUID(), title, out, ts: Date.now() });
+            if (this.logs.length > 600) this.logs.shift();
+          },
+          updateActorByTitle(title, out='') {
+            const t = (title || '').toLowerCase();
+            const stage = t.includes('search') || t.includes('read') || t.includes('检索') ? 'Search'
+              : t.includes('write') || t.includes('edit') || t.includes('build') || t.includes('生成') ? 'Build'
+              : t.includes('verify') || t.includes('检查') ? 'Verify'
+              : t.includes('send') || t.includes('deliver') || t.includes('回复') ? 'Delivery' : 'Planning';
+            const pos = { Planning:[18,24], Search:[82,24], Build:[26,76], Verify:[78,76], Delivery:[50,54] };
+            const [nx, ny] = pos[stage];
+            const dx = nx - this.actor.x;
+            const dy = ny - this.actor.y;
+            this.actor.facing = Math.abs(dx) > Math.abs(dy) ? (dx >= 0 ? 'face-right' : 'face-left') : (dy >= 0 ? 'face-down' : 'face-up');
+            this.actor.walking = stage !== this.actor.stage;
+            this.actor.x = nx;
+            this.actor.y = ny;
+            this.actor.stage = stage;
+            this.actor.status = 'exec';
+            this.actor.motion = stage === 'Search' ? 'searching' : 'typing';
+            this.actor.text = out || title || '执行中';
+            if (this.actor.walking) setTimeout(() => this.actor.walking = false, 520);
+          },
+          onEvent(evt) {
+            if (!evt || !evt.event) return;
+            if (evt.event === 'command.updated' && evt.payload) {
+              const i = this.commands.findIndex((x)=>x.id===evt.payload.id);
+              if (i >= 0) this.commands[i] = evt.payload; else this.commands.push(evt.payload);
+              return;
             }
-          }
-        } catch {
-          // ignore
-        }
-      }
-
-      function renderDiag() {
-        const errs = state.events.filter((e)=>e.event==="tool.error" || e.event==="session.failed").slice(-3);
-        if (!errs.length) { el.diag.textContent = "暂无异常"; return; }
-        const last = errs[errs.length-1];
-        const tip = (last.payload?.out || "").includes("permission") ? "疑似权限不足，建议检查工具权限/认证。" : "建议重试最近步骤，并检查输入参数。";
-        el.diag.textContent = `最近异常: ${last.title || last.event}。建议: ${tip}`;
-      }
-
-      function renderTaskBoard() {
-        const tasks = state.tasks.slice(-6).reverse();
-        if (!tasks.length) {
-          el.taskBoard.innerHTML = '<div class="t-sub">暂无任务，等待用户请求</div>';
-          return;
-        }
-        el.taskBoard.innerHTML = tasks.map((t) =>
-          `<div class="task-row"><div><strong>${t.name}</strong><div class="t-sub">${t.detail}</div></div><div>${t.status}</div></div>`
-        ).join("");
-      }
-
-      async function sendControl(action, note = "") {
-        try {
-          const resp = await fetch('/api/control', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action, note: note || `mode=${state.mode}` })
-          });
-          if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-          pushLog(`控制指令已下发: ${action}`);
-        } catch (err) {
-          pushLog(`控制指令失败: ${err.message || err}`);
-        }
-      }
-
-      async function loadSkills() {
-        try {
-          const resp = await fetch('/api/skills');
-          if (!resp.ok) return;
-          const data = await resp.json();
-          const items = Array.isArray(data.items) ? data.items : [];
-          el.skillList.innerHTML = items.map((s, i) => `<div class="skill-item ${i===0?"active":""}" data-skill="${s.name}">${s.name}</div>`).join("");
-          [...el.skillList.querySelectorAll('.skill-item')].forEach((n) => {
-            n.onclick = () => {
-              [...el.skillList.querySelectorAll('.skill-item')].forEach((x) => x.classList.remove('active'));
-              n.classList.add('active');
-              loadSkillDetail(n.dataset.skill);
+            if (evt.event === 'queue.updated') {
+              const items = evt.payload?.items || [];
+              this.tasks = items.map((name, i) => ({ id: `${Date.now()}-${i}`, name, detail: i===0?'当前排队头部':'等待执行', status: i===0?'queued':'pending' }));
+            }
+            if (evt.event === 'step.started' || evt.event === 'tool.started') {
+              this.updateActorByTitle(evt.title || '', evt.payload?.out || '');
+            }
+            if (evt.event === 'step.completed' || evt.event === 'tool.completed') {
+              this.actor.status = 'idle';
+              this.actor.motion = 'waiting';
+              this.actor.text = '待命';
+            }
+            if (evt.event === 'tool.error' || evt.event === 'session.failed') {
+              this.actor.status = 'blocked';
+              this.actor.motion = 'blocked';
+              this.actor.text = '执行异常';
+            }
+            if (evt.event === 'control.applied') {
+              this.tasks.unshift({ id: `ctrl-${Date.now()}`, name: evt.title || '控制指令', detail: evt.payload?.out || '-', status: 'applied' });
+            }
+            this.pushLog(evt.title || evt.event, evt.payload?.out || evt.payload?.why || '-');
+          },
+          connect() {
+            const url = `/api/agent-events?sessionKey=${encodeURIComponent(this.sessionKey)}`;
+            const es = new EventSource(url);
+            es.onopen = () => this.conn = 'CONNECTED';
+            es.onmessage = (m) => {
+              try { this.onEvent(JSON.parse(m.data)); } catch {}
             };
-          });
-          if (items[0]) loadSkillDetail(items[0].name);
-        } catch {
-          // ignore
-        }
-      }
-
-      async function loadSkillDetail(name) {
-        try {
-          const resp = await fetch(`/api/skills/detail?name=${encodeURIComponent(name)}`);
-          if (!resp.ok) return;
-          const data = await resp.json();
-          el.skillTitle.textContent = `${data.skill.name} - ${data.skill.description}`;
-          el.skillDetail.textContent = data.content || '-';
-          const files = Array.isArray(data.files) ? data.files : [];
-          el.skillFiles.innerHTML = files.map((f) => `<button data-source="${f}">${f}</button>`).join(' ');
-          [...el.skillFiles.querySelectorAll('button')].forEach((b) => {
-            b.onclick = () => loadSkillSource(name, b.getAttribute('data-source'));
-          });
-          if (files[0]) loadSkillSource(name, files[0]);
-        } catch {
-          // ignore
-        }
-      }
-
-      async function loadSkillSource(name, file) {
-        try {
-          const resp = await fetch(`/api/skills/source?name=${encodeURIComponent(name)}&file=${encodeURIComponent(file)}`);
-          if (!resp.ok) return;
-          const data = await resp.json();
-          el.skillSource.textContent = data.content || '-';
-        } catch {
-          // ignore
-        }
-      }
-
-      function focus(e) {
-        if (!e) return;
-        el.focusTitle.textContent = e.title || e.event;
-        el.focusWhy.textContent = `why: ${e.payload?.why || "-"}`;
-        el.focusNext.textContent = `next: ${e.payload?.next || "-"}`;
-        const risk = e.risk || (e.event === "approval.required" ? "high" : "low");
-        el.risk.textContent = `风险: ${risk}`;
-      }
-
-      function pushLog(text) { el.stdout.textContent += `[${new Date().toLocaleTimeString()}] ${text}\n`; el.stdout.scrollTop = el.stdout.scrollHeight; }
-      function addArtifact(name) { if (!name) return; const n=document.createElement("span"); n.className="artifact"; n.textContent=name; el.artifacts.prepend(n); }
-
-      function applyEvent(evt, fromStream = false) {
-        if (!evt || state.paused) return;
-        evt._ts = evt._ts || Date.now();
-        evt._idx = state.events.length + 1;
-        if (fromStream) evt.taskId = evt.taskId || state.taskId;
-        state.events.push(evt);
-
-        if (!state.stickBottom) state.unreadCount += 1;
-        if (evt.event === "session.started") setBadge(el.status, "RUNNING", "run");
-        if (evt.event === "session.failed") setBadge(el.status, "FAILED", "fail");
-        if (evt.event === "session.completed") setBadge(el.status, "COMPLETED", "run");
-
-        if (evt.event === "queue.updated") {
-          const items = evt.payload?.items || [];
-          state.tasks = items.map((name, i) => ({
-            id: `${evt._ts}-${i}`,
-            name,
-            detail: i === 0 ? "当前排队头部" : "等待执行",
-            status: i === 0 ? "queued" : "pending"
-          }));
-        }
-
-        if (evt.event === "cost.updated") { state.tokens = evt.payload?.tokens || state.tokens; state.cost = evt.payload?.cost || state.cost; state.retry = evt.payload?.retry || state.retry; }
-        if (["artifact.created", "file.changed"].includes(evt.event)) addArtifact(evt.payload?.name || evt.payload?.path || "artifact");
-        if (evt.event === "queue.updated") state.actor.todo = evt.payload?.items || state.actor.todo;
-
-        if (["step.started", "tool.started", "生成回复"].includes(evt.event) || evt.event === "step.started") {
-          const nextStage = stationFromTitle(evt.title || evt.payload?.out || "");
-          state.actor.status = "exec";
-          if (nextStage !== state.actor.stage) {
-            state.actor.prevStage = state.actor.stage;
-            state.actor.stage = nextStage;
-            state.actor.walking = true;
-            setTimeout(() => {
-              state.actor.walking = false;
-              renderDesk();
-            }, 520);
+            es.onerror = () => this.conn = 'DISCONNECTED';
+          },
+          async loadCommands() {
+            const r = await this.api('/api/commands');
+            const j = await r.json();
+            this.commands = Array.isArray(j.items) ? j.items : [];
+          },
+          async sendControl(action, note='') {
+            await this.api('/api/control', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action, note, sessionKey: this.sessionKey }) });
+            await this.loadCommands();
+          },
+          async dispatch(urgent) {
+            const text = this.cmdText.trim();
+            if (!text) return;
+            await this.sendControl(urgent ? 'dispatch_command_urgent' : 'dispatch_command', text);
+            this.cmdText = '';
+          },
+          async loadSkills() {
+            const r = await this.api('/api/skills');
+            const j = await r.json();
+            this.skills = j.items || [];
+            if (this.skills[0]) this.openSkill(this.skills[0].name);
+          },
+          async openSkill(name) {
+            this.skillName = name;
+            const r = await this.api(`/api/skills/detail?name=${encodeURIComponent(name)}`);
+            const j = await r.json();
+            this.skillTitle = `${j.skill.name} - ${j.skill.description}`;
+            this.skillDetail = j.content || '-';
+            this.skillFiles = j.files || [];
+            if (this.skillFiles[0]) this.openSource(this.skillFiles[0]);
+          },
+          async openSource(file) {
+            const r = await this.api(`/api/skills/source?name=${encodeURIComponent(this.skillName)}&file=${encodeURIComponent(file)}`);
+            const j = await r.json();
+            this.skillSource = j.content || '-';
+          },
+          async logout() {
+            await fetch('/auth/logout', { method: 'POST' });
+            location.href = '/login.html';
           }
-          state.actor.actionText = evt.payload?.out ? `我正在: ${evt.payload.out}` : `我正在${state.actor.stage}`;
-          if (state.tasks.length) {
-            state.tasks[0].status = "running";
-            state.tasks[0].detail = evt.title || evt.payload?.out || "执行中";
-          }
-          focus(evt);
-          pushLog(evt.payload?.out || evt.title || evt.event);
+        },
+        async mounted() {
+          const me = await fetch('/auth/me').then((r) => r.json()).catch(() => ({ authed: false }));
+          if (!me.authed) return (location.href = '/login.html');
+          await this.loadCommands();
+          await this.loadSkills();
+          this.connect();
         }
-        if (["step.completed", "tool.completed"].includes(evt.event)) {
-          state.actor.status = "idle";
-          state.actor.walking = false;
-          state.actor.actionText = "我在待命";
-          if (state.tasks.length) {
-            state.tasks[0].status = "done";
-            state.tasks[0].detail = "执行完成";
-          }
-        }
-        if (["tool.error", "session.failed"].includes(evt.event)) { state.actor.status = "block"; state.actor.walking = false; state.actor.actionText = "我卡住了，等待处理"; }
-
-        if (evt.event === "approval.required") {
-          const reason = evt.payload?.reason || evt.payload?.out || "需要审批";
-          state.approvals.unshift({ reason, ts: evt._ts });
-          if (Notification.permission === "granted") new Notification("Agent 审批提醒", { body: reason });
-          focus({ ...evt, risk: "high" });
-        }
-
-        if (evt.event === "control.applied") {
-          state.tasks.unshift({
-            id: `ctrl-${evt._ts}`,
-            name: evt.title || "控制指令",
-            detail: evt.payload?.out || "已应用",
-            status: "applied"
-          });
-        }
-
-        renderDesk();
-        renderTimeline();
-        renderApprovals();
-        renderDiag();
-        renderTaskBoard();
-      }
-
-      function connect() {
-        const p = new URLSearchParams(location.search);
-        const sk = p.get("sessionKey") || "agent:main:main";
-        el.sessionKey.textContent = sk;
-        const url = p.get("stream") || `/api/agent-events?sessionKey=${encodeURIComponent(sk)}`;
-        const es = new EventSource(url);
-        state.stream = es;
-
-        es.onopen = () => { state.connected = true; setBadge(el.conn, "CONNECTED", "run"); setBadge(el.status, "RUNNING", "run"); pushLog(`connected -> ${url}`); };
-        es.onmessage = (msg) => {
-          try {
-            const evt = JSON.parse(msg.data);
-            if (evt.event === "queue.updated" && !evt.payload?.items?.length) return;
-            applyEvent(evt, true);
-          } catch { pushLog(`invalid event: ${msg.data}`); }
-        };
-        es.onerror = () => { state.connected = false; setBadge(el.conn, "DISCONNECTED", "off"); if (!state.paused) setBadge(el.status, "OFFLINE", "off"); };
-      }
-
-      function startReplay() {
-        if (state.replay.mode) {
-          clearInterval(state.replay.timer);
-          state.replay.mode = false;
-          el.replayBtn.textContent = "回放";
-          return;
-        }
-        state.replay.mode = true;
-        el.replayBtn.textContent = "停止回放";
-        state.replay.source = state.events.slice();
-        state.events = [];
-        state.actor = { status: "idle", stage: "Planning", prevStage: "Planning", facing: "face-down", walking: false, todo: [], actionText: "我在待命" };
-        state.approvals = [];
-        renderDesk(); renderTimeline(); renderApprovals();
-        let i = 0;
-        state.replay.timer = setInterval(() => {
-          if (i >= state.replay.source.length) return startReplay();
-          applyEvent({ ...state.replay.source[i] }, false);
-          i += 1;
-        }, 220);
-      }
-
-      function tick() {
-        const sec = Math.floor((Date.now() - state.start) / 1000);
-        el.elapsed.textContent = `${sec}s`;
-        el.tokens.textContent = String(state.tokens);
-        el.cost.textContent = `$${Number(state.cost || 0).toFixed(4)}`;
-        el.retry.textContent = String(state.retry);
-      }
-
-      el.pauseBtn.onclick = () => { state.paused = !state.paused; el.pauseBtn.textContent = state.paused ? "Resume" : "Pause"; setBadge(el.status, state.paused ? "PAUSED" : (state.connected ? "RUNNING" : "OFFLINE"), state.paused ? "warn" : (state.connected ? "run" : "off")); };
-      el.stopBtn.onclick = () => { state.paused = true; setBadge(el.status, "STOPPED", "fail"); if (state.stream) state.stream.close(); pushLog("session stopped by operator"); };
-      el.jumpLatest.onclick = () => { state.stickBottom = true; el.scroller.scrollTop = el.scroller.scrollHeight; state.unreadCount = 0; state.lastReadIdx = state.events.length; renderTimeline(); };
-      el.skin.onchange = () => { document.body.dataset.skin = el.skin.value; };
-      el.replayBtn.onclick = () => startReplay();
-      document.querySelectorAll('[data-control]').forEach((btn) => {
-        btn.onclick = async () => {
-          const action = btn.getAttribute('data-control');
-          if (action === 'priority_speed') state.mode = 'speed';
-          if (action === 'priority_safe') state.mode = 'safe';
-          if (action === 'priority_cost') state.mode = 'cost';
-          await sendControl(action);
-        };
-      });
-      el.cmdSend.onclick = async () => {
-        const text = (el.cmdInput.value || '').trim();
-        if (!text) return;
-        await sendControl('dispatch_command', text);
-        el.cmdInput.value = '';
-      };
-      el.cmdUrgent.onclick = async () => {
-        const text = (el.cmdInput.value || '').trim();
-        if (!text) return;
-        await sendControl('dispatch_command_urgent', text);
-        el.cmdInput.value = '';
-      };
-      el.scroller.addEventListener("scroll", () => {
-        const delta = el.scroller.scrollHeight - el.scroller.scrollTop - el.scroller.clientHeight;
-        state.stickBottom = delta < 36;
-        if (state.stickBottom) { state.unreadCount = 0; state.lastReadIdx = state.events.length; renderTimeline(); }
-      });
-
-      if (window.Notification && Notification.permission === "default") Notification.requestPermission();
-      renderFilters(); renderDesk(); renderTimeline(); renderApprovals(); renderDiag(); renderTaskBoard();
-      loadSkills();
-      syncApprovals();
-      connect();
-      setInterval(tick, 400);
+      }).mount('#app');
     </script>
   </body>
 </html>
