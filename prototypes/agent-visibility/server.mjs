@@ -162,6 +162,11 @@ function normalizeUserCommand(text = "") {
   if (t.startsWith("Sender (untrusted metadata):")) return "";
   if (t.startsWith("[media attached")) return "";
   if (t.startsWith("[message_id:")) return "";
+
+  const ack = new Set(["嗯", "好的", "可以", "愿意", "收到", "ok", "OK", "日志也没有"]);
+  if (ack.has(t)) return "";
+  if (t.length < 6) return "";
+
   return t;
 }
 
@@ -172,7 +177,7 @@ function updateCommandFromEvent(evt) {
     const note = normalizeUserCommand(evt.payload?.out || "");
     if (!note) return;
 
-    const recent = [...commands].reverse().find((c) => c.note === note && Math.abs((c.ts || 0) - Date.now()) < 120000);
+    const recent = [...commands].reverse().find((c) => c.note === note && Math.abs((c.ts || 0) - Date.now()) < 300000);
     if (recent) {
       recent.status = recent.status === "done" ? "done" : "running";
       recent.progress = Math.max(recent.progress || 0, 16);

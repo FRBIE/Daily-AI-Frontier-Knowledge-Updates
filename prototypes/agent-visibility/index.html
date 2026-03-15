@@ -199,7 +199,8 @@
           },
           pushLog(evt) {
             const title = evt.title || evt.event || 'event';
-            const out = evt.payload?.out || evt.payload?.why || '-';
+            const raw = evt.payload?.out || evt.payload?.why || '-';
+            const out = String(raw).length > 240 ? `${String(raw).slice(0, 240)}...` : String(raw);
             this.logs.push({ id: this.makeId(), title, out, ts: evt._ts || Date.now() });
             if (this.logs.length > 800) this.logs.shift();
             this.lastEventAt = this.fmt(Date.now());
