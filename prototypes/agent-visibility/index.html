@@ -7,6 +7,7 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/highlight.js@11.10.0/styles/github-dark.min.css" />
     <script src="https://unpkg.com/highlight.js@11.10.0/lib/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.2/min/vs/loader.min.js"></script>
     <style>
       :root {
         --bg: #e9edf5;
@@ -73,37 +74,17 @@
       input, textarea, button, select { width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 7px 8px; font-size: 12px; }
       button { cursor: pointer; background: #eff6ff; }
       pre { background: #111827; color: #e5e7eb; border-radius: 8px; padding: 8px; max-height: 180px; overflow: auto; }
-      .viewer {
-        position: fixed;
-        left: 120px;
-        top: 90px;
-        width: 62vw;
-        height: 68vh;
-        min-width: 520px;
-        min-height: 320px;
-        border: 1px solid #334155;
-        border-radius: 10px;
-        background: #0f172a;
-        color: #e2e8f0;
-        z-index: 30;
-        resize: both;
-        overflow: hidden;
-        box-shadow: 0 18px 36px rgba(2, 6, 23, 0.45);
-      }
-      .viewer-head {
-        display: grid;
-        grid-template-columns: 1fr auto;
-        gap: 8px;
-        align-items: center;
-        padding: 8px 10px;
-        background: #111827;
-        border-bottom: 1px solid #334155;
-        cursor: move;
-      }
-      .viewer-body { height: calc(100% - 44px); overflow: auto; }
-      .viewer-body pre { margin: 0; height: 100%; max-height: none; border-radius: 0; }
-      .viewer-tabs { display: flex; gap: 6px; margin: 8px 0; }
-      .viewer-tabs button.active { background: #1d4ed8; color: #eaf2ff; }
+      .skill-workbench { display: grid; grid-template-columns: 260px 1fr; gap: 10px; }
+      .file-list { max-height: 65vh; overflow: auto; border: 1px solid var(--line); border-radius: 8px; padding: 6px; background: #f8fafc; }
+      .file-list button { text-align: left; margin-bottom: 6px; }
+      .editor-pane { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: #0b1220; }
+      .editor-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px; background: #111827; color: #dbeafe; }
+      .editor-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+      .editor-tabs button { width: auto; background: #1f2937; color: #cbd5e1; border-color: #334155; }
+      .editor-tabs button.active { background: #1d4ed8; color: #eff6ff; }
+      .editor-tools { display: flex; gap: 6px; }
+      .editor-tools input { width: 110px; }
+      .monaco-host { height: 62vh; }
 
       @keyframes walk { from { filter: brightness(1); } to { filter: brightness(1.18); } }
       @keyframes bob { from { transform: translate(-50%, -50%) translateY(0); } to { transform: translate(-50%, -50%) translateY(-3px); } }
@@ -204,36 +185,43 @@
       </div>
 
       <div class="layout" v-else-if="tab==='skills'">
-        <section class="card">
-          <h3>Skill 列表</h3>
-          <div class="content">
-            <button v-for="s in skills" :key="s.name" @click="openSkill(s.name)" style="margin-bottom:6px;text-align:left;">{{s.name}}</button>
-          </div>
-        </section>
-        <section class="card" style="grid-column: span 2;">
-          <h3>{{skillTitle}}</h3>
-          <div class="content">
-            <div class="small">点击文件会在可拖拽、可拉伸预览窗打开（含代码高亮）</div>
-            <div class="controls" style="margin-top:8px;">
-              <button @click="openViewer('doc')">打开文档预览</button>
-              <button v-for="f in skillFiles" :key="f" @click="openSource(f)">{{f}}</button>
+        <section class="card" style="grid-column: span 3;">
+          <h3>Skills 工作台</h3>
+          <div class="content skill-workbench">
+            <div>
+              <div class="small" style="margin-bottom:6px;">Skills</div>
+              <div class="file-list">
+                <button v-for="s in skills" :key="s.name" @click="openSkill(s.name)">{{s.name}}</button>
+              </div>
+              <div class="small" style="margin:10px 0 6px;">文件</div>
+              <div class="file-list">
+                <button v-for="f in skillFiles" :key="f" @click="openSource(f)">{{f}}</button>
+              </div>
+            </div>
+            <div class="editor-pane">
+              <div class="editor-top">
+                <div>
+                  <div><strong>{{skillTitle}}</strong></div>
+                  <div class="small">支持代码高亮、多 Tab、跳转行</div>
+                </div>
+                <div class="editor-tools">
+                  <select v-model="editorTheme" @change="applyEditorTheme">
+                    <option value="vs-dark">Dark</option>
+                    <option value="vs">Light</option>
+                  </select>
+                  <input v-model="jumpLine" placeholder="行号" />
+                  <button @click="goLine">跳转</button>
+                </div>
+              </div>
+              <div class="editor-top" style="border-top:1px solid #334155;">
+                <div class="editor-tabs">
+                  <button v-for="t in openTabs" :key="t.file" :class="{active:activeTab===t.file}" @click="activateTab(t.file)">{{t.file}}</button>
+                </div>
+              </div>
+              <div class="monaco-host" id="monacoHost"></div>
             </div>
           </div>
         </section>
-
-        <div class="viewer" v-if="viewer.show" :style="{left:viewer.left+'px', top:viewer.top+'px'}">
-          <div class="viewer-head" @mousedown="startDrag">
-            <div>{{viewer.title}}</div>
-            <button @click="viewer.show=false" style="width:auto;">关闭</button>
-          </div>
-          <div class="viewer-body">
-            <div class="viewer-tabs">
-              <button :class="{active:viewer.mode==='doc'}" @click="viewer.mode='doc'">文档</button>
-              <button :class="{active:viewer.mode==='source'}" @click="viewer.mode='source'">源码</button>
-            </div>
-            <pre><code class="hljs" v-html="viewer.mode==='doc' ? highlightedDoc : highlightedSource"></code></pre>
-          </div>
-        </div>
       </div>
 
       <div class="layout" v-else>
@@ -268,19 +256,17 @@
             skillDetail: '-',
             skillFiles: [],
             skillSource: '-',
-            viewer: { show: false, mode: 'doc', title: 'Skill 预览', left: 120, top: 90, drag: false, dx: 0, dy: 0 },
+            openTabs: [],
+            activeTab: '',
+            editorTheme: 'vs-dark',
+            jumpLine: '',
+            editor: null,
             actor: { stage: 'Planning', status: 'idle', motion: 'waiting', facing: 'face-down', x: 50, y: 54, text: '待命', walking: false }
           }
         },
         computed: {
           commandList() {
             return [...this.commands].sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0, 50);
-          },
-          highlightedDoc() {
-            try { return hljs.highlightAuto(this.skillDetail || '-').value; } catch { return this.skillDetail || '-'; }
-          },
-          highlightedSource() {
-            try { return hljs.highlightAuto(this.skillSource || '-').value; } catch { return this.skillSource || '-'; }
           }
         },
         methods: {
@@ -379,32 +365,73 @@
             this.skillTitle = `${j.skill.name} - ${j.skill.description}`;
             this.skillDetail = j.content || '-';
             this.skillFiles = j.files || [];
-            this.openViewer('doc');
+            this.openTab('SKILL.md', this.skillDetail, 'markdown');
             if (this.skillFiles[0]) this.openSource(this.skillFiles[0]);
+          },
+          detectLang(file) {
+            const f = (file || '').toLowerCase();
+            if (f.endsWith('.md')) return 'markdown';
+            if (f.endsWith('.json')) return 'json';
+            if (f.endsWith('.js') || f.endsWith('.mjs')) return 'javascript';
+            if (f.endsWith('.yml') || f.endsWith('.yaml')) return 'yaml';
+            if (f.endsWith('.ts')) return 'typescript';
+            return 'plaintext';
+          },
+          openTab(file, content, lang) {
+            const idx = this.openTabs.findIndex((t) => t.file === file);
+            const tab = { file, content, lang: lang || this.detectLang(file) };
+            if (idx >= 0) this.openTabs[idx] = tab; else this.openTabs.push(tab);
+            this.activeTab = file;
+            this.refreshEditor();
+          },
+          activateTab(file) {
+            this.activeTab = file;
+            this.refreshEditor();
           },
           async openSource(file) {
             const r = await this.api(`/api/skills/source?name=${encodeURIComponent(this.skillName)}&file=${encodeURIComponent(file)}`);
             const j = await r.json();
             this.skillSource = j.content || '-';
-            this.openViewer('source', file);
+            this.openTab(file, this.skillSource, this.detectLang(file));
           },
-          openViewer(mode, title='') {
-            this.viewer.show = true;
-            this.viewer.mode = mode;
-            this.viewer.title = title ? `${this.skillName} / ${title}` : `${this.skillName} 预览`;
+          initMonaco() {
+            return new Promise((resolve) => {
+              if (this.editor) return resolve();
+              window.require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.2/min/vs' } });
+              window.MonacoEnvironment = {
+                getWorkerUrl: () => `data:text/javascript;charset=utf-8,${encodeURIComponent("self.MonacoEnvironment={baseUrl:'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.2/min/'};importScripts('https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.2/min/vs/base/worker/workerMain.min.js');")}`
+              };
+              window.require(['vs/editor/editor.main'], () => {
+                this.editor = monaco.editor.create(document.getElementById('monacoHost'), {
+                  value: this.skillDetail || '-',
+                  language: 'markdown',
+                  theme: this.editorTheme,
+                  automaticLayout: true,
+                  minimap: { enabled: true },
+                  fontSize: 13
+                });
+                resolve();
+              });
+            });
           },
-          startDrag(e) {
-            this.viewer.drag = true;
-            this.viewer.dx = e.clientX - this.viewer.left;
-            this.viewer.dy = e.clientY - this.viewer.top;
+          refreshEditor() {
+            if (!this.editor) return;
+            const tab = this.openTabs.find((t) => t.file === this.activeTab) || this.openTabs[0];
+            if (!tab) return;
+            const current = this.editor.getValue();
+            if (current !== tab.content) this.editor.setValue(tab.content || '-');
+            monaco.editor.setModelLanguage(this.editor.getModel(), tab.lang || 'plaintext');
           },
-          onDrag(e) {
-            if (!this.viewer.drag) return;
-            this.viewer.left = Math.max(20, e.clientX - this.viewer.dx);
-            this.viewer.top = Math.max(20, e.clientY - this.viewer.dy);
+          applyEditorTheme() {
+            if (this.editor && window.monaco) monaco.editor.setTheme(this.editorTheme);
           },
-          stopDrag() {
-            this.viewer.drag = false;
+          goLine() {
+            if (!this.editor) return;
+            const line = Number(this.jumpLine || 1);
+            if (!line || line < 1) return;
+            this.editor.revealLineInCenter(line);
+            this.editor.setPosition({ lineNumber: line, column: 1 });
+            this.editor.focus();
           },
           async logout() {
             await fetch('/auth/logout', { method: 'POST' });
@@ -414,15 +441,10 @@
         async mounted() {
           const me = await fetch('/auth/me').then((r) => r.json()).catch(() => ({ authed: false }));
           if (!me.authed) return (location.href = '/login.html');
+          await this.initMonaco();
           await this.loadCommands();
           await this.loadSkills();
           this.connect();
-          window.addEventListener('mousemove', this.onDrag);
-          window.addEventListener('mouseup', this.stopDrag);
-        },
-        unmounted() {
-          window.removeEventListener('mousemove', this.onDrag);
-          window.removeEventListener('mouseup', this.stopDrag);
         }
       }).mount('#app');
     </script>
