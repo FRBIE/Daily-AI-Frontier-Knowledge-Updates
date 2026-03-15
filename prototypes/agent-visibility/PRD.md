@@ -1,132 +1,124 @@
-# Agent Ops Studio PRD (v1.0)
+# Agent Visibility PRD (vNext Frozen)
 
-## 1. Product Vision
-让用户在 3 秒内回答三个问题：
-1) 我现在在做什么？
-2) 为什么做这一步？
-3) 如果有风险，我该怎么介入？
+## 1. Product Goal
+在 3 秒内让用户明确三件事：
+1) 当前在执行什么命令
+2) 命令执行到哪一步
+3) 出问题时如何立即介入
 
-这是一个“可观测 + 可控 + 可回放”的实时 Agent 操作台，不是纯数据大盘，也不是纯动画展示。
+该版本聚焦“可信可控的命令中台”，先保证稳定与可验收，再做视觉增强。
 
-## 2. Problem Statement
-当前版本的问题：
-- 视觉叙事偏娱乐化，任务语义不够清晰
-- 动画与真实事件绑定不稳定，用户难以信任
-- 风险、审批、失败恢复路径不够产品化
+## 2. Scope Freeze
 
-## 3. Target Users
-- 主操作者（Owner）：希望像看“控制塔”一样看懂系统状态
-- 协作者（Operator）：负责异常排查和审批
-- 开发者（Builder）：调试工具调用链与性能
+### In Scope (must ship)
+- 真实事件链路：`/api/agent-events` + `/api/events/recent`
+- 命令中心：下发、状态、进度、结果
+- 诊断条：`SSE / Recent / Commands / Skills / Last Event`
+- Logs 与 Commands 分区展示（互不污染）
+- Skills 轻量工作台（`list/detail/source` 只读）
+- 登录门禁（后续单独做安全加固）
+- urgent 语义：`front-of-queue`（高优先先执行，不中断当前步骤）
 
-## 4. Design Principles
-- 真相优先：所有动画必须由真实事件驱动
-- 语义可读：每个状态具备“动作 + 目的 + 结果”
-- 介入可达：高风险动作一跳可审批/暂停
-- 渐进披露：先看全局，再看单 Agent 细节
+### Out of Scope (defer)
+- 重动画像素演出层
+- Monaco 重编辑能力
+- 回放/皮肤/特效系统
+- 实验性装饰面板
+- 非主链路炫技交互
 
-## 5. Core Scenarios
-### S1 实时观察
-- 看到活跃 Agent、当前步骤、已耗时、最近工具输出
+## 3. UX Direction
+- 视觉方向：暖黄色命令中台（稳定、易读、可截图）
+- 结构：顶部诊断 + 命令中心 + 日志中心 + Skills + Browserwing
+- 原则：信息密度优先于动画；每条状态必须可解释
 
-### S2 风险干预
-- 在 `approval.required` 或高风险事件出现时，快速暂停/确认
+## 4. Functional Requirements
 
-### S3 失败诊断
-- 从失败事件回溯到工具调用、输入参数、错误输出
+### FR-1 实时链路可信
+- 首屏必须先加载 recent，避免空白
+- SSE 连接状态明确显示（INIT/CONNECTED/DISCONNECTED）
+- recent 与 live 事件可并存，不造成重复污染
 
-### S4 多 Agent 协作理解
-- 明确谁在执行、谁在等待、谁阻塞
+### FR-2 命令生命周期可追踪
+- 命令状态机：`queued -> running -> done|failed`
+- 每条命令展示：`source/status/progress/lastEvent/result`
+- 支持过滤：`all/running/done/failed/feishu/studio`
 
-## 6. Information Architecture
-### A. 顶部控制栏
-- 会话选择器（sessionKey）
-- 全局状态（RUNNING/PAUSED/FAILED/COMPLETED）
-- Pause / Resume / Stop
-- 实时连接状态（SSE connected/disconnected）
+### FR-3 紧急插队（v1定义）
+- urgent 命令进入高优先队列
+- 若当前步骤已在执行，不中断；当前步骤结束后先执行 urgent
+- UI 必须显示 urgent 标记与优先执行次序
 
-### B. 中央主画布（Ops Studio）
-- **Agent 泳道卡（Lane）**：Main / Research / Builder
-- **工坊节点（Station）**：Planning、Search、Build、Verify、Delivery
-- 动画规则：
-  - executing: 脉冲高亮 + 连接线流动
-  - queued: 队列标签轻微浮动
-  - idle: 低频呼吸
-  - blocked: 红色闪烁边框
-  - scheduled trigger: 铃铛扩散波纹
+### FR-4 日志可读可控
+- 截断超长输出，避免刷屏
+- 单条异常不应导致日志区整体崩溃
+- 日志与命令分开，避免“命令视图被日志噪声污染”
 
-### C. 左侧时间流（Timeline）
-- 按时间倒序展示 step/tool/cost/risk/file 事件
-- 支持过滤：all / tool / risk / file / error
+### FR-5 Skills 稳定可用
+- `GET /api/skills` 返回非空时可浏览
+- `detail/source` 失败时局部报错，不影响整体页面
 
-### D. 右侧检查器（Inspector）
-- 当前事件详情（why/out/next）
-- 风险等级与原因
-- 资源指标（elapsed/tokens/cost/retry）
-- 产物列表（文件、截图、报告）
+## 5. Backend Requirements
 
-## 7. Event Contract (Real-time)
-输入源：OpenClaw session JSONL 实时增量解析
+### BR-1 命令关联
+- 引入稳定关联键（command id）贯穿控制下发、事件更新、完成判定
+- 禁止“最后一条 running 命令”这种模糊归因
 
-统一前端事件：
-```json
-{
-  "event": "tool.started",
-  "title": "调用工具: write",
-  "risk": "medium",
-  "payload": {
-    "agentId": "agent-r2",
-    "why": "执行当前步骤所需操作",
-    "out": "write -> prototypes/agent-visibility/index.html",
-    "next": "等待工具输出"
-  }
-}
-```
+### BR-2 写入一致性
+- `commands.json` 持久化需避免并发覆盖（串行写或原子替换）
+- 控制日志和命令快照保持一致
 
-必备事件类型：
-- `session.started | session.completed | session.failed`
-- `step.started | step.completed`
-- `tool.started | tool.completed | tool.error`
-- `approval.required`
-- `queue.updated`
-- `file.changed | artifact.created`
-- `cost.updated`
+### BR-3 噪声过滤
+- 继续过滤 transport metadata（untrusted envelope/media wrapper）
+- 保留真实短命令（不要误伤）
 
-## 8. Status Mapping Rules
-- `tool.started` -> 对应 Agent 进入 `executing`
-- `tool.completed` -> Agent 短暂 `walking`, 然后 `idle`
-- `tool.error` / `session.failed` -> `blocked`
-- `queue.updated` -> 更新该 Agent 队列
-- `approval.required` -> 全局 risk 面板升为 high
-- `cost.updated` -> KPI 实时刷新
+### BR-4 安全（本期最低要求）
+- 保留现有登录门禁
+- 将硬编码账号迁移到环境变量（本期可先兼容默认值）
 
-## 9. UX Interaction Spec
-- 点击时间线条目：右侧 Inspector 定位到该事件详情
-- 点击 Agent 泳道：过滤出该 Agent 的事件
-- 鼠标悬停工坊节点：显示最近一次输入输出摘要
-- 断连状态：顶部显示 `DISCONNECTED` 且主画布暂停动画
+## 6. API Contract (vNext)
+- `POST /api/control`
+  - `action: dispatch_command | dispatch_command_urgent`
+  - 返回 `{ command, dispatched }`
+- `GET /api/commands`
+  - 返回命令列表（含 `priority`, `status`, `progress`, `lastEvent`, `updatedAt`）
+- `GET /api/events/recent`
+- `GET /api/agent-events` (SSE)
+- `GET /api/skills`
+- `GET /api/skills/detail`
+- `GET /api/skills/source`
 
-## 10. MVP Scope (v1)
-In scope:
-- 真实事件流驱动的 Ops Studio 画布
-- 多 Agent 泳道 + 工坊节点状态动画
-- 时间线过滤与 Inspector 联动
-- 风险提示与基础控制（pause/resume/stop）
-- KPI 与产物区
+## 7. Acceptance Criteria
 
-Out of scope:
-- 历史报表 BI
-- RBAC 权限系统
-- 跨租户多工作空间管理
+### AC-1 同步一致
+- Feishu 发出的真实命令在 Studio 2 秒内可见
+- Studio 发出的命令在会话中可执行并回流状态
 
-## 11. Success Metrics
-- 状态识别时间（TTS） <= 3 秒
-- 风险事件响应时间 <= 10 秒
-- 失败定位时间降低 40%
-- 主观可理解性评分 >= 4/5
+### AC-2 首屏可见
+- 登录后 1 秒内日志区出现 recent 数据（非空场景）
 
-## 12. Delivery Plan
-- D1: 事件模型稳定化 + UI 框架
-- D2: 工坊动画与状态映射
-- D3: 时间线过滤 / Inspector 联动
-- D4: 稳定性测试（断连/错误/高频事件）
+### AC-3 Skills 稳定
+- Skills 页面不冻结、不空白；至少可查看 detail/source
+
+### AC-4 紧急策略可验证
+- 同时存在普通命令与 urgent 命令时，urgent 在下一可执行时隙优先
+
+### AC-5 诊断可定位
+- 当用户反馈“不同步”时，可通过诊断条 + `/api/commands` + `/api/events/recent` 快速定位
+
+## 8. Delivery Plan
+
+### P1 (now)
+- 范围冻结（本 PRD）
+- 修复命令关联、去重、写入一致性
+
+### P2
+- 完成 urgent front-of-queue 实现
+- 完成命令状态展示与失败原因完善
+
+### P3
+- 做回归验收（3项基线 + urgent）
+- 通过后再评估像素叙事皮肤层
+
+## 9. Non-Goals
+- 本阶段不做“可中断抢占式执行引擎”
+- 本阶段不做视觉炫技优先级高于稳定性的改动
