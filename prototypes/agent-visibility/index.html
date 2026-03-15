@@ -282,7 +282,7 @@
         data() {
           return {
             tab: 'dashboard',
-            conn: 'CONNECTING',
+            conn: 'INIT',
             sessionKey: new URLSearchParams(location.search).get('sessionKey') || 'agent:main:main',
             logs: [],
             tasks: [],
@@ -392,10 +392,14 @@
             this.commands = Array.isArray(j.items) ? j.items : [];
           },
           async loadRecentEvents() {
-            const r = await this.api(`/api/events/recent?sessionKey=${encodeURIComponent(this.sessionKey)}&limit=160`);
-            const j = await r.json();
-            const items = Array.isArray(j.items) ? j.items : [];
-            for (const evt of items) this.onEvent(evt);
+            try {
+              const r = await this.api(`/api/events/recent?sessionKey=${encodeURIComponent(this.sessionKey)}&limit=160`);
+              const j = await r.json();
+              const items = Array.isArray(j.items) ? j.items : [];
+              for (const evt of items) this.onEvent(evt);
+            } catch (err) {
+              this.pushLog('recent events 加载失败', String(err.message || err));
+            }
           },
           async sendControl(action, note='') {
             await this.api('/api/control', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action, note, sessionKey: this.sessionKey }) });
@@ -429,10 +433,22 @@
             await this.dispatchBrowserwing(false);
           },
           async loadSkills() {
-            const r = await this.api('/api/skills');
-            const j = await r.json();
-            this.skills = j.items || [];
-            if (this.skills[0]) this.openSkill(this.skills[0].name);
+            try {
+              const r = await this.api('/api/skills');
+              const j = await r.json();
+              this.skills = j.items || [];
+              if (!this.skills.length) {
+                this.pushLog('skills 为空', '后端返回空列表');
+              }
+              if (this.skills[0]) this.openSkill(this.skills[0].name);
+            } catch (err) {
+              this.pushLog('skills 加载失败', String(err.message || err));
+              this.skills = [
+                { name: 'browserwing-executor' },
+                { name: 'weather' },
+                { name: 'healthcheck' }
+              ];
+            }
           },
           async openSkill(name) {
             this.skillName = name;
@@ -555,10 +571,19 @@
         async mounted() {
           const me = await fetch('/auth/me').then((r) => r.json()).catch(() => ({ authed: false }));
           if (!me.authed) return (location.href = '/login.html');
-          await this.loadCommands();
-          await this.loadRecentEvents();
-          await this.loadSkills();
-          this.connect();
+
+          await Promise.allSettled([
+            this.loadCommands(),
+            this.loadRecentEvents(),
+            this.loadSkills()
+          ]);
+
+          try {
+            this.connect();
+          } catch (err) {
+            this.conn = 'CONNECT_ERROR';
+            this.pushLog('SSE 连接失败', String(err.message || err));
+          }
         }
       }).mount('#app');
     </script>

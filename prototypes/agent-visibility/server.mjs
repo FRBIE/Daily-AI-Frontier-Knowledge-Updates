@@ -157,6 +157,40 @@ function saveCommands(commands) {
 
 function updateCommandFromEvent(evt) {
   const commands = loadCommands();
+
+  if (evt.event === "user.request") {
+    const note = String(evt.payload?.out || "").trim();
+    if (!note) return;
+
+    const recent = [...commands].reverse().find((c) => c.note === note && Math.abs((c.ts || 0) - Date.now()) < 120000);
+    if (recent) {
+      recent.status = recent.status === "done" ? "done" : "running";
+      recent.progress = Math.max(recent.progress || 0, 16);
+      recent.lastEvent = "用户命令已进入队列";
+      recent.updatedAt = Date.now();
+      saveCommands(commands);
+      broadcast({ event: "command.updated", payload: recent });
+      return;
+    }
+
+    const cmd = {
+      id: crypto.randomUUID(),
+      ts: Date.now(),
+      action: "inbound_user_command",
+      note,
+      sessionKey: "agent:main:main",
+      source: "feishu",
+      status: "running",
+      progress: 12,
+      lastEvent: "用户命令已接收",
+      updatedAt: Date.now()
+    };
+    commands.push(cmd);
+    saveCommands(commands);
+    broadcast({ event: "command.updated", payload: cmd });
+    return;
+  }
+
   const target = [...commands].reverse().find((c) => c.status === "queued" || c.status === "running");
   if (!target) return;
 
