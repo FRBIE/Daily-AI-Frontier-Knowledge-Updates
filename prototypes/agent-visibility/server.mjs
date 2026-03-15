@@ -2,6 +2,8 @@ import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import crypto from "node:crypto";
+import { spawn } from "node:child_process";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -10,6 +12,12 @@ const OPENCLAW_SESSIONS = "/home/ubuntu/.openclaw/agents/main/sessions/sessions.
 const APPROVAL_LOG = path.join(__dirname, ".runtime", "approvals.jsonl");
 const CONTROL_LOG = path.join(__dirname, ".runtime", "controls.jsonl");
 const LIVE_CLIENTS = new Set();
+const AUTH_USER = "admin";
+const AUTH_PASS = "Ak#123456";
+const AUTH_COOKIE = "studio_auth";
+const AUTH_TTL_MS = 1000 * 60 * 60 * 24;
+const TOKENS = new Map();
+
 const SKILLS = [
   {
     name: "feishu-doc",
@@ -93,13 +101,11 @@ function readJson(file) {
   }
 }
 
-function findSessionFile(sessionKey) {
+function findSessionMeta(sessionKey) {
   const all = readJson(OPENCLAW_SESSIONS);
   if (!all || typeof all !== "object") return null;
 
-  if (sessionKey && all[sessionKey] && all[sessionKey].sessionFile) {
-    return all[sessionKey].sessionFile;
-  }
+  if (sessionKey && all[sessionKey]) return all[sessionKey];
 
   let selected = null;
   for (const [key, value] of Object.entries(all)) {
@@ -109,7 +115,12 @@ function findSessionFile(sessionKey) {
       selected = value;
     }
   }
-  return selected ? selected.sessionFile : null;
+  return selected;
+}
+
+function findSessionFile(sessionKey) {
+  const meta = findSessionMeta(sessionKey);
+  return meta ? meta.sessionFile : null;
 }
 
 function mapAgent(toolName) {
@@ -295,6 +306,59 @@ function safeSkillFile(skill, rel) {
   return target;
 }
 
+function parseCookies(cookie = "") {
+  const out = {};
+  for (const part of cookie.split(";")) {
+    const i = part.indexOf("=");
+    if (i < 0) continue;
+    const k = part.slice(0, i).trim();
+    const v = part.slice(i + 1).trim();
+    out[k] = decodeURIComponent(v);
+  }
+  return out;
+}
+
+function createAuthToken() {
+  const token = crypto.randomBytes(24).toString("hex");
+  TOKENS.set(token, Date.now() + AUTH_TTL_MS);
+  return token;
+}
+
+function isAuthed(req) {
+  const cookies = parseCookies(req.headers.cookie || "");
+  const token = cookies[AUTH_COOKIE];
+  if (!token) return false;
+  const exp = TOKENS.get(token);
+  if (!exp || exp < Date.now()) {
+    TOKENS.delete(token);
+    return false;
+  }
+  return true;
+}
+
+function sendUnauthorized(res, api = false) {
+  if (api) {
+    return send(res, 401, JSON.stringify({ error: "unauthorized" }), {
+      "Content-Type": MIME[".json"],
+      "Access-Control-Allow-Origin": "*"
+    });
+  }
+  return send(res, 302, "", { Location: "/login.html" });
+}
+
+function dispatchToOpenClaw(sessionKey, message) {
+  const meta = findSessionMeta(sessionKey);
+  if (!meta || !meta.sessionId || !message) return false;
+
+  const p = spawn(
+    "openclaw",
+    ["agent", "--session-id", meta.sessionId, "--message", message],
+    { detached: true, stdio: "ignore" }
+  );
+  p.unref();
+  return true;
+}
+
 function streamSessionEvents(res, sessionFile) {
   res.writeHead(200, {
     "Content-Type": "text/event-stream",
@@ -369,8 +433,55 @@ const server = http.createServer(async (req, res) => {
     });
   }
 
+  if (url.pathname === "/auth/login" && req.method === "POST") {
+    try {
+      const raw = await readBody(req);
+      const body = raw ? JSON.parse(raw) : {};
+      if (body.username !== AUTH_USER || body.password !== AUTH_PASS) {
+        return send(res, 401, JSON.stringify({ error: "invalid credentials" }), {
+          "Content-Type": MIME[".json"],
+          "Access-Control-Allow-Origin": "*"
+        });
+      }
+      const token = createAuthToken();
+      return send(res, 200, JSON.stringify({ ok: true }), {
+        "Content-Type": MIME[".json"],
+        "Set-Cookie": `${AUTH_COOKIE}=${encodeURIComponent(token)}; HttpOnly; Path=/; Max-Age=86400; SameSite=Lax`,
+        "Access-Control-Allow-Origin": "*"
+      });
+    } catch {
+      return send(res, 400, JSON.stringify({ error: "invalid request" }), {
+        "Content-Type": MIME[".json"],
+        "Access-Control-Allow-Origin": "*"
+      });
+    }
+  }
+
+  if (url.pathname === "/auth/me" && req.method === "GET") {
+    return send(res, 200, JSON.stringify({ authed: isAuthed(req) }), {
+      "Content-Type": MIME[".json"],
+      "Access-Control-Allow-Origin": "*"
+    });
+  }
+
+  if (url.pathname === "/auth/logout" && req.method === "POST") {
+    const cookies = parseCookies(req.headers.cookie || "");
+    if (cookies[AUTH_COOKIE]) TOKENS.delete(cookies[AUTH_COOKIE]);
+    return send(res, 200, JSON.stringify({ ok: true }), {
+      "Content-Type": MIME[".json"],
+      "Set-Cookie": `${AUTH_COOKIE}=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax`,
+      "Access-Control-Allow-Origin": "*"
+    });
+  }
+
   if (url.pathname === "/health") {
     return send(res, 200, JSON.stringify({ ok: true }), { "Content-Type": MIME[".json"] });
+  }
+
+  const apiReq = url.pathname.startsWith("/api/");
+  const publicPath = url.pathname === "/login.html" || url.pathname === "/auth/login" || url.pathname === "/auth/me" || url.pathname === "/auth/logout" || url.pathname === "/health";
+  if (!publicPath && !isAuthed(req)) {
+    return sendUnauthorized(res, apiReq);
   }
 
   if (url.pathname === "/api/skills" && req.method === "GET") {
@@ -483,9 +594,15 @@ const server = http.createServer(async (req, res) => {
       const body = raw ? JSON.parse(raw) : {};
       const action = String(body.action || "noop");
       const note = String(body.note || "");
-      const cmd = { ts: Date.now(), action, note, source: "ops-studio" };
+      const sessionKey = String(body.sessionKey || "agent:main:main");
+      const cmd = { ts: Date.now(), action, note, sessionKey, source: "ops-studio" };
       fs.mkdirSync(path.dirname(CONTROL_LOG), { recursive: true });
       fs.appendFileSync(CONTROL_LOG, `${JSON.stringify(cmd)}\n`);
+
+      let dispatched = false;
+      if ((action === "dispatch_command" || action === "dispatch_command_urgent") && note.trim()) {
+        dispatched = dispatchToOpenClaw(sessionKey, note.trim());
+      }
 
       const evt = {
         event: "control.applied",
@@ -495,11 +612,11 @@ const server = http.createServer(async (req, res) => {
           agentId: "agent-main",
           why: "用户在控制台下发调度指令",
           out: note ? `${action} (${note})` : action,
-          next: "按新策略继续执行"
+          next: dispatched ? "已转发到真实会话执行" : "按新策略继续执行"
         }
       };
       broadcast(evt);
-      return send(res, 200, JSON.stringify({ ok: true, command: cmd }), {
+      return send(res, 200, JSON.stringify({ ok: true, command: cmd, dispatched }), {
         "Content-Type": MIME[".json"],
         "Access-Control-Allow-Origin": "*"
       });
