@@ -110,23 +110,40 @@
       .t-sub { font-size: 12px; color: var(--muted); margin-top: 3px; }
 
       .studio {
-        border: 1px solid #5f4a37;
+        border: 1px solid #6b4f38;
         border-radius: 12px;
-        background: radial-gradient(circle at 50% -20%, #3e2f25 0%, #2f241d 40%, #241b15 100%);
-        color: #f9f2e7;
+        background: linear-gradient(180deg, #8b6a4f 0%, #6f533f 45%, #4f3a2d 100%);
+        color: #fff7ed;
         padding: 12px;
-        box-shadow: inset 0 1px 0 rgba(255, 235, 210, 0.2), 0 12px 30px rgba(36, 27, 21, 0.35);
+        box-shadow: inset 0 1px 0 rgba(255, 235, 210, 0.35), 0 12px 30px rgba(36, 27, 21, 0.35);
       }
       .studio-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
       .studio-note { font-size: 12px; color: #eadfcf; }
-      .lane {
-        border: 1px solid #8f6f53;
+      .desk {
+        border: 1px solid #7e6046;
         border-radius: 12px;
-        background: linear-gradient(180deg, rgba(255, 244, 227, 0.12), rgba(255, 244, 227, 0.05));
+        background: linear-gradient(180deg, rgba(255, 245, 230, 0.18), rgba(255, 245, 230, 0.08));
+        padding: 10px;
+      }
+      .desk-grid {
+        display: grid;
+        grid-template-columns: 180px 1fr 180px;
+        gap: 10px;
+      }
+      .panel-mini {
+        border: 1px solid #9b7a5f;
+        border-radius: 10px;
+        background: rgba(255, 247, 237, 0.18);
         padding: 8px;
-        margin-bottom: 10px;
-        transform: perspective(900px) rotateX(6deg);
-        transform-origin: center top;
+      }
+      .mini-title { font-size: 12px; color: #fff1df; margin-bottom: 6px; }
+      .note { font-size: 11px; border-radius: 8px; padding: 6px; margin-bottom: 6px; background: #fef3c7; color: #4b3b2a; }
+      .tool-chip { font-size: 11px; border-radius: 999px; padding: 4px 8px; margin: 0 4px 6px 0; display: inline-block; background: #dbeafe; color: #1e3a8a; }
+      .actor {
+        border: 1px solid #9b7a5f;
+        border-radius: 10px;
+        padding: 10px;
+        background: rgba(255, 250, 242, 0.22);
       }
       .lane-head {
         display: grid;
@@ -237,6 +254,7 @@
       }
       @media (max-width: 1120px) {
         .layout { grid-template-columns: 1fr; }
+        .desk-grid { grid-template-columns: 1fr; }
       }
     </style>
   </head>
@@ -265,8 +283,8 @@
 
         <section class="studio">
           <div class="studio-head">
-            <div><strong>行动剧场</strong></div>
-            <div class="studio-note">单智能体拟人可视化：我现在在做什么、为什么、下一步是什么</div>
+            <div><strong>桌面工作流视图</strong></div>
+            <div class="studio-note">像看一个人办公：待办便签、当前动作、工具抽屉</div>
           </div>
           <div id="lanes"></div>
         </section>
@@ -367,21 +385,33 @@
 
       function renderLanes() {
         const a = agents[0];
-        const queue = a.queue.slice(0, 5).map((q) => `<span class="q-item">${q}</span>`).join("");
+        const queueNotes = (a.queue.length ? a.queue : ["等待新任务"]).slice(0, 5).map((q) => `<div class="note">${q}</div>`).join("");
+        const tools = ["read", "web_fetch", "edit", "write", "exec", "message"];
+        const toolChips = tools
+          .map((t) => `<span class="tool-chip" style="opacity:${a.active && t.toLowerCase().includes(a.active.toLowerCase().slice(0,3).toLowerCase()) ? 1 : 0.75}">${t}</span>`)
+          .join("");
         const s = stations
           .map((x) => `<div class="station ${a.active === x && a.status === "exec" ? "active" : ""}">${x}</div>`)
           .join("");
-        const doing = a.status === "exec" ? `正在${a.active}` : a.status === "block" ? "遇到阻塞" : "待命中";
+        const doing = a.status === "exec" ? `我正在${a.active}` : a.status === "block" ? "我卡住了，等待处理" : "我在待命";
 
         el.lanes.innerHTML = `
-          <div class="lane" data-agent="${a.id}">
-            <div class="lane-head">
-              <div class="agent-chip"><span class="dot ${a.status === "exec" ? "exec" : a.status === "block" ? "block" : "idle"}"></span>${a.name}</div>
-              <div class="queue">${queue}</div>
-              <div style="display:flex;justify-content:flex-end;"><div class="ring ${a.ring ? "on" : ""}"></div></div>
+          <div class="desk" data-agent="${a.id}">
+            <div class="desk-grid">
+              <div class="panel-mini">
+                <div class="mini-title">待办便签</div>
+                ${queueNotes}
+              </div>
+              <div class="actor">
+                <div class="agent-chip"><span class="dot ${a.status === "exec" ? "exec" : a.status === "block" ? "block" : "idle"}"></span>${a.name}</div>
+                <div class="t-sub" style="color:#fff1df;margin:6px 0 10px 0;">${doing}</div>
+                <div class="stations">${s}</div>
+              </div>
+              <div class="panel-mini">
+                <div class="mini-title">工具抽屉 <span class="ring ${a.ring ? "on" : ""}" style="display:inline-block;vertical-align:middle;margin-left:6px;"></span></div>
+                ${toolChips}
+              </div>
             </div>
-            <div class="t-sub" style="color:#f6e8d4;margin-bottom:8px;">角色状态：${doing}</div>
-            <div class="stations">${s}</div>
           </div>
         `;
       }
