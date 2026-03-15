@@ -187,7 +187,14 @@ function updateCommandFromEvent(evt) {
 function dispatchToOpenClaw(sessionKey, message) {
   const meta = findSessionMeta(sessionKey);
   if (!meta || !meta.sessionId || !message) return false;
-  const p = spawn("openclaw", ["agent", "--session-id", meta.sessionId, "--message", message], { detached: true, stdio: "ignore" });
+
+  const args = ["agent", "--session-id", meta.sessionId, "--message", message, "--deliver"];
+  const dc = meta.deliveryContext || {};
+  if (dc.channel) args.push("--reply-channel", String(dc.channel));
+  if (dc.to) args.push("--reply-to", String(dc.to));
+  if (dc.accountId) args.push("--reply-account", String(dc.accountId));
+
+  const p = spawn("openclaw", args, { detached: true, stdio: "ignore" });
   p.unref();
   return true;
 }

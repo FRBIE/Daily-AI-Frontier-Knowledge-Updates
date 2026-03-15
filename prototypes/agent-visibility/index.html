@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Agent Ops Studio</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/highlight.js@11.10.0/styles/github-dark.min.css" />
+    <script src="https://unpkg.com/highlight.js@11.10.0/lib/highlight.min.js"></script>
     <style>
       :root {
         --bg: #e9edf5;
@@ -71,6 +73,37 @@
       input, textarea, button, select { width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 7px 8px; font-size: 12px; }
       button { cursor: pointer; background: #eff6ff; }
       pre { background: #111827; color: #e5e7eb; border-radius: 8px; padding: 8px; max-height: 180px; overflow: auto; }
+      .viewer {
+        position: fixed;
+        left: 120px;
+        top: 90px;
+        width: 62vw;
+        height: 68vh;
+        min-width: 520px;
+        min-height: 320px;
+        border: 1px solid #334155;
+        border-radius: 10px;
+        background: #0f172a;
+        color: #e2e8f0;
+        z-index: 30;
+        resize: both;
+        overflow: hidden;
+        box-shadow: 0 18px 36px rgba(2, 6, 23, 0.45);
+      }
+      .viewer-head {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 8px;
+        align-items: center;
+        padding: 8px 10px;
+        background: #111827;
+        border-bottom: 1px solid #334155;
+        cursor: move;
+      }
+      .viewer-body { height: calc(100% - 44px); overflow: auto; }
+      .viewer-body pre { margin: 0; height: 100%; max-height: none; border-radius: 0; }
+      .viewer-tabs { display: flex; gap: 6px; margin: 8px 0; }
+      .viewer-tabs button.active { background: #1d4ed8; color: #eaf2ff; }
 
       @keyframes walk { from { filter: brightness(1); } to { filter: brightness(1.18); } }
       @keyframes bob { from { transform: translate(-50%, -50%) translateY(0); } to { transform: translate(-50%, -50%) translateY(-3px); } }
@@ -125,12 +158,19 @@
         </section>
 
         <section class="card">
-          <h3>任务面板</h3>
+          <h3>任务面板 + 实时日志</h3>
           <div class="content">
             <div v-for="t in tasks" :key="t.id" class="cmd">
               <strong>{{t.name}}</strong>
               <div class="small">{{t.detail}}</div>
               <div class="small">{{t.status}}</div>
+            </div>
+            <div class="small" style="margin:8px 0 6px;">最近实时日志</div>
+            <div class="log-list" style="max-height:220px;">
+              <div class="log-item" v-for="l in logs.slice(-10).reverse()" :key="l._id">
+                <strong>{{l.title}}</strong>
+                <div class="small">{{l.out}}</div>
+              </div>
             </div>
           </div>
         </section>
@@ -173,14 +213,27 @@
         <section class="card" style="grid-column: span 2;">
           <h3>{{skillTitle}}</h3>
           <div class="content">
-            <pre>{{skillDetail}}</pre>
-            <div class="small" style="margin:8px 0;">文件</div>
-            <div class="controls">
+            <div class="small">点击文件会在可拖拽、可拉伸预览窗打开（含代码高亮）</div>
+            <div class="controls" style="margin-top:8px;">
+              <button @click="openViewer('doc')">打开文档预览</button>
               <button v-for="f in skillFiles" :key="f" @click="openSource(f)">{{f}}</button>
             </div>
-            <pre style="margin-top:8px;">{{skillSource}}</pre>
           </div>
         </section>
+
+        <div class="viewer" v-if="viewer.show" :style="{left:viewer.left+'px', top:viewer.top+'px'}">
+          <div class="viewer-head" @mousedown="startDrag">
+            <div>{{viewer.title}}</div>
+            <button @click="viewer.show=false" style="width:auto;">关闭</button>
+          </div>
+          <div class="viewer-body">
+            <div class="viewer-tabs">
+              <button :class="{active:viewer.mode==='doc'}" @click="viewer.mode='doc'">文档</button>
+              <button :class="{active:viewer.mode==='source'}" @click="viewer.mode='source'">源码</button>
+            </div>
+            <pre><code class="hljs" v-html="viewer.mode==='doc' ? highlightedDoc : highlightedSource"></code></pre>
+          </div>
+        </div>
       </div>
 
       <div class="layout" v-else>
@@ -215,12 +268,19 @@
             skillDetail: '-',
             skillFiles: [],
             skillSource: '-',
+            viewer: { show: false, mode: 'doc', title: 'Skill 预览', left: 120, top: 90, drag: false, dx: 0, dy: 0 },
             actor: { stage: 'Planning', status: 'idle', motion: 'waiting', facing: 'face-down', x: 50, y: 54, text: '待命', walking: false }
           }
         },
         computed: {
           commandList() {
             return [...this.commands].sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0, 50);
+          },
+          highlightedDoc() {
+            try { return hljs.highlightAuto(this.skillDetail || '-').value; } catch { return this.skillDetail || '-'; }
+          },
+          highlightedSource() {
+            try { return hljs.highlightAuto(this.skillSource || '-').value; } catch { return this.skillSource || '-'; }
           }
         },
         methods: {
@@ -319,12 +379,32 @@
             this.skillTitle = `${j.skill.name} - ${j.skill.description}`;
             this.skillDetail = j.content || '-';
             this.skillFiles = j.files || [];
+            this.openViewer('doc');
             if (this.skillFiles[0]) this.openSource(this.skillFiles[0]);
           },
           async openSource(file) {
             const r = await this.api(`/api/skills/source?name=${encodeURIComponent(this.skillName)}&file=${encodeURIComponent(file)}`);
             const j = await r.json();
             this.skillSource = j.content || '-';
+            this.openViewer('source', file);
+          },
+          openViewer(mode, title='') {
+            this.viewer.show = true;
+            this.viewer.mode = mode;
+            this.viewer.title = title ? `${this.skillName} / ${title}` : `${this.skillName} 预览`;
+          },
+          startDrag(e) {
+            this.viewer.drag = true;
+            this.viewer.dx = e.clientX - this.viewer.left;
+            this.viewer.dy = e.clientY - this.viewer.top;
+          },
+          onDrag(e) {
+            if (!this.viewer.drag) return;
+            this.viewer.left = Math.max(20, e.clientX - this.viewer.dx);
+            this.viewer.top = Math.max(20, e.clientY - this.viewer.dy);
+          },
+          stopDrag() {
+            this.viewer.drag = false;
           },
           async logout() {
             await fetch('/auth/logout', { method: 'POST' });
@@ -337,6 +417,12 @@
           await this.loadCommands();
           await this.loadSkills();
           this.connect();
+          window.addEventListener('mousemove', this.onDrag);
+          window.addEventListener('mouseup', this.stopDrag);
+        },
+        unmounted() {
+          window.removeEventListener('mousemove', this.onDrag);
+          window.removeEventListener('mouseup', this.stopDrag);
         }
       }).mount('#app');
     </script>
