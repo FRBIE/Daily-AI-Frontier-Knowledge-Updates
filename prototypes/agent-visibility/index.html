@@ -11,7 +11,6 @@
         --ink: #1f2933;
         --muted: #697586;
         --brand: #0f766e;
-        --warn: #b45309;
         --danger: #b91c1c;
         --ok: #166534;
         --line: #dfd8cc;
@@ -36,14 +35,154 @@
       }
       .title { font-weight: 700; letter-spacing: 0.2px; }
       .status {
-        padding: 6px 10px; border-radius: 999px; font-size: 13px;
-        background: #d1fae5; color: var(--ok); border: 1px solid #a7f3d0;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 13px;
+        background: #d1fae5;
+        color: var(--ok);
+        border: 1px solid #a7f3d0;
       }
       button {
-        border: 0; border-radius: 10px; padding: 9px 12px; cursor: pointer;
-        background: var(--brand); color: white; font-weight: 600;
+        border: 0;
+        border-radius: 10px;
+        padding: 9px 12px;
+        cursor: pointer;
+        background: var(--brand);
+        color: white;
+        font-weight: 600;
       }
       .danger { background: var(--danger); }
+
+      .scene {
+        margin-top: 12px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: linear-gradient(180deg, #f8fbff 0%, #f2f8f7 50%, #fdfaf5 100%);
+        padding: 12px;
+      }
+      .scene-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+      .scene-title { font-size: 14px; font-weight: 700; }
+      .scene-note { color: var(--muted); font-size: 12px; }
+      .world {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(220px, 1fr));
+        gap: 10px;
+      }
+      .room {
+        position: relative;
+        min-height: 170px;
+        border: 1px solid #d9d2c7;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #fffdf8;
+      }
+      .room-header {
+        font-size: 12px;
+        color: #4b5563;
+        padding: 8px;
+        border-bottom: 1px dashed #e5ddd0;
+      }
+      .room-floor {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        height: 42%;
+        background: repeating-linear-gradient(
+          45deg,
+          #ede5d8,
+          #ede5d8 8px,
+          #f6efe4 8px,
+          #f6efe4 16px
+        );
+      }
+      .bench {
+        position: absolute;
+        right: 10px;
+        bottom: 56px;
+        width: 76px;
+        height: 30px;
+        border-radius: 8px 8px 4px 4px;
+        background: #cba77b;
+        border: 1px solid #ae8356;
+      }
+      .agent {
+        position: absolute;
+        left: 18px;
+        bottom: 48px;
+        width: 44px;
+        height: 74px;
+        transition: transform 0.45s ease;
+      }
+      .agent .head {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: #ffd6a5;
+        margin: 0 auto;
+        border: 1px solid #d4a373;
+      }
+      .agent .body {
+        margin: 4px auto 0;
+        width: 30px;
+        height: 38px;
+        border-radius: 10px;
+        background: #93c5fd;
+        border: 1px solid #60a5fa;
+      }
+      .agent .tag {
+        font-size: 10px;
+        text-align: center;
+        margin-top: 3px;
+        color: #334155;
+      }
+      .agent.work {
+        animation: work-bob 1s infinite alternate ease-in-out;
+      }
+      .agent.rest {
+        animation: rest-breathe 2.3s infinite ease-in-out;
+        opacity: 0.86;
+      }
+      .agent.walk {
+        animation: walk-cycle 1.2s infinite linear;
+      }
+      .task-bubble {
+        position: absolute;
+        left: 60px;
+        top: 34px;
+        font-size: 11px;
+        padding: 4px 8px;
+        border-radius: 999px;
+        border: 1px solid #bae6fd;
+        background: #ecfeff;
+      }
+      .bell {
+        position: absolute;
+        right: 10px;
+        top: 28px;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #f59e0b;
+        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.5);
+        opacity: 0;
+      }
+      .bell.ring {
+        opacity: 1;
+        animation: ring-pulse 1s infinite;
+      }
+      .scene-legend {
+        margin-top: 10px;
+        display: flex;
+        gap: 12px;
+        color: #475569;
+        font-size: 12px;
+      }
+
       .grid {
         margin-top: 12px;
         display: grid;
@@ -72,7 +211,6 @@
         background: #fafafa;
         border-radius: 8px;
       }
-      .timeline-item.done { border-left-color: #86efac; }
       .timeline-item.running { border-left-color: #67e8f9; }
       .timeline-item.risk { border-left-color: #fbbf24; }
       .small { color: var(--muted); font-size: 12px; }
@@ -99,9 +237,7 @@
         background: #fffbeb;
         margin-top: 10px;
       }
-      .artifacts {
-        margin-top: 12px;
-      }
+      .artifacts { margin-top: 12px; }
       .artifact-item {
         display: inline-block;
         margin-right: 8px;
@@ -112,7 +248,28 @@
         border-radius: 999px;
         font-size: 12px;
       }
-      @media (max-width: 1000px) {
+
+      @keyframes work-bob {
+        from { transform: translateY(0px) rotate(0deg); }
+        to { transform: translateY(-4px) rotate(-2deg); }
+      }
+      @keyframes rest-breathe {
+        0% { transform: translateY(0px) scale(1); }
+        50% { transform: translateY(-2px) scale(0.98); }
+        100% { transform: translateY(0px) scale(1); }
+      }
+      @keyframes walk-cycle {
+        0% { transform: translateX(0px); }
+        50% { transform: translateX(8px); }
+        100% { transform: translateX(0px); }
+      }
+      @keyframes ring-pulse {
+        0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.6); transform: scale(1); }
+        100% { box-shadow: 0 0 0 12px rgba(245, 158, 11, 0); transform: scale(1.15); }
+      }
+
+      @media (max-width: 1100px) {
+        .world { grid-template-columns: 1fr; }
         .grid { grid-template-columns: 1fr; }
       }
     </style>
@@ -127,6 +284,19 @@
           <button class="danger" id="stopBtn">Stop</button>
         </div>
       </div>
+
+      <section class="scene">
+        <div class="scene-head">
+          <div class="scene-title">可视化工坊（动画视图）</div>
+          <div class="scene-note">多个 agent 会在不同房间工作、休息或巡游</div>
+        </div>
+        <div class="world" id="world"></div>
+        <div class="scene-legend">
+          <div>蓝色气泡: 正在执行任务</div>
+          <div>橙色铃铛: 定时任务触发</div>
+          <div>静止/呼吸: 空闲休息</div>
+        </div>
+      </section>
 
       <div class="grid">
         <section class="panel">
@@ -181,8 +351,16 @@
       const riskCard = document.getElementById("riskCard");
       const statusEl = document.getElementById("status");
       const pauseBtn = document.getElementById("pauseBtn");
+      const worldEl = document.getElementById("world");
 
       const state = { start: Date.now(), tokens: 0, cost: 0, retry: 0, paused: false };
+
+      const agents = [
+        { id: "agent-main", name: "Agent 主控", room: "规划室", mood: "work", task: "拆解需求" },
+        { id: "agent-r1", name: "Agent 研究", room: "资料室", mood: "rest", task: "待命" },
+        { id: "agent-r2", name: "Agent 构建", room: "工坊", mood: "rest", task: "待命" }
+      ];
+
       const steps = [
         {
           title: "分析需求",
@@ -190,7 +368,10 @@
           out: "读取上下文与约束，提炼需求为信息架构与交互目标",
           next: "检索可参考的可观测性模式",
           risk: "low",
-          artifact: null
+          artifact: null,
+          focus: "agent-main",
+          other: ["rest", "walk"],
+          scheduled: false
         },
         {
           title: "检索参考资料",
@@ -198,7 +379,10 @@
           out: "抓取 observability 参考资料：trace/metrics/logs + timeline",
           next: "产出 PRD 与原型",
           risk: "low",
-          artifact: "research-notes.md"
+          artifact: "research-notes.md",
+          focus: "agent-r1",
+          other: ["work", "rest"],
+          scheduled: false
         },
         {
           title: "生成产品原型",
@@ -206,7 +390,21 @@
           out: "输出 PRD + 可交互单页原型，包含 timeline/当前步骤/风险控制",
           next: "等待用户反馈并迭代",
           risk: "medium",
-          artifact: "index.html"
+          artifact: "index.html",
+          focus: "agent-r2",
+          other: ["walk", "work"],
+          scheduled: false
+        },
+        {
+          title: "定时任务触发：日报快照",
+          why: "检测到 cron 触发，检查系统状态",
+          out: "触发定时任务，记录快照并提醒操作员",
+          next: "恢复到常规待命",
+          risk: "low",
+          artifact: "daily-snapshot.json",
+          focus: "agent-main",
+          other: ["rest", "rest"],
+          scheduled: true
         },
         {
           title: "申请高风险操作确认",
@@ -214,9 +412,54 @@
           out: "请求用户批准：向外部系统发送消息",
           next: "若批准则执行，否则跳过",
           risk: "high",
-          artifact: null
+          artifact: null,
+          focus: "agent-main",
+          other: ["rest", "rest"],
+          scheduled: false
         }
       ];
+
+      function renderWorld() {
+        worldEl.innerHTML = agents.map((a) => `
+          <div class="room" id="room-${a.id}">
+            <div class="room-header">${a.room}</div>
+            <div class="task-bubble" id="bubble-${a.id}">${a.task}</div>
+            <div class="bell" id="bell-${a.id}"></div>
+            <div class="bench"></div>
+            <div class="agent ${a.mood}" id="${a.id}">
+              <div class="head"></div>
+              <div class="body"></div>
+              <div class="tag">${a.name}</div>
+            </div>
+            <div class="room-floor"></div>
+          </div>
+        `).join("");
+      }
+
+      function setAgentState(agentId, mood, task, ringing) {
+        const node = document.getElementById(agentId);
+        const bubble = document.getElementById(`bubble-${agentId}`);
+        const bell = document.getElementById(`bell-${agentId}`);
+        if (!node || !bubble || !bell) return;
+        node.className = `agent ${mood}`;
+        bubble.textContent = task;
+        bell.className = ringing ? "bell ring" : "bell";
+      }
+
+      function syncScene(step) {
+        const secondary = agents.filter((a) => a.id !== step.focus);
+        const otherStates = step.other || ["rest", "rest"];
+        agents.forEach((a) => {
+          if (a.id === step.focus) {
+            setAgentState(a.id, "work", step.title, step.scheduled);
+          }
+        });
+        secondary.forEach((a, idx) => {
+          const mood = otherStates[idx] || "rest";
+          const label = mood === "walk" ? "巡游中" : mood === "work" ? "并行任务" : "休息中";
+          setAgentState(a.id, mood, label, false);
+        });
+      }
 
       function addTimeline(item, cls) {
         const div = document.createElement("div");
@@ -257,16 +500,19 @@
         }
       }
 
+      renderWorld();
       let i = 0;
       const loop = setInterval(() => {
         if (state.paused) return;
         if (i >= steps.length) {
           statusEl.textContent = "COMPLETED";
           statusEl.style.background = "#dcfce7";
+          agents.forEach((a) => setAgentState(a.id, "rest", "休息中", false));
           clearInterval(loop);
           return;
         }
         const s = steps[i];
+        syncScene(s);
         addTimeline(s, s.risk === "high" ? "risk" : "running");
         nowTitleEl.textContent = s.title;
         nowWhyEl.textContent = `why: ${s.why}`;
@@ -278,7 +524,7 @@
         addArtifact(s.artifact);
         renderRisk(s.risk);
         i += 1;
-      }, 2200);
+      }, 2300);
 
       setInterval(tickKpi, 400);
 
@@ -287,6 +533,9 @@
         pauseBtn.textContent = state.paused ? "Resume" : "Pause";
         statusEl.textContent = state.paused ? "PAUSED" : "RUNNING";
         statusEl.style.background = state.paused ? "#fee2e2" : "#d1fae5";
+        if (state.paused) {
+          agents.forEach((a) => setAgentState(a.id, "rest", "暂停中", false));
+        }
       });
 
       document.getElementById("stopBtn").addEventListener("click", () => {
@@ -295,6 +544,7 @@
         statusEl.textContent = "STOPPED";
         statusEl.style.background = "#fecaca";
         stdoutEl.textContent += "\n[system] Session stopped by user.";
+        agents.forEach((a) => setAgentState(a.id, "rest", "已停止", false));
       });
     </script>
   </body>

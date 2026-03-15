@@ -99,6 +99,9 @@ Recommended event types:
 In scope:
 - live timeline streaming
 - current step panel
+- animated workshop scene (multi-agent avatars + room states)
+- idle/rest/work/walk state animations
+- scheduled task bell/pulse cue
 - basic controls: pause/resume/stop
 - risky action approval modal
 - simple metrics: elapsed + token + estimated cost
