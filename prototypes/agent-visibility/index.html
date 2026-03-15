@@ -169,7 +169,13 @@
         },
         computed: {
           sortedCommands() {
-            return [...this.commands].sort((a, b) => (b.ts || 0) - (a.ts || 0));
+            const noisy = (n) => {
+              const t = String(n || '');
+              return t.startsWith('Conversation info (untrusted metadata):') || t.startsWith('[media attached') || t.startsWith('Sender (untrusted metadata):');
+            };
+            return [...this.commands]
+              .filter((c) => !noisy(c.note))
+              .sort((a, b) => (b.ts || 0) - (a.ts || 0));
           },
           sortedLogs() {
             return [...this.logs].sort((a, b) => (b.ts || 0) - (a.ts || 0));
@@ -185,10 +191,16 @@
             }
             return r;
           },
+          makeId() {
+            try {
+              if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+            } catch {}
+            return 'id-' + Date.now() + '-' + Math.random().toString(16).slice(2);
+          },
           pushLog(evt) {
             const title = evt.title || evt.event || 'event';
             const out = evt.payload?.out || evt.payload?.why || '-';
-            this.logs.push({ id: crypto.randomUUID(), title, out, ts: evt._ts || Date.now() });
+            this.logs.push({ id: this.makeId(), title, out, ts: evt._ts || Date.now() });
             if (this.logs.length > 800) this.logs.shift();
             this.lastEventAt = this.fmt(Date.now());
           },
@@ -207,7 +219,13 @@
             const j = await r.json();
             const items = Array.isArray(j.items) ? j.items : [];
             this.recentCount = items.length;
-            for (const e of items) this.onEvent(e, true);
+            for (const e of items) {
+              try {
+                this.onEvent(e, true);
+              } catch (err) {
+                this.logs.push({ id: this.makeId(), title: 'recent parse error', out: String(err.message || err), ts: Date.now() });
+              }
+            }
           },
           connect() {
             const es = new EventSource(`/api/agent-events?sessionKey=${encodeURIComponent(this.sessionKey)}`);
@@ -228,7 +246,7 @@
             this.pushLog(evt);
             if (!fromRecent && evt.event === 'user.request' && evt.payload?.out) {
               this.upsertCommand({
-                id: crypto.randomUUID(),
+                id: this.makeId(),
                 ts: Date.now(),
                 action: 'inbound_user_command',
                 note: evt.payload.out,

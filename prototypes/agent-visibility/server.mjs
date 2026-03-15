@@ -155,11 +155,21 @@ function saveCommands(commands) {
   writeJson(COMMANDS_FILE, commands.slice(-300));
 }
 
+function normalizeUserCommand(text = "") {
+  const t = String(text || "").trim();
+  if (!t) return "";
+  if (t.startsWith("Conversation info (untrusted metadata):")) return "";
+  if (t.startsWith("Sender (untrusted metadata):")) return "";
+  if (t.startsWith("[media attached")) return "";
+  if (t.startsWith("[message_id:")) return "";
+  return t;
+}
+
 function updateCommandFromEvent(evt) {
   const commands = loadCommands();
 
   if (evt.event === "user.request") {
-    const note = String(evt.payload?.out || "").trim();
+    const note = normalizeUserCommand(evt.payload?.out || "");
     if (!note) return;
 
     const recent = [...commands].reverse().find((c) => c.note === note && Math.abs((c.ts || 0) - Date.now()) < 120000);
@@ -285,8 +295,11 @@ function parseLine(line) {
   }
 
   if (role === "user") {
+    const text = normalizeUserCommand(firstText(msg.content));
     out.push({ event: "queue.updated", payload: { agentId: "agent-main", items: ["理解用户新请求", "规划下一步执行"] } });
-    out.push({ event: "user.request", title: "收到用户命令", payload: { out: firstText(msg.content).slice(0, 120) } });
+    if (text) {
+      out.push({ event: "user.request", title: "收到用户命令", payload: { out: text.slice(0, 180) } });
+    }
   }
 
   return out;
