@@ -85,33 +85,48 @@
         font-size: 12px;
       }
       .filters .active { background: #dbeafe; color: #1d4ed8; }
+      .timeline-scroller {
+        max-height: 70vh;
+        overflow-y: auto;
+        padding-right: 4px;
+        scroll-behavior: smooth;
+      }
       .timeline-item {
-        border-left: 3px solid #93c5fd;
-        background: #fbfbfa;
-        border-radius: 8px;
-        padding: 8px;
+        border: 1px solid #dbe3ef;
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 8px 10px;
         margin: 7px 0;
         cursor: pointer;
+        width: 88%;
       }
-      .timeline-item.high { border-left-color: #f87171; }
-      .timeline-item.medium { border-left-color: #fbbf24; }
+      .timeline-item.right {
+        margin-left: auto;
+        background: #eaf3ff;
+        border-color: #c7dbff;
+      }
+      .timeline-item.high { border-color: #fca5a5; background: #fff1f2; }
+      .timeline-item.medium { border-color: #fcd34d; background: #fffbeb; }
       .t-sub { font-size: 12px; color: var(--muted); margin-top: 3px; }
 
       .studio {
-        border: 1px solid #7c5b3e;
+        border: 1px solid #5f4a37;
         border-radius: 12px;
-        background: linear-gradient(180deg, #2f231c 0%, #513629 45%, #6f4d37 100%);
+        background: radial-gradient(circle at 50% -20%, #3e2f25 0%, #2f241d 40%, #241b15 100%);
         color: #f9f2e7;
         padding: 12px;
+        box-shadow: inset 0 1px 0 rgba(255, 235, 210, 0.2), 0 12px 30px rgba(36, 27, 21, 0.35);
       }
       .studio-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
       .studio-note { font-size: 12px; color: #eadfcf; }
       .lane {
-        border: 1px solid #916a49;
-        border-radius: 10px;
-        background: rgba(255, 246, 232, 0.08);
+        border: 1px solid #8f6f53;
+        border-radius: 12px;
+        background: linear-gradient(180deg, rgba(255, 244, 227, 0.12), rgba(255, 244, 227, 0.05));
         padding: 8px;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
+        transform: perspective(900px) rotateX(6deg);
+        transform-origin: center top;
       }
       .lane-head {
         display: grid;
@@ -136,14 +151,27 @@
       .dot.block { background: #ef4444; box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); animation: pulse 1s infinite; }
       .dot.idle { background: #94a3b8; }
 
-      .stations { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; }
+      .stations { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; position: relative; }
+      .stations::before {
+        content: "";
+        position: absolute;
+        left: 2%;
+        right: 2%;
+        top: 50%;
+        height: 2px;
+        background: linear-gradient(90deg, rgba(190,160,130,0.15), rgba(240,210,170,0.65), rgba(190,160,130,0.15));
+        transform: translateY(-50%);
+        z-index: 0;
+      }
       .station {
         border: 1px solid #a27a56;
         border-radius: 8px;
         padding: 6px;
         text-align: center;
         font-size: 11px;
-        background: rgba(255, 245, 230, 0.1);
+        background: rgba(255, 245, 230, 0.14);
+        position: relative;
+        z-index: 1;
       }
       .station.active {
         border-color: #5eead4;
@@ -229,14 +257,16 @@
           <h3>事件时间线</h3>
           <div class="content">
             <div class="filters" id="filters"></div>
-            <div id="timeline"></div>
+            <div class="timeline-scroller" id="timelineScroller">
+              <div id="timeline"></div>
+            </div>
           </div>
         </section>
 
         <section class="studio">
           <div class="studio-head">
             <div><strong>Ops 工坊画布</strong></div>
-            <div class="studio-note">真实事件驱动：lane + station + queue + ring</div>
+            <div class="studio-note">空间化沉浸：控制塔视角 + lane 纵深 + station 动线</div>
           </div>
           <div id="lanes"></div>
         </section>
@@ -275,7 +305,8 @@
         tokens: 0,
         cost: 0,
         retry: 0,
-        events: []
+        events: [],
+        timelineStickToBottom: true
       };
 
       const stations = ["Planning", "Search", "Build", "Verify", "Delivery"];
@@ -292,6 +323,7 @@
         pauseBtn: document.getElementById("pauseBtn"),
         stopBtn: document.getElementById("stopBtn"),
         timeline: document.getElementById("timeline"),
+        timelineScroller: document.getElementById("timelineScroller"),
         lanes: document.getElementById("lanes"),
         elapsed: document.getElementById("elapsed"),
         tokens: document.getElementById("tokens"),
@@ -366,10 +398,15 @@
       }
 
       function renderTimeline() {
-        const list = filteredEvents().slice(-60).reverse();
+        const list = filteredEvents().slice(-120);
+        const nearBottom = el.timelineScroller.scrollHeight - el.timelineScroller.scrollTop - el.timelineScroller.clientHeight < 36;
+        if (nearBottom) state.timelineStickToBottom = true;
+
         el.timeline.innerHTML = list
           .map((e, idx) => {
-            const cls = e.risk === "high" ? "high" : e.risk === "medium" ? "medium" : "";
+            const clsRisk = e.risk === "high" ? "high" : e.risk === "medium" ? "medium" : "";
+            const side = idx % 2 === 0 ? "left" : "right";
+            const cls = `${clsRisk} ${side}`.trim();
             const title = e.title || e.event;
             const sub = (e.payload && (e.payload.out || e.payload.why)) || "-";
             return `<div class="timeline-item ${cls}" data-i="${idx}"><div><strong>${title}</strong></div><div class="t-sub">${sub}</div></div>`;
@@ -382,6 +419,10 @@
             focus(e);
           };
         });
+
+        if (state.timelineStickToBottom) {
+          el.timelineScroller.scrollTop = el.timelineScroller.scrollHeight;
+        }
       }
 
       function focus(e) {
@@ -547,6 +588,11 @@
         if (state.stream) state.stream.close();
         pushStdout("session stopped by operator");
       };
+
+      el.timelineScroller.addEventListener("scroll", () => {
+        const delta = el.timelineScroller.scrollHeight - el.timelineScroller.scrollTop - el.timelineScroller.clientHeight;
+        state.timelineStickToBottom = delta < 36;
+      });
 
       renderFilters();
       renderLanes();
