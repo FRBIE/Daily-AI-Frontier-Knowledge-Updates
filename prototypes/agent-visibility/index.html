@@ -114,6 +114,11 @@
       .avatar { position: absolute; width: 24px; height: 30px; left: 50%; top: 56%; transform: translate(-50%, -50%); transition: all 420ms ease; image-rendering: pixelated; }
       .avatar::before { content: ""; position: absolute; width: 24px; height: 30px; background: linear-gradient(180deg, #fbbf24 0 30%, #1d4ed8 30% 100%); box-shadow: inset 0 0 0 2px #0f172a; }
       .avatar::after { content: ""; position: absolute; width: 6px; height: 6px; border-radius: 1px; background: #0f172a; left: 9px; top: 8px; }
+      .avatar.face-left::after { left: 6px; }
+      .avatar.face-right::after { left: 12px; }
+      .avatar.face-up::after { top: 6px; }
+      .avatar.face-down::after { top: 10px; }
+      .avatar.walking::before { animation: walk-frame 0.32s infinite steps(2); }
       .avatar.typing { animation: bob 0.45s infinite alternate; }
       .avatar.searching { animation: stepwalk 0.55s infinite steps(2); }
       .avatar.waiting { animation: breathe 1.8s infinite; }
@@ -138,6 +143,7 @@
       @keyframes stepwalk { from { transform: translate(-50%, -50%) translateX(-1px); } to { transform: translate(-50%, -50%) translateX(1px); } }
       @keyframes breathe { 0% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(0.94); } 100% { transform: translate(-50%, -50%) scale(1); } }
       @keyframes shake { 0% { transform: translate(-50%, -50%) translateX(0); } 50% { transform: translate(-50%, -50%) translateX(-2px); } 100% { transform: translate(-50%, -50%) translateX(2px); } }
+      @keyframes walk-frame { from { filter: brightness(1); } to { filter: brightness(1.18); } }
       @media (max-width: 1140px) { .layout { grid-template-columns: 1fr; } .desk-grid { grid-template-columns: 1fr; } }
     </style>
   </head>
@@ -225,7 +231,7 @@
         start: Date.now(), paused: false, connected: false, stream: null, filter: "all", skin: "desk",
         tokens: 0, cost: 0, retry: 0, events: [], approvals: [], unreadCount: 0, stickBottom: true,
         replay: { mode: false, timer: null, idx: 0, source: [] }, taskId: 1, lastReadIdx: 0,
-        actor: { status: "idle", stage: "Planning", todo: [], actionText: "我在待命" }
+        actor: { status: "idle", stage: "Planning", prevStage: "Planning", facing: "face-down", walking: false, todo: [], actionText: "我在待命" }
       };
 
       const el = {
@@ -279,17 +285,27 @@
         el.stations.innerHTML = stations.map((s)=>`<div class="station ${state.actor.status==="exec"&&state.actor.stage===s?"active":""}">${s}</div>`).join("");
 
         const motion = state.actor.status === "exec" ? (state.actor.stage === "Search" ? "searching" : "typing") : state.actor.status === "block" ? "blocked" : "waiting";
-        el.person.className = "avatar " + motion;
 
-        const pos = {
-          Planning: { left: "18%", top: "24%" },
-          Search: { left: "82%", top: "24%" },
-          Build: { left: "26%", top: "76%" },
-          Verify: { left: "78%", top: "76%" },
-          Delivery: { left: "50%", top: "54%" }
-        }[state.actor.stage] || { left: "50%", top: "54%" };
-        el.person.style.left = pos.left;
-        el.person.style.top = pos.top;
+        const stagePos = {
+          Planning: { x: 18, y: 24 },
+          Search: { x: 82, y: 24 },
+          Build: { x: 26, y: 76 },
+          Verify: { x: 78, y: 76 },
+          Delivery: { x: 50, y: 54 }
+        };
+        const prev = stagePos[state.actor.prevStage] || stagePos.Planning;
+        const next = stagePos[state.actor.stage] || stagePos.Delivery;
+        const dx = next.x - prev.x;
+        const dy = next.y - prev.y;
+        if (Math.abs(dx) > Math.abs(dy)) {
+          state.actor.facing = dx >= 0 ? "face-right" : "face-left";
+        } else {
+          state.actor.facing = dy >= 0 ? "face-down" : "face-up";
+        }
+
+        el.person.className = `avatar ${motion} ${state.actor.facing} ${state.actor.walking ? "walking" : ""}`;
+        el.person.style.left = `${next.x}%`;
+        el.person.style.top = `${next.y}%`;
 
         document.querySelectorAll(".zone").forEach((z) => {
           z.classList.toggle("active", z.dataset.stage === state.actor.stage && state.actor.status === "exec");
@@ -414,14 +430,23 @@
         if (evt.event === "queue.updated") state.actor.todo = evt.payload?.items || state.actor.todo;
 
         if (["step.started", "tool.started", "生成回复"].includes(evt.event) || evt.event === "step.started") {
+          const nextStage = stationFromTitle(evt.title || evt.payload?.out || "");
           state.actor.status = "exec";
-          state.actor.stage = stationFromTitle(evt.title || evt.payload?.out || "");
+          if (nextStage !== state.actor.stage) {
+            state.actor.prevStage = state.actor.stage;
+            state.actor.stage = nextStage;
+            state.actor.walking = true;
+            setTimeout(() => {
+              state.actor.walking = false;
+              renderDesk();
+            }, 520);
+          }
           state.actor.actionText = evt.payload?.out ? `我正在: ${evt.payload.out}` : `我正在${state.actor.stage}`;
           focus(evt);
           pushLog(evt.payload?.out || evt.title || evt.event);
         }
-        if (["step.completed", "tool.completed"].includes(evt.event)) { state.actor.status = "idle"; state.actor.actionText = "我在待命"; }
-        if (["tool.error", "session.failed"].includes(evt.event)) { state.actor.status = "block"; state.actor.actionText = "我卡住了，等待处理"; }
+        if (["step.completed", "tool.completed"].includes(evt.event)) { state.actor.status = "idle"; state.actor.walking = false; state.actor.actionText = "我在待命"; }
+        if (["tool.error", "session.failed"].includes(evt.event)) { state.actor.status = "block"; state.actor.walking = false; state.actor.actionText = "我卡住了，等待处理"; }
 
         if (evt.event === "approval.required") {
           const reason = evt.payload?.reason || evt.payload?.out || "需要审批";
@@ -466,7 +491,7 @@
         el.replayBtn.textContent = "停止回放";
         state.replay.source = state.events.slice();
         state.events = [];
-        state.actor = { status: "idle", stage: "Planning", todo: [], actionText: "我在待命" };
+        state.actor = { status: "idle", stage: "Planning", prevStage: "Planning", facing: "face-down", walking: false, todo: [], actionText: "我在待命" };
         state.approvals = [];
         renderDesk(); renderTimeline(); renderApprovals();
         let i = 0;
