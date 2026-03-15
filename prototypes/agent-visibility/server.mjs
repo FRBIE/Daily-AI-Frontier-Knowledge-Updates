@@ -262,6 +262,23 @@ function sseWrite(res, data) {
   res.write(`data: ${JSON.stringify(data)}\n\n`);
 }
 
+function recentEvents(sessionFile, limit = 120) {
+  if (!sessionFile || !fs.existsSync(sessionFile)) return [];
+  try {
+    const lines = fs.readFileSync(sessionFile, "utf8").trim().split("\n");
+    const out = [];
+    for (const line of lines.slice(-Math.max(limit, 40))) {
+      const events = parseLine(line);
+      for (const e of events) {
+        out.push({ ...e, _ts: Date.now() });
+      }
+    }
+    return out.slice(-limit);
+  } catch {
+    return [];
+  }
+}
+
 function broadcast(data) {
   for (const client of LIVE_CLIENTS) {
     try {
@@ -445,6 +462,13 @@ const server = http.createServer(async (req, res) => {
 
   if (url.pathname === "/api/commands" && req.method === "GET") {
     return send(res, 200, JSON.stringify({ items: loadCommands().slice(-100) }), { "Content-Type": MIME[".json"], "Access-Control-Allow-Origin": "*" });
+  }
+
+  if (url.pathname === "/api/events/recent" && req.method === "GET") {
+    const sessionKey = url.searchParams.get("sessionKey") || "agent:main:main";
+    const n = Number(url.searchParams.get("limit") || 120);
+    const items = recentEvents(findSessionFile(sessionKey), Math.min(Math.max(n, 20), 300));
+    return send(res, 200, JSON.stringify({ items }), { "Content-Type": MIME[".json"], "Access-Control-Allow-Origin": "*" });
   }
 
   if (url.pathname === "/api/approvals" && req.method === "GET") {
