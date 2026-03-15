@@ -218,7 +218,8 @@
                   <button v-for="t in openTabs" :key="t.file" :class="{active:activeTab===t.file}" @click="activateTab(t.file)">{{t.file}}</button>
                 </div>
               </div>
-              <div class="monaco-host" id="monacoHost"></div>
+              <div class="monaco-host" id="monacoHost" v-show="monacoReady"></div>
+              <pre v-if="!monacoReady" style="margin:0;height:62vh;max-height:none;border-radius:0;"><code class="hljs" v-html="highlightedFallback"></code></pre>
             </div>
           </div>
         </section>
@@ -261,12 +262,18 @@
             editorTheme: 'vs-dark',
             jumpLine: '',
             editor: null,
+            monacoReady: false,
             actor: { stage: 'Planning', status: 'idle', motion: 'waiting', facing: 'face-down', x: 50, y: 54, text: '待命', walking: false }
           }
         },
         computed: {
           commandList() {
             return [...this.commands].sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0, 50);
+          },
+          highlightedFallback() {
+            const tab = this.openTabs.find((t) => t.file === this.activeTab) || this.openTabs[0];
+            const text = tab ? tab.content : (this.skillDetail || '-');
+            try { return hljs.highlightAuto(text).value; } catch { return text; }
           }
         },
         methods: {
@@ -394,24 +401,47 @@
             this.skillSource = j.content || '-';
             this.openTab(file, this.skillSource, this.detectLang(file));
           },
-          initMonaco() {
-            return new Promise((resolve) => {
-              if (this.editor) return resolve();
-              window.require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.2/min/vs' } });
-              window.MonacoEnvironment = {
-                getWorkerUrl: () => `data:text/javascript;charset=utf-8,${encodeURIComponent("self.MonacoEnvironment={baseUrl:'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.2/min/'};importScripts('https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.2/min/vs/base/worker/workerMain.min.js');")}`
+          async initMonaco() {
+            if (this.editor) return true;
+            await this.$nextTick();
+            const host = document.getElementById('monacoHost');
+            if (!host) return false;
+            if (!window.require) return false;
+
+            return await new Promise((resolve) => {
+              let done = false;
+              const finish = (ok) => {
+                if (done) return;
+                done = true;
+                this.monacoReady = ok;
+                resolve(ok);
               };
-              window.require(['vs/editor/editor.main'], () => {
-                this.editor = monaco.editor.create(document.getElementById('monacoHost'), {
-                  value: this.skillDetail || '-',
-                  language: 'markdown',
-                  theme: this.editorTheme,
-                  automaticLayout: true,
-                  minimap: { enabled: true },
-                  fontSize: 13
+
+              const timeout = setTimeout(() => finish(false), 4500);
+              try {
+                window.require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.2/min/vs' } });
+                window.MonacoEnvironment = {
+                  getWorkerUrl: () => `data:text/javascript;charset=utf-8,${encodeURIComponent("self.MonacoEnvironment={baseUrl:'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.2/min/'};importScripts('https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.2/min/vs/base/worker/workerMain.min.js');")}`
+                };
+                window.require(['vs/editor/editor.main'], () => {
+                  clearTimeout(timeout);
+                  this.editor = monaco.editor.create(host, {
+                    value: this.skillDetail || '-',
+                    language: 'markdown',
+                    theme: this.editorTheme,
+                    automaticLayout: true,
+                    minimap: { enabled: true },
+                    fontSize: 13
+                  });
+                  finish(true);
+                }, () => {
+                  clearTimeout(timeout);
+                  finish(false);
                 });
-                resolve();
-              });
+              } catch {
+                clearTimeout(timeout);
+                finish(false);
+              }
             });
           },
           refreshEditor() {
@@ -438,10 +468,17 @@
             location.href = '/login.html';
           }
         },
+        watch: {
+          async tab(v) {
+            if (v === 'skills' && !this.monacoReady) {
+              await this.initMonaco();
+              this.refreshEditor();
+            }
+          }
+        },
         async mounted() {
           const me = await fetch('/auth/me').then((r) => r.json()).catch(() => ({ authed: false }));
           if (!me.authed) return (location.href = '/login.html');
-          await this.initMonaco();
           await this.loadCommands();
           await this.loadSkills();
           this.connect();
