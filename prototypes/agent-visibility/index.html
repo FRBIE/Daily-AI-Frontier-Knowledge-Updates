@@ -7,18 +7,18 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <style>
       :root {
-        --bg: #f3f6fb;
-        --panel: #ffffff;
-        --ink: #172033;
-        --muted: #607089;
-        --line: #d9e2ee;
-        --brand: #1d4ed8;
+        --bg: #f6f1e6;
+        --panel: #fffaf0;
+        --ink: #2f2619;
+        --muted: #7a6a54;
+        --line: #e6d7b8;
+        --brand: #b45309;
         --ok: #166534;
         --warn: #b45309;
         --err: #b91c1c;
       }
       * { box-sizing: border-box; }
-      body { margin: 0; background: radial-gradient(circle at 10% 0%, #ffffff 0%, #f3f6fb 44%, #e9eff8 100%); color: var(--ink); font-family: "IBM Plex Sans", "Noto Sans SC", sans-serif; }
+      body { margin: 0; background: radial-gradient(circle at 10% 0%, #fffdf8 0%, #f6f1e6 44%, #efe3cb 100%); color: var(--ink); font-family: "IBM Plex Sans", "Noto Sans SC", sans-serif; }
       .app { max-width: 1500px; margin: 0 auto; padding: 14px; }
       .top {
         background: var(--panel);
@@ -33,11 +33,11 @@
       .title { font-weight: 700; }
       .tabs { display: flex; gap: 6px; }
       .tabs button { border: 1px solid var(--line); border-radius: 8px; background: #f8fbff; padding: 7px 10px; cursor: pointer; }
-      .tabs button.active { background: #dbeafe; color: #1d4ed8; }
-      .btn { border: 1px solid #bfdbfe; border-radius: 8px; background: #eff6ff; padding: 7px 10px; cursor: pointer; }
+      .tabs button.active { background: #fde7c2; color: #9a3412; }
+      .btn { border: 1px solid #f4c98f; border-radius: 8px; background: #fff2dc; padding: 7px 10px; cursor: pointer; }
       .diag {
         margin-top: 10px;
-        background: var(--panel);
+        background: #fff6e7;
         border: 1px solid var(--line);
         border-radius: 12px;
         padding: 10px;
@@ -58,7 +58,7 @@
       .row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
       textarea, input, select { width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px; font-size: 12px; }
       .progress { margin-top: 7px; height: 8px; border-radius: 999px; background: #e5e7eb; overflow: hidden; }
-      .progress > span { display: block; height: 100%; background: linear-gradient(90deg, #60a5fa, #1d4ed8); }
+      .progress > span { display: block; height: 100%; background: linear-gradient(90deg, #f59e0b, #b45309); }
       .pill { display: inline-block; font-size: 11px; border-radius: 999px; padding: 2px 8px; background: #e2e8f0; }
       .pill.running { background: #dbeafe; color: #1d4ed8; }
       .pill.done { background: #dcfce7; color: var(--ok); }
