@@ -171,6 +171,23 @@
         box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.5);
         opacity: 0;
       }
+      .queue {
+        position: absolute;
+        left: 10px;
+        right: 10px;
+        top: 28px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+      }
+      .queue-item {
+        font-size: 10px;
+        padding: 2px 6px;
+        border-radius: 999px;
+        border: 1px solid #c7d2fe;
+        background: #eef2ff;
+        color: #334155;
+      }
       .bell.ring {
         opacity: 1;
         animation: ring-pulse 1s infinite;
@@ -353,118 +370,74 @@
       const pauseBtn = document.getElementById("pauseBtn");
       const worldEl = document.getElementById("world");
 
-      const state = { start: Date.now(), tokens: 0, cost: 0, retry: 0, paused: false };
+      const state = {
+        start: Date.now(),
+        tokens: 0,
+        cost: 0,
+        retry: 0,
+        paused: false,
+        connected: false,
+        currentStep: "-"
+      };
 
       const agents = [
-        { id: "agent-main", name: "Agent 主控", room: "规划室", mood: "work", task: "拆解需求" },
-        { id: "agent-r1", name: "Agent 研究", room: "资料室", mood: "rest", task: "待命" },
-        { id: "agent-r2", name: "Agent 构建", room: "工坊", mood: "rest", task: "待命" }
+        { id: "agent-main", name: "Agent 主控", room: "规划室", mood: "rest", task: "待命", queue: [] },
+        { id: "agent-r1", name: "Agent 研究", room: "资料室", mood: "rest", task: "待命", queue: [] },
+        { id: "agent-r2", name: "Agent 构建", room: "工坊", mood: "rest", task: "待命", queue: [] }
       ];
-
-      const steps = [
-        {
-          title: "分析需求",
-          why: "明确用户希望实时可视化代理行为",
-          out: "读取上下文与约束，提炼需求为信息架构与交互目标",
-          next: "检索可参考的可观测性模式",
-          risk: "low",
-          artifact: null,
-          focus: "agent-main",
-          other: ["rest", "walk"],
-          scheduled: false
-        },
-        {
-          title: "检索参考资料",
-          why: "对齐行业常见做法，避免拍脑袋设计",
-          out: "抓取 observability 参考资料：trace/metrics/logs + timeline",
-          next: "产出 PRD 与原型",
-          risk: "low",
-          artifact: "research-notes.md",
-          focus: "agent-r1",
-          other: ["work", "rest"],
-          scheduled: false
-        },
-        {
-          title: "生成产品原型",
-          why: "先做可讨论版本，快速迭代",
-          out: "输出 PRD + 可交互单页原型，包含 timeline/当前步骤/风险控制",
-          next: "等待用户反馈并迭代",
-          risk: "medium",
-          artifact: "index.html",
-          focus: "agent-r2",
-          other: ["walk", "work"],
-          scheduled: false
-        },
-        {
-          title: "定时任务触发：日报快照",
-          why: "检测到 cron 触发，检查系统状态",
-          out: "触发定时任务，记录快照并提醒操作员",
-          next: "恢复到常规待命",
-          risk: "low",
-          artifact: "daily-snapshot.json",
-          focus: "agent-main",
-          other: ["rest", "rest"],
-          scheduled: true
-        },
-        {
-          title: "申请高风险操作确认",
-          why: "检测到外部写入动作",
-          out: "请求用户批准：向外部系统发送消息",
-          next: "若批准则执行，否则跳过",
-          risk: "high",
-          artifact: null,
-          focus: "agent-main",
-          other: ["rest", "rest"],
-          scheduled: false
-        }
-      ];
+      const agentMap = Object.fromEntries(agents.map((a) => [a.id, a]));
 
       function renderWorld() {
-        worldEl.innerHTML = agents.map((a) => `
-          <div class="room" id="room-${a.id}">
-            <div class="room-header">${a.room}</div>
-            <div class="task-bubble" id="bubble-${a.id}">${a.task}</div>
-            <div class="bell" id="bell-${a.id}"></div>
-            <div class="bench"></div>
-            <div class="agent ${a.mood}" id="${a.id}">
-              <div class="head"></div>
-              <div class="body"></div>
-              <div class="tag">${a.name}</div>
-            </div>
-            <div class="room-floor"></div>
-          </div>
-        `).join("");
+        worldEl.innerHTML = agents.map((a) =>           '<div class="room" id="room-' + a.id + '">
+' +
+          '  <div class="room-header">' + a.room + '</div>
+' +
+          '  <div class="queue" id="queue-' + a.id + '"></div>
+' +
+          '  <div class="task-bubble" id="bubble-' + a.id + '">' + a.task + '</div>
+' +
+          '  <div class="bell" id="bell-' + a.id + '"></div>
+' +
+          '  <div class="bench"></div>
+' +
+          '  <div class="agent ' + a.mood + '" id="' + a.id + '">
+' +
+          '    <div class="head"></div>
+' +
+          '    <div class="body"></div>
+' +
+          '    <div class="tag">' + a.name + '</div>
+' +
+          '  </div>
+' +
+          '  <div class="room-floor"></div>
+' +
+          '</div>'
+        ).join("");
+        agents.forEach((a) => renderQueue(a.id));
+      }
+
+      function renderQueue(agentId) {
+        const q = document.getElementById('queue-' + agentId);
+        const agent = agentMap[agentId];
+        if (!q || !agent) return;
+        q.innerHTML = agent.queue.slice(0, 4).map((item) => '<span class="queue-item">' + item + '</span>').join("");
       }
 
       function setAgentState(agentId, mood, task, ringing) {
         const node = document.getElementById(agentId);
-        const bubble = document.getElementById(`bubble-${agentId}`);
-        const bell = document.getElementById(`bell-${agentId}`);
+        const bubble = document.getElementById('bubble-' + agentId);
+        const bell = document.getElementById('bell-' + agentId);
         if (!node || !bubble || !bell) return;
-        node.className = `agent ${mood}`;
+        node.className = 'agent ' + mood;
         bubble.textContent = task;
-        bell.className = ringing ? "bell ring" : "bell";
-      }
-
-      function syncScene(step) {
-        const secondary = agents.filter((a) => a.id !== step.focus);
-        const otherStates = step.other || ["rest", "rest"];
-        agents.forEach((a) => {
-          if (a.id === step.focus) {
-            setAgentState(a.id, "work", step.title, step.scheduled);
-          }
-        });
-        secondary.forEach((a, idx) => {
-          const mood = otherStates[idx] || "rest";
-          const label = mood === "walk" ? "巡游中" : mood === "work" ? "并行任务" : "休息中";
-          setAgentState(a.id, mood, label, false);
-        });
+        bell.className = ringing ? 'bell ring' : 'bell';
       }
 
       function addTimeline(item, cls) {
         const div = document.createElement("div");
-        div.className = `timeline-item ${cls}`;
-        div.innerHTML = `<div><strong>${item.title}</strong></div><div class="small">${new Date().toLocaleTimeString()}</div>`;
+        div.className = 'timeline-item ' + cls;
+        div.innerHTML = '<div><strong>' + item.title + '</strong></div><div class="small">' + new Date().toLocaleTimeString() + '</div>';
         timelineEl.prepend(div);
       }
 
@@ -478,9 +451,9 @@
 
       function tickKpi() {
         const sec = Math.floor((Date.now() - state.start) / 1000);
-        elapsedEl.textContent = `${sec}s`;
+        elapsedEl.textContent = sec + 's';
         tokensEl.textContent = String(state.tokens);
-        costEl.textContent = `$${state.cost.toFixed(4)}`;
+        costEl.textContent = '$' + state.cost.toFixed(4);
         retryEl.textContent = String(state.retry);
       }
 
@@ -500,51 +473,184 @@
         }
       }
 
-      renderWorld();
-      let i = 0;
-      const loop = setInterval(() => {
-        if (state.paused) return;
-        if (i >= steps.length) {
+      function applyEvent(evt) {
+        if (!evt || state.paused) return;
+
+        if (evt.event === "session.started") {
+          state.connected = true;
+          state.start = Date.now();
+          statusEl.textContent = "RUNNING";
+          return;
+        }
+
+        if (evt.event === "session.completed") {
           statusEl.textContent = "COMPLETED";
           statusEl.style.background = "#dcfce7";
           agents.forEach((a) => setAgentState(a.id, "rest", "休息中", false));
-          clearInterval(loop);
           return;
         }
-        const s = steps[i];
-        syncScene(s);
-        addTimeline(s, s.risk === "high" ? "risk" : "running");
-        nowTitleEl.textContent = s.title;
-        nowWhyEl.textContent = `why: ${s.why}`;
-        stdoutEl.textContent += `[${new Date().toLocaleTimeString()}] ${s.out}\n`;
-        nextActionEl.textContent = `next: ${s.next}`;
-        state.tokens += Math.floor(Math.random() * 350 + 150);
-        state.cost += Math.random() * 0.002;
-        if (Math.random() > 0.8) state.retry += 1;
-        addArtifact(s.artifact);
-        renderRisk(s.risk);
-        i += 1;
-      }, 2300);
 
+        if (evt.event === "session.failed") {
+          statusEl.textContent = "FAILED";
+          statusEl.style.background = "#fecaca";
+          stdoutEl.textContent += '
+[error] ' + (evt.payload && evt.payload.error ? evt.payload.error : 'unknown error');
+          return;
+        }
+
+        if (evt.event === "cost.updated") {
+          state.tokens = evt.payload && evt.payload.tokens ? evt.payload.tokens : state.tokens;
+          state.cost = evt.payload && evt.payload.cost ? evt.payload.cost : state.cost;
+          state.retry = evt.payload && evt.payload.retry ? evt.payload.retry : state.retry;
+          return;
+        }
+
+        if (evt.event === "file.changed" || evt.event === "artifact.created") {
+          addArtifact(evt.payload && (evt.payload.name || evt.payload.path) ? (evt.payload.name || evt.payload.path) : 'artifact');
+          return;
+        }
+
+        if (evt.event === "queue.updated") {
+          const agentId = evt.payload ? evt.payload.agentId : null;
+          if (agentMap[agentId]) {
+            agentMap[agentId].queue = evt.payload.items || [];
+            renderQueue(agentId);
+          }
+          return;
+        }
+
+        if (evt.event === "step.started" || evt.event === "tool.started") {
+          const agentId = evt.payload && evt.payload.agentId ? evt.payload.agentId : 'agent-main';
+          const title = evt.title || (evt.payload && evt.payload.title) || evt.event;
+          const why = evt.payload && evt.payload.why ? evt.payload.why : '执行实时任务';
+          const next = evt.payload && evt.payload.next ? evt.payload.next : '等待下一事件';
+          const risk = evt.risk || (evt.payload && evt.payload.risk) || 'low';
+          const scheduled = !!(evt.payload && evt.payload.scheduled === true);
+
+          state.currentStep = title;
+          nowTitleEl.textContent = title;
+          nowWhyEl.textContent = 'why: ' + why;
+          nextActionEl.textContent = 'next: ' + next;
+          stdoutEl.textContent += '[' + new Date().toLocaleTimeString() + '] ' + ((evt.payload && evt.payload.out) ? evt.payload.out : title) + '
+';
+          addTimeline({ title }, risk === 'high' ? 'risk' : 'running');
+          renderRisk(risk);
+
+          agents.forEach((a) => {
+            if (a.id === agentId) {
+              setAgentState(a.id, 'work', title, scheduled);
+              if (a.queue.length > 0 && a.queue[0] === title) {
+                a.queue.shift();
+                renderQueue(a.id);
+              }
+            } else {
+              setAgentState(a.id, 'rest', '休息中', false);
+            }
+          });
+          return;
+        }
+
+        if (evt.event === "step.completed" || evt.event === "tool.completed") {
+          const agentId = evt.payload && evt.payload.agentId ? evt.payload.agentId : 'agent-main';
+          if (agentMap[agentId]) setAgentState(agentId, 'walk', '巡游中', false);
+          return;
+        }
+
+        if (evt.event === "approval.required") {
+          renderRisk('high');
+          stdoutEl.textContent += '
+[approval] ' + (evt.payload && evt.payload.reason ? evt.payload.reason : '需要审批');
+        }
+      }
+
+      function startSSE() {
+        const params = new URLSearchParams(window.location.search);
+        const streamUrl = params.get('stream') || '/api/agent-events';
+        try {
+          const es = new EventSource(streamUrl);
+          es.onopen = () => {
+            state.connected = true;
+            statusEl.textContent = 'RUNNING';
+            statusEl.style.background = '#d1fae5';
+            stdoutEl.textContent += '[system] Connected to ' + streamUrl + '
+';
+          };
+          es.onmessage = (msg) => {
+            try {
+              const evt = JSON.parse(msg.data);
+              applyEvent(evt);
+            } catch {
+              stdoutEl.textContent += '[warn] Invalid event: ' + msg.data + '
+';
+            }
+          };
+          es.onerror = () => {
+            state.connected = false;
+            statusEl.textContent = 'DISCONNECTED';
+            statusEl.style.background = '#fef3c7';
+          };
+          return es;
+        } catch {
+          statusEl.textContent = 'DISCONNECTED';
+          statusEl.style.background = '#fef3c7';
+          stdoutEl.textContent += '[system] EventSource unavailable
+';
+          return null;
+        }
+      }
+
+      function startFallbackMock() {
+        const samples = [
+          { event: 'session.started' },
+          { event: 'queue.updated', payload: { agentId: 'agent-r1', items: ['检索官网', '提炼要点'] } },
+          { event: 'step.started', title: '检索官网', payload: { agentId: 'agent-r1', why: '补充事实依据', out: '抓取公开资料', next: '提炼要点', risk: 'low' } },
+          { event: 'cost.updated', payload: { tokens: 620, cost: 0.0031, retry: 0 } },
+          { event: 'step.completed', payload: { agentId: 'agent-r1' } },
+          { event: 'queue.updated', payload: { agentId: 'agent-r2', items: ['更新 UI', '回归检查'] } },
+          { event: 'step.started', title: '更新 UI', payload: { agentId: 'agent-r2', why: '实现动画工坊', out: '写入 index.html', next: '回归检查', risk: 'medium' } },
+          { event: 'artifact.created', payload: { name: 'index.html' } },
+          { event: 'step.started', title: '定时任务: 状态巡检', payload: { agentId: 'agent-main', why: 'cron 触发', out: '执行巡检', next: '恢复待命', risk: 'low', scheduled: true } },
+          { event: 'approval.required', payload: { reason: '外部消息发送' } },
+          { event: 'step.started', title: '申请高风险操作确认', payload: { agentId: 'agent-main', why: '外部写入', out: '等待审批', next: '审批后执行', risk: 'high' } },
+          { event: 'session.completed' }
+        ];
+        let i = 0;
+        const id = setInterval(() => {
+          if (state.paused) return;
+          if (i >= samples.length) return clearInterval(id);
+          applyEvent(samples[i]);
+          i += 1;
+        }, 2200);
+      }
+
+      renderWorld();
       setInterval(tickKpi, 400);
+      const stream = startSSE();
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('mock') === '1') {
+        stdoutEl.textContent += '[system] Mock mode enabled (?mock=1)
+';
+        startFallbackMock();
+      }
 
-      pauseBtn.addEventListener("click", () => {
+      pauseBtn.addEventListener('click', () => {
         state.paused = !state.paused;
-        pauseBtn.textContent = state.paused ? "Resume" : "Pause";
-        statusEl.textContent = state.paused ? "PAUSED" : "RUNNING";
-        statusEl.style.background = state.paused ? "#fee2e2" : "#d1fae5";
+        pauseBtn.textContent = state.paused ? 'Resume' : 'Pause';
+        statusEl.textContent = state.paused ? 'PAUSED' : (state.connected ? 'RUNNING' : 'DISCONNECTED');
+        statusEl.style.background = state.paused ? '#fee2e2' : (state.connected ? '#d1fae5' : '#fef3c7');
         if (state.paused) {
-          agents.forEach((a) => setAgentState(a.id, "rest", "暂停中", false));
+          agents.forEach((a) => setAgentState(a.id, 'rest', '暂停中', false));
         }
       });
 
-      document.getElementById("stopBtn").addEventListener("click", () => {
+      document.getElementById('stopBtn').addEventListener('click', () => {
         state.paused = true;
-        clearInterval(loop);
-        statusEl.textContent = "STOPPED";
-        statusEl.style.background = "#fecaca";
-        stdoutEl.textContent += "\n[system] Session stopped by user.";
-        agents.forEach((a) => setAgentState(a.id, "rest", "已停止", false));
+        statusEl.textContent = 'STOPPED';
+        statusEl.style.background = '#fecaca';
+        stdoutEl.textContent += '
+[system] Session stopped by user.';
+        agents.forEach((a) => setAgentState(a.id, 'rest', '已停止', false));
+        if (stream) stream.close();
       });
     </script>
   </body>

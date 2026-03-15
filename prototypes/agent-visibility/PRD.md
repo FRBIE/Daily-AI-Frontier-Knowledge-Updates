@@ -123,7 +123,15 @@ Observed common patterns from public observability materials:
 - Good observability uses traces/metrics/logs together (OpenTelemetry observability primer)
 
 ## 11. Next Build Plan
-1. Wire frontend to a mock SSE stream
+1. Wire frontend to real SSE stream (`/api/agent-events` or `?stream=`)
 2. Map OpenClaw runtime events to the event schema above
-3. Add approval gate for risky actions
-4. Add persistent execution replay
+3. Keep mock mode only as fallback for demo (`?mock=1`)
+4. Add approval gate for risky actions
+5. Add persistent execution replay
+
+## 12. New Visual Layer (Animated Workshop)
+- Multi-agent avatars in separate rooms
+- Each room shows queue chips (pending tasks)
+- State animation: work / rest / walk / paused
+- Scheduled task visual cue: bell pulse (ring)
+- Data panel remains as the operational source of truth
