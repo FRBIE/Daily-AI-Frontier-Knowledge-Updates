@@ -3,274 +3,144 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Agent Ops Studio</title>
+    <title>Agent Ops Studio (Stable)</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.2/min/vs/loader.min.js"></script>
     <style>
       :root {
-        --bg: #e9edf5;
+        --bg: #eef2f7;
         --panel: #ffffff;
+        --line: #d7e0ec;
         --ink: #1f2a37;
         --muted: #64748b;
-        --line: #d8e0ee;
         --brand: #2563eb;
       }
       * { box-sizing: border-box; }
       body { margin: 0; background: var(--bg); color: var(--ink); font-family: "IBM Plex Sans", "Noto Sans SC", sans-serif; }
-      .app { max-width: 1500px; margin: 0 auto; padding: 12px; }
-      .topbar {
-        background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px;
-        display: grid; grid-template-columns: 1fr auto auto auto; gap: 8px; align-items: center;
+      .app { max-width: 1400px; margin: 0 auto; padding: 12px; }
+      .top {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 10px;
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        gap: 8px;
+        align-items: center;
       }
       .tabs { display: flex; gap: 6px; }
-      .tabs button { border: 1px solid var(--line); background: #f8fafc; border-radius: 8px; padding: 6px 10px; cursor: pointer; }
+      .tabs button { border: 1px solid var(--line); border-radius: 8px; background: #f8fafc; padding: 6px 10px; cursor: pointer; }
       .tabs button.active { background: #dbeafe; color: #1d4ed8; }
-      .badge { border-radius: 999px; font-size: 12px; padding: 4px 10px; border: 1px solid #bfdbfe; background: #eff6ff; color: #1d4ed8; }
-      .layout { margin-top: 10px; display: grid; grid-template-columns: 360px 1fr 360px; gap: 10px; }
+      .diag {
+        margin-top: 8px;
+        background: #f8fbff;
+        border: 1px solid #cfe1ff;
+        border-radius: 10px;
+        padding: 8px;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+        font-size: 12px;
+      }
+      .layout { margin-top: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
       .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
       .card h3 { margin: 0; padding: 10px; border-bottom: 1px solid var(--line); font-size: 14px; }
       .content { padding: 10px; }
-      .log-list { max-height: 72vh; overflow: auto; }
-      .log-item { border: 1px solid #e2e8f0; background: #fff; border-radius: 10px; padding: 8px; margin-bottom: 7px; }
+      .list { max-height: 72vh; overflow: auto; }
+      .item { border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px; margin-bottom: 8px; background: #fff; }
       .small { color: var(--muted); font-size: 12px; }
-
-      .world {
-        position: relative; height: 290px; border: 2px solid #1a2a44; border-radius: 10px;
-        background: radial-gradient(circle at 12% 8%, rgba(255,255,255,0.24), transparent 32%), linear-gradient(180deg, rgba(154, 197, 255, 0.45) 0 34%, transparent 34%), repeating-linear-gradient(0deg, #82a763 0 14px, #769b58 14px 28px), repeating-linear-gradient(90deg, rgba(22, 38, 66, 0.24) 0 1px, transparent 1px 14px);
-        overflow: hidden;
-      }
-      .zone { position: absolute; border: 2px solid rgba(230, 240, 255, 0.45); border-radius: 7px; font-size: 10px; padding: 2px 6px; color: #e2e8f0; background: rgba(15, 23, 42, 0.3); }
-      .zone.active { border-color: #34d399; color: #bbf7d0; box-shadow: 0 0 0 2px rgba(52,211,153,0.25); }
-      .plan { left: 8px; top: 12px; width: 110px; height: 58px; }
-      .search { right: 8px; top: 12px; width: 110px; height: 58px; }
-      .build { left: 20px; bottom: 16px; width: 120px; height: 66px; }
-      .verify { right: 16px; bottom: 16px; width: 120px; height: 66px; }
-      .delivery { left: 50%; transform: translateX(-50%); bottom: 92px; width: 120px; height: 56px; }
-
-      .avatar {
-        position: absolute; width: 26px; height: 34px; transform: translate(-50%, -50%);
-        transition: left 420ms ease, top 420ms ease;
-      }
-      .avatar::before { content: ""; position: absolute; width: 26px; height: 34px; background: linear-gradient(180deg, #fde68a 0 26%, #3b82f6 26% 70%, #1e40af 70%); box-shadow: inset 0 0 0 2px #0f172a; }
-      .avatar::after { content: ""; position: absolute; width: 6px; height: 6px; background: #0f172a; left: 10px; top: 9px; }
-      .face-left::after { left: 6px; }
-      .face-right::after { left: 12px; }
-      .face-up::after { top: 6px; }
-      .face-down::after { top: 10px; }
-      .walking::before { animation: walk 0.32s infinite steps(2); }
-      .typing { animation: bob 0.45s infinite alternate; }
-      .searching { animation: stepwalk 0.55s infinite steps(2); }
-      .waiting { animation: breathe 1.8s infinite; }
-      .blocked { animation: shake 0.25s infinite; }
-
-      .cmd { border: 1px solid #dbeafe; border-radius: 10px; padding: 8px; margin-bottom: 8px; background: #f8fbff; }
-      .progress { height: 8px; border-radius: 999px; background: #e5e7eb; overflow: hidden; margin-top: 6px; }
+      .progress { margin-top: 6px; height: 8px; background: #e5e7eb; border-radius: 999px; overflow: hidden; }
       .progress > span { display: block; height: 100%; background: linear-gradient(90deg, #60a5fa, #2563eb); }
       .status { font-size: 11px; padding: 2px 6px; border-radius: 999px; background: #e2e8f0; }
-
-      .controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
-      input, textarea, button, select { width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 7px 8px; font-size: 12px; }
+      textarea, input, button {
+        width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px; font-size: 12px;
+      }
       button { cursor: pointer; background: #eff6ff; }
-      pre { background: #111827; color: #e5e7eb; border-radius: 8px; padding: 8px; max-height: 180px; overflow: auto; }
-      .skill-workbench { display: grid; grid-template-columns: 260px 1fr; gap: 10px; }
-      .file-list { max-height: 65vh; overflow: auto; border: 1px solid var(--line); border-radius: 8px; padding: 6px; background: #f8fafc; }
-      .file-list button { text-align: left; margin-bottom: 6px; }
-      .editor-pane { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: #0b1220; }
-      .editor-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px; background: #111827; color: #dbeafe; }
-      .editor-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
-      .editor-tabs button { width: auto; background: #1f2937; color: #cbd5e1; border-color: #334155; }
-      .editor-tabs button.active { background: #1d4ed8; color: #eff6ff; }
-      .editor-tools { display: flex; gap: 6px; }
-      .editor-tools input { width: 110px; }
-      .monaco-host { height: 62vh; }
-
-      @keyframes walk { from { filter: brightness(1); } to { filter: brightness(1.18); } }
-      @keyframes bob { from { transform: translate(-50%, -50%) translateY(0); } to { transform: translate(-50%, -50%) translateY(-3px); } }
-      @keyframes stepwalk { from { transform: translate(-50%, -50%) translateX(-1px); } to { transform: translate(-50%, -50%) translateX(1px); } }
-      @keyframes breathe { 0% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(0.94); } 100% { transform: translate(-50%, -50%) scale(1); } }
-      @keyframes shake { 0% { transform: translate(-50%, -50%) translateX(0); } 50% { transform: translate(-50%, -50%) translateX(-2px); } 100% { transform: translate(-50%, -50%) translateX(2px); } }
-      @media (max-width: 1160px) { .layout { grid-template-columns: 1fr; } }
+      .row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+      pre { margin: 0; background: #0f172a; color: #e2e8f0; border-radius: 8px; padding: 8px; max-height: 46vh; overflow: auto; }
+      @media (max-width: 1000px) {
+        .diag { grid-template-columns: 1fr 1fr; }
+        .layout { grid-template-columns: 1fr; }
+      }
     </style>
   </head>
   <body>
     <div id="app" class="app">
-      <div class="topbar">
-        <div><strong>Agent Ops Studio</strong> · {{sessionKey}}</div>
+      <div class="top">
+        <div><strong>Agent Ops Studio (Stable)</strong> · {{sessionKey}}</div>
         <div class="tabs">
-          <button :class="{active:tab==='dashboard'}" @click="tab='dashboard'">总览</button>
-          <button :class="{active:tab==='commands'}" @click="tab='commands'">命令中心</button>
-          <button :class="{active:tab==='skills'}" @click="tab='skills'">Skills</button>
-          <button :class="{active:tab==='browserwing'}" @click="tab='browserwing'">Browserwing</button>
+          <button :class="{active:tab==='commands'}" @click="tab='commands'">命令</button>
           <button :class="{active:tab==='logs'}" @click="tab='logs'">日志</button>
+          <button :class="{active:tab==='skills'}" @click="tab='skills'">Skills</button>
         </div>
-        <div class="badge">{{conn}}</div>
-        <button @click="logout">退出登录</button>
+        <button @click="logout">退出</button>
       </div>
 
-      <div class="layout" v-if="tab==='dashboard'">
+      <div class="diag">
+        <div><strong>SSE</strong><div class="small">{{sseState}}</div></div>
+        <div><strong>Skills</strong><div class="small">{{skills.length}} 条</div></div>
+        <div><strong>Recent</strong><div class="small">{{recentCount}} 条</div></div>
+        <div><strong>Commands</strong><div class="small">{{commands.length}} 条</div></div>
+        <div><strong>Last Event</strong><div class="small">{{lastEventAt || '-'}}</div></div>
+      </div>
+
+      <div class="layout" v-if="tab==='commands'">
         <section class="card">
-          <h3>命令进度（用户视角）</h3>
-          <div class="content log-list">
-            <div class="cmd" v-for="c in commandList" :key="c.id">
+          <h3>下发命令</h3>
+          <div class="content">
+            <textarea v-model="cmd" rows="4" placeholder="输入要执行的命令"></textarea>
+            <div class="row" style="margin-top:6px;">
+              <button @click="dispatch(false)">发送</button>
+              <button @click="dispatch(true)">紧急</button>
+            </div>
+          </div>
+        </section>
+        <section class="card">
+          <h3>命令进度（飞书+Studio 同步）</h3>
+          <div class="content list">
+            <div class="item" v-for="c in sortedCommands" :key="c.id">
               <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;">
                 <strong>{{c.note || c.action}}</strong>
                 <span class="status">{{c.status}}</span>
               </div>
-              <div class="small">{{c.lastEvent || '-'}} · {{new Date(c.ts).toLocaleTimeString()}}</div>
-              <div class="progress"><span :style="{width: (c.progress||0)+'%'}"></span></div>
-            </div>
-          </div>
-        </section>
-
-        <section class="card">
-          <h3>第三人称像素行动视图</h3>
-          <div class="content">
-            <div class="world">
-              <div class="zone plan" :class="{active:actor.stage==='Planning'&&actor.status==='exec'}">Planning</div>
-              <div class="zone search" :class="{active:actor.stage==='Search'&&actor.status==='exec'}">Search</div>
-              <div class="zone build" :class="{active:actor.stage==='Build'&&actor.status==='exec'}">Build</div>
-              <div class="zone verify" :class="{active:actor.stage==='Verify'&&actor.status==='exec'}">Verify</div>
-              <div class="zone delivery" :class="{active:actor.stage==='Delivery'&&actor.status==='exec'}">Delivery</div>
-              <div class="avatar" :class="[actor.motion,actor.facing,{walking:actor.walking}]" :style="{left:actor.x+'%',top:actor.y+'%'}"></div>
-            </div>
-            <div style="margin-top:8px;" class="small">{{actor.text}}</div>
-          </div>
-        </section>
-
-        <section class="card">
-          <h3>任务面板 + 实时日志</h3>
-          <div class="content">
-            <div v-for="t in tasks" :key="t.id" class="cmd">
-              <strong>{{t.name}}</strong>
-              <div class="small">{{t.detail}}</div>
-              <div class="small">{{t.status}}</div>
-            </div>
-            <div class="small" style="margin:8px 0 6px;">最近实时日志</div>
-            <div class="log-list" style="max-height:220px;">
-              <div class="log-item" v-for="l in logs.slice(-10).reverse()" :key="l._id">
-                <strong>{{l.title}}</strong>
-                <div class="small">{{l.out}}</div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </div>
-
-      <div class="layout" v-else-if="tab==='commands'">
-        <section class="card">
-          <h3>命令下发区</h3>
-          <div class="content">
-            <textarea v-model="cmdText" rows="4" placeholder="输入要下发给智能体的命令"></textarea>
-            <div class="controls" style="margin-top:6px;">
-              <button @click="dispatch(false)">发送命令</button>
-              <button @click="dispatch(true)">紧急插队</button>
-              <button @click="sendControl('retry_last')">重试最近步骤</button>
-              <button @click="sendControl('skip_step')">跳过当前步骤</button>
-              <button @click="sendControl('priority_speed')">速度优先</button>
-              <button @click="sendControl('priority_safe')">稳妥优先</button>
-            </div>
-          </div>
-        </section>
-        <section class="card" style="grid-column: span 2;">
-          <h3>命令执行状态</h3>
-          <div class="content log-list">
-            <div class="cmd" v-for="c in commandList" :key="c.id">
-              <div style="display:flex;justify-content:space-between;gap:8px;"><strong>{{c.note||c.action}}</strong><span class="status">{{c.status}}</span></div>
-              <div class="small">进度: {{c.progress||0}}% · {{c.lastEvent||'-'}}</div>
-              <div class="progress"><span :style="{width:(c.progress||0)+'%'}"></span></div>
-            </div>
-          </div>
-        </section>
-      </div>
-
-      <div class="layout" v-else-if="tab==='skills'">
-        <section class="card" style="grid-column: span 3;">
-          <h3>Skills 工作台</h3>
-          <div class="content skill-workbench">
-            <div>
-              <div class="small" style="margin-bottom:6px;">Skills</div>
-              <div class="file-list">
-                <button v-for="s in skills" :key="s.name" @click="openSkill(s.name)">{{s.name}}</button>
-              </div>
-              <div class="small" style="margin:10px 0 6px;">文件</div>
-              <div class="file-list">
-                <button v-for="f in skillFiles" :key="f" @click="openSource(f)">{{f}}</button>
-              </div>
-            </div>
-            <div class="editor-pane">
-              <div class="editor-top">
-                <div>
-                  <div><strong>{{skillTitle}}</strong></div>
-                  <div class="small">支持代码高亮、多 Tab、跳转行</div>
-                </div>
-                <div class="editor-tools">
-                  <select v-model="editorTheme" @change="applyEditorTheme">
-                    <option value="vs-dark">Dark</option>
-                    <option value="vs">Light</option>
-                  </select>
-                  <input v-model="jumpLine" placeholder="行号" />
-                  <button @click="goLine">跳转</button>
-                  <button @click="enableMonaco">启用高级编辑器</button>
-                </div>
-              </div>
-              <div class="editor-top" style="border-top:1px solid #334155;">
-                <div class="editor-tabs">
-                  <button v-for="t in openTabs" :key="t.file" :class="{active:activeTab===t.file}" @click="activateTab(t.file)">{{t.file}}</button>
-                </div>
-              </div>
-              <div class="monaco-host" id="monacoHost" v-show="monacoEnabled && monacoReady"></div>
-              <pre v-if="!monacoEnabled || !monacoReady" style="margin:0;height:62vh;max-height:none;border-radius:0;" v-text="plainFallback"></pre>
-            </div>
-          </div>
-        </section>
-      </div>
-
-      <div class="layout" v-else-if="tab==='browserwing'">
-        <section class="card">
-          <h3>Browserwing 控制面板</h3>
-          <div class="content">
-            <div class="small">通过命令桥把浏览器自动化任务下发给我执行</div>
-            <input v-model="bw.url" placeholder="目标 URL，例如 https://example.com" style="margin-top:8px;" />
-            <select v-model="bw.action" style="margin-top:6px;">
-              <option value="navigate">navigate</option>
-              <option value="snapshot">snapshot</option>
-              <option value="click">click</option>
-              <option value="type">type</option>
-              <option value="evaluate">evaluate</option>
-              <option value="screenshot">screenshot</option>
-            </select>
-            <input v-model="bw.selector" placeholder="selector / ref（click/type 时可填）" style="margin-top:6px;" />
-            <input v-model="bw.text" placeholder="输入文本（type 时可填）" style="margin-top:6px;" />
-            <textarea v-model="bw.script" rows="4" placeholder="evaluate 的 JS 代码（可选）" style="margin-top:6px;"></textarea>
-            <div class="controls" style="margin-top:6px;">
-              <button @click="dispatchBrowserwing(false)">执行</button>
-              <button @click="dispatchBrowserwing(true)">紧急执行</button>
-              <button @click="quickBrowserwing('snapshot')">一键快照</button>
-              <button @click="quickBrowserwing('screenshot')">一键截图</button>
-            </div>
-          </div>
-        </section>
-        <section class="card" style="grid-column: span 2;">
-          <h3>Browserwing 最近执行</h3>
-          <div class="content log-list">
-            <div class="log-item" v-for="c in browserwingCommands" :key="c.id">
-              <strong>{{c.note}}</strong>
-              <div class="small">{{c.status}} · {{c.progress || 0}}%</div>
+              <div class="small">{{c.source || '-'}} · {{fmt(c.ts)}}</div>
               <div class="small">{{c.lastEvent || '-'}}</div>
+              <div class="progress"><span :style="{width: (c.progress || 0) + '%'}"></span></div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="layout" v-else-if="tab==='logs'">
+        <section class="card" style="grid-column: span 2;">
+          <h3>日志（首屏 recent + 实时 SSE）</h3>
+          <div class="content list">
+            <div class="item" v-for="l in sortedLogs" :key="l.id">
+              <strong>{{l.title}}</strong>
+              <div class="small">{{l.out}}</div>
+              <div class="small">{{fmt(l.ts)}}</div>
             </div>
           </div>
         </section>
       </div>
 
       <div class="layout" v-else>
-        <section class="card" style="grid-column: span 3;">
-          <h3>实时日志</h3>
-          <div class="content log-list">
-            <div class="log-item" v-for="l in logs" :key="l._id">
-              <strong>{{l.title}}</strong>
-              <div class="small">{{l.out}}</div>
-              <div class="small">{{new Date(l.ts).toLocaleTimeString()}}</div>
+        <section class="card">
+          <h3>Skills 列表</h3>
+          <div class="content list">
+            <button style="margin-bottom:6px;text-align:left;" v-for="s in skills" :key="s.name" @click="openSkill(s.name)">{{s.name}}</button>
+          </div>
+        </section>
+        <section class="card">
+          <h3>{{skillTitle}}</h3>
+          <div class="content">
+            <div class="small">介绍</div>
+            <pre>{{skillDetail}}</pre>
+            <div class="small" style="margin:8px 0 6px;">文件</div>
+            <div class="row">
+              <button v-for="f in skillFiles" :key="f" @click="openSource(f)">{{f}}</button>
             </div>
+            <div class="small" style="margin:8px 0 6px;">源码</div>
+            <pre>{{skillSource}}</pre>
           </div>
         </section>
       </div>
@@ -281,174 +151,112 @@
       createApp({
         data() {
           return {
-            tab: 'dashboard',
-            conn: 'INIT',
+            tab: 'commands',
             sessionKey: new URLSearchParams(location.search).get('sessionKey') || 'agent:main:main',
-            logs: [],
-            tasks: [],
+            sseState: 'INIT',
+            recentCount: 0,
+            lastEventAt: '',
+            cmd: '',
             commands: [],
-            cmdText: '',
+            logs: [],
             skills: [],
-            skillName: '',
             skillTitle: 'Skill 详情',
+            skillName: '',
             skillDetail: '-',
             skillFiles: [],
-            skillSource: '-',
-            openTabs: [],
-            bw: { url: 'https://example.com', action: 'snapshot', selector: '', text: '', script: '' },
-            activeTab: '',
-            editorTheme: 'vs-dark',
-            jumpLine: '',
-            editor: null,
-            monacoEnabled: false,
-            monacoReady: false,
-            actor: { stage: 'Planning', status: 'idle', motion: 'waiting', facing: 'face-down', x: 50, y: 54, text: '待命', walking: false }
-          }
+            skillSource: '-'
+          };
         },
         computed: {
-          commandList() {
-            return [...this.commands].sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0, 50);
+          sortedCommands() {
+            return [...this.commands].sort((a, b) => (b.ts || 0) - (a.ts || 0));
           },
-          browserwingCommands() {
-            return this.commandList.filter((c) => (c.note || '').toLowerCase().includes('browserwing')).slice(0, 40);
-          },
-          plainFallback() {
-            const tab = this.openTabs.find((t) => t.file === this.activeTab) || this.openTabs[0];
-            const text = tab ? tab.content : (this.skillDetail || '-');
-            return text || '-';
+          sortedLogs() {
+            return [...this.logs].sort((a, b) => (b.ts || 0) - (a.ts || 0));
           }
         },
         methods: {
+          fmt(ts) { return ts ? new Date(ts).toLocaleTimeString() : '-'; },
           async api(path, options) {
             const r = await fetch(path, options);
-            if (r.status === 401) { location.href = '/login.html'; throw new Error('unauthorized'); }
+            if (r.status === 401) {
+              location.href = '/login.html';
+              throw new Error('unauthorized');
+            }
             return r;
           },
-          pushLog(title, out) {
-            this.logs.push({ _id: crypto.randomUUID(), title, out, ts: Date.now() });
-            if (this.logs.length > 600) this.logs.shift();
+          pushLog(evt) {
+            const title = evt.title || evt.event || 'event';
+            const out = evt.payload?.out || evt.payload?.why || '-';
+            this.logs.push({ id: crypto.randomUUID(), title, out, ts: evt._ts || Date.now() });
+            if (this.logs.length > 800) this.logs.shift();
+            this.lastEventAt = this.fmt(Date.now());
           },
-          updateActorByTitle(title, out='') {
-            const t = (title || '').toLowerCase();
-            const stage = t.includes('search') || t.includes('read') || t.includes('检索') ? 'Search'
-              : t.includes('write') || t.includes('edit') || t.includes('build') || t.includes('生成') ? 'Build'
-              : t.includes('verify') || t.includes('检查') ? 'Verify'
-              : t.includes('send') || t.includes('deliver') || t.includes('回复') ? 'Delivery' : 'Planning';
-            const pos = { Planning:[18,24], Search:[82,24], Build:[26,76], Verify:[78,76], Delivery:[50,54] };
-            const [nx, ny] = pos[stage];
-            const dx = nx - this.actor.x;
-            const dy = ny - this.actor.y;
-            this.actor.facing = Math.abs(dx) > Math.abs(dy) ? (dx >= 0 ? 'face-right' : 'face-left') : (dy >= 0 ? 'face-down' : 'face-up');
-            this.actor.walking = stage !== this.actor.stage;
-            this.actor.x = nx;
-            this.actor.y = ny;
-            this.actor.stage = stage;
-            this.actor.status = 'exec';
-            this.actor.motion = stage === 'Search' ? 'searching' : 'typing';
-            this.actor.text = out || title || '执行中';
-            if (this.actor.walking) setTimeout(() => this.actor.walking = false, 520);
-          },
-          onEvent(evt) {
-            if (!evt || !evt.event) return;
-            if (evt.event === 'command.updated' && evt.payload) {
-              const i = this.commands.findIndex((x)=>x.id===evt.payload.id);
-              if (i >= 0) this.commands[i] = evt.payload; else this.commands.push(evt.payload);
-              return;
-            }
-            if (evt.event === 'queue.updated') {
-              const items = evt.payload?.items || [];
-              this.tasks = items.map((name, i) => ({ id: `${Date.now()}-${i}`, name, detail: i===0?'当前排队头部':'等待执行', status: i===0?'queued':'pending' }));
-            }
-            if (evt.event === 'step.started' || evt.event === 'tool.started') {
-              this.updateActorByTitle(evt.title || '', evt.payload?.out || '');
-            }
-            if (evt.event === 'step.completed' || evt.event === 'tool.completed') {
-              this.actor.status = 'idle';
-              this.actor.motion = 'waiting';
-              this.actor.text = '待命';
-            }
-            if (evt.event === 'tool.error' || evt.event === 'session.failed') {
-              this.actor.status = 'blocked';
-              this.actor.motion = 'blocked';
-              this.actor.text = '执行异常';
-            }
-            if (evt.event === 'control.applied') {
-              this.tasks.unshift({ id: `ctrl-${Date.now()}`, name: evt.title || '控制指令', detail: evt.payload?.out || '-', status: 'applied' });
-            }
-            this.pushLog(evt.title || evt.event, evt.payload?.out || evt.payload?.why || '-');
-          },
-          connect() {
-            const url = `/api/agent-events?sessionKey=${encodeURIComponent(this.sessionKey)}`;
-            const es = new EventSource(url);
-            es.onopen = () => this.conn = 'CONNECTED';
-            es.onmessage = (m) => {
-              try { this.onEvent(JSON.parse(m.data)); } catch {}
-            };
-            es.onerror = () => this.conn = 'DISCONNECTED';
+          upsertCommand(c) {
+            const i = this.commands.findIndex((x) => x.id === c.id);
+            if (i >= 0) this.commands[i] = c;
+            else this.commands.push(c);
           },
           async loadCommands() {
             const r = await this.api('/api/commands');
             const j = await r.json();
             this.commands = Array.isArray(j.items) ? j.items : [];
           },
-          async loadRecentEvents() {
-            try {
-              const r = await this.api(`/api/events/recent?sessionKey=${encodeURIComponent(this.sessionKey)}&limit=160`);
-              const j = await r.json();
-              const items = Array.isArray(j.items) ? j.items : [];
-              for (const evt of items) this.onEvent(evt);
-            } catch (err) {
-              this.pushLog('recent events 加载失败', String(err.message || err));
-            }
+          async loadRecent() {
+            const r = await this.api(`/api/events/recent?sessionKey=${encodeURIComponent(this.sessionKey)}&limit=200`);
+            const j = await r.json();
+            const items = Array.isArray(j.items) ? j.items : [];
+            this.recentCount = items.length;
+            for (const e of items) this.onEvent(e, true);
           },
-          async sendControl(action, note='') {
-            await this.api('/api/control', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action, note, sessionKey: this.sessionKey }) });
-            await this.loadCommands();
+          connect() {
+            const es = new EventSource(`/api/agent-events?sessionKey=${encodeURIComponent(this.sessionKey)}`);
+            es.onopen = () => { this.sseState = 'CONNECTED'; };
+            es.onmessage = (m) => {
+              try {
+                this.onEvent(JSON.parse(m.data), false);
+              } catch {}
+            };
+            es.onerror = () => { this.sseState = 'DISCONNECTED'; };
+          },
+          onEvent(evt, fromRecent) {
+            if (!evt) return;
+            if (evt.event === 'command.updated' && evt.payload) {
+              this.upsertCommand(evt.payload);
+              return;
+            }
+            this.pushLog(evt);
+            if (!fromRecent && evt.event === 'user.request' && evt.payload?.out) {
+              this.upsertCommand({
+                id: crypto.randomUUID(),
+                ts: Date.now(),
+                action: 'inbound_user_command',
+                note: evt.payload.out,
+                source: 'feishu',
+                status: 'running',
+                progress: 10,
+                lastEvent: '用户命令已接收'
+              });
+            }
           },
           async dispatch(urgent) {
-            const text = this.cmdText.trim();
+            const text = this.cmd.trim();
             if (!text) return;
-            await this.sendControl(urgent ? 'dispatch_command_urgent' : 'dispatch_command', text);
-            this.cmdText = '';
-          },
-          buildBrowserwingPrompt() {
-            const a = this.bw.action;
-            const bits = [
-              `请使用 browserwing-executor skill 执行浏览器操作。`,
-              this.bw.url ? `目标URL: ${this.bw.url}` : '',
-              `动作: ${a}`,
-              this.bw.selector ? `selector/ref: ${this.bw.selector}` : '',
-              this.bw.text ? `文本: ${this.bw.text}` : '',
-              this.bw.script ? `脚本:\n${this.bw.script}` : '',
-              `执行后请返回关键结果，并说明是否成功。`
-            ].filter(Boolean);
-            return `[browserwing] ${bits.join('\n')}`;
-          },
-          async dispatchBrowserwing(urgent) {
-            const note = this.buildBrowserwingPrompt();
-            await this.sendControl(urgent ? 'dispatch_command_urgent' : 'dispatch_command', note);
-          },
-          async quickBrowserwing(kind) {
-            this.bw.action = kind;
-            await this.dispatchBrowserwing(false);
+            const action = urgent ? 'dispatch_command_urgent' : 'dispatch_command';
+            const r = await this.api('/api/control', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ action, note: text, sessionKey: this.sessionKey })
+            });
+            const j = await r.json();
+            if (j.command) this.upsertCommand(j.command);
+            this.cmd = '';
           },
           async loadSkills() {
-            try {
-              const r = await this.api('/api/skills');
-              const j = await r.json();
-              this.skills = j.items || [];
-              if (!this.skills.length) {
-                this.pushLog('skills 为空', '后端返回空列表');
-              }
-              if (this.skills[0]) this.openSkill(this.skills[0].name);
-            } catch (err) {
-              this.pushLog('skills 加载失败', String(err.message || err));
-              this.skills = [
-                { name: 'browserwing-executor' },
-                { name: 'weather' },
-                { name: 'healthcheck' }
-              ];
-            }
+            const r = await this.api('/api/skills');
+            const j = await r.json();
+            this.skills = Array.isArray(j.items) ? j.items : [];
+            if (this.skills[0]) await this.openSkill(this.skills[0].name);
           },
           async openSkill(name) {
             this.skillName = name;
@@ -457,115 +265,16 @@
             this.skillTitle = `${j.skill.name} - ${j.skill.description}`;
             this.skillDetail = j.content || '-';
             this.skillFiles = j.files || [];
-            this.openTab('SKILL.md', this.skillDetail, 'markdown');
-            if (this.skillFiles[0]) this.openSource(this.skillFiles[0]);
-          },
-          detectLang(file) {
-            const f = (file || '').toLowerCase();
-            if (f.endsWith('.md')) return 'markdown';
-            if (f.endsWith('.json')) return 'json';
-            if (f.endsWith('.js') || f.endsWith('.mjs')) return 'javascript';
-            if (f.endsWith('.yml') || f.endsWith('.yaml')) return 'yaml';
-            if (f.endsWith('.ts')) return 'typescript';
-            return 'plaintext';
-          },
-          openTab(file, content, lang) {
-            const idx = this.openTabs.findIndex((t) => t.file === file);
-            const tab = { file, content, lang: lang || this.detectLang(file) };
-            if (idx >= 0) this.openTabs[idx] = tab; else this.openTabs.push(tab);
-            this.activeTab = file;
-            this.refreshEditor();
-          },
-          activateTab(file) {
-            this.activeTab = file;
-            this.refreshEditor();
+            this.skillSource = '-';
           },
           async openSource(file) {
             const r = await this.api(`/api/skills/source?name=${encodeURIComponent(this.skillName)}&file=${encodeURIComponent(file)}`);
             const j = await r.json();
             this.skillSource = j.content || '-';
-            this.openTab(file, this.skillSource, this.detectLang(file));
-          },
-          async initMonaco() {
-            if (this.editor) return true;
-            await this.$nextTick();
-            const host = document.getElementById('monacoHost');
-            if (!host) return false;
-            if (!window.require) return false;
-
-            return await new Promise((resolve) => {
-              let done = false;
-              const finish = (ok) => {
-                if (done) return;
-                done = true;
-                this.monacoReady = ok;
-                resolve(ok);
-              };
-
-              const timeout = setTimeout(() => finish(false), 4500);
-              try {
-                window.require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.2/min/vs' } });
-                window.MonacoEnvironment = {
-                  getWorkerUrl: () => `data:text/javascript;charset=utf-8,${encodeURIComponent("self.MonacoEnvironment={baseUrl:'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.2/min/'};importScripts('https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.2/min/vs/base/worker/workerMain.min.js');")}`
-                };
-                window.require(['vs/editor/editor.main'], () => {
-                  clearTimeout(timeout);
-                  this.editor = monaco.editor.create(host, {
-                    value: this.skillDetail || '-',
-                    language: 'markdown',
-                    theme: this.editorTheme,
-                    automaticLayout: true,
-                    minimap: { enabled: true },
-                    fontSize: 13
-                  });
-                  finish(true);
-                }, () => {
-                  clearTimeout(timeout);
-                  finish(false);
-                });
-              } catch {
-                clearTimeout(timeout);
-                finish(false);
-              }
-            });
-          },
-          refreshEditor() {
-            if (!this.editor) return;
-            const tab = this.openTabs.find((t) => t.file === this.activeTab) || this.openTabs[0];
-            if (!tab) return;
-            const current = this.editor.getValue();
-            if (current !== tab.content) this.editor.setValue(tab.content || '-');
-            monaco.editor.setModelLanguage(this.editor.getModel(), tab.lang || 'plaintext');
-          },
-          applyEditorTheme() {
-            if (this.editor && window.monaco) monaco.editor.setTheme(this.editorTheme);
-          },
-          goLine() {
-            if (!this.editor) return;
-            const line = Number(this.jumpLine || 1);
-            if (!line || line < 1) return;
-            this.editor.revealLineInCenter(line);
-            this.editor.setPosition({ lineNumber: line, column: 1 });
-            this.editor.focus();
-          },
-          async enableMonaco() {
-            this.monacoEnabled = true;
-            const ok = await this.initMonaco();
-            if (!ok) {
-              this.monacoEnabled = false;
-              this.pushLog('Monaco 加载失败', '已回退为文本预览模式');
-              return;
-            }
-            this.refreshEditor();
           },
           async logout() {
             await fetch('/auth/logout', { method: 'POST' });
             location.href = '/login.html';
-          }
-        },
-        watch: {
-          tab() {
-            // skills tab no longer auto-loads Monaco to avoid UI freeze.
           }
         },
         async mounted() {
@@ -574,16 +283,11 @@
 
           await Promise.allSettled([
             this.loadCommands(),
-            this.loadRecentEvents(),
+            this.loadRecent(),
             this.loadSkills()
           ]);
 
-          try {
-            this.connect();
-          } catch (err) {
-            this.conn = 'CONNECT_ERROR';
-            this.pushLog('SSE 连接失败', String(err.message || err));
-          }
+          this.connect();
         }
       }).mount('#app');
     </script>
