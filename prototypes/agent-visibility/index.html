@@ -3,116 +3,145 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Agent Ops Studio (Stable)</title>
+    <title>Agent Console v2</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <style>
       :root {
-        --bg: #eef2f7;
+        --bg: #f3f6fb;
         --panel: #ffffff;
-        --line: #d7e0ec;
-        --ink: #1f2a37;
-        --muted: #64748b;
-        --brand: #2563eb;
+        --ink: #172033;
+        --muted: #607089;
+        --line: #d9e2ee;
+        --brand: #1d4ed8;
+        --ok: #166534;
+        --warn: #b45309;
+        --err: #b91c1c;
       }
       * { box-sizing: border-box; }
-      body { margin: 0; background: var(--bg); color: var(--ink); font-family: "IBM Plex Sans", "Noto Sans SC", sans-serif; }
-      .app { max-width: 1400px; margin: 0 auto; padding: 12px; }
+      body { margin: 0; background: radial-gradient(circle at 10% 0%, #ffffff 0%, #f3f6fb 44%, #e9eff8 100%); color: var(--ink); font-family: "IBM Plex Sans", "Noto Sans SC", sans-serif; }
+      .app { max-width: 1500px; margin: 0 auto; padding: 14px; }
       .top {
         background: var(--panel);
         border: 1px solid var(--line);
-        border-radius: 12px;
-        padding: 10px;
+        border-radius: 14px;
+        padding: 10px 12px;
         display: grid;
         grid-template-columns: 1fr auto auto;
         gap: 8px;
         align-items: center;
       }
+      .title { font-weight: 700; }
       .tabs { display: flex; gap: 6px; }
-      .tabs button { border: 1px solid var(--line); border-radius: 8px; background: #f8fafc; padding: 6px 10px; cursor: pointer; }
+      .tabs button { border: 1px solid var(--line); border-radius: 8px; background: #f8fbff; padding: 7px 10px; cursor: pointer; }
       .tabs button.active { background: #dbeafe; color: #1d4ed8; }
+      .btn { border: 1px solid #bfdbfe; border-radius: 8px; background: #eff6ff; padding: 7px 10px; cursor: pointer; }
       .diag {
-        margin-top: 8px;
-        background: #f8fbff;
-        border: 1px solid #cfe1ff;
-        border-radius: 10px;
-        padding: 8px;
+        margin-top: 10px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 10px;
         display: grid;
-        grid-template-columns: repeat(5, 1fr);
+        grid-template-columns: repeat(6, 1fr);
         gap: 8px;
-        font-size: 12px;
       }
+      .metric { border: 1px solid #e7edf6; border-radius: 10px; padding: 8px; background: #fbfdff; }
+      .metric .k { color: var(--muted); font-size: 12px; }
+      .metric .v { font-weight: 700; font-size: 14px; }
       .layout { margin-top: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
       .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
       .card h3 { margin: 0; padding: 10px; border-bottom: 1px solid var(--line); font-size: 14px; }
       .content { padding: 10px; }
-      .list { max-height: 72vh; overflow: auto; }
+      .list { max-height: 70vh; overflow: auto; }
       .item { border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px; margin-bottom: 8px; background: #fff; }
       .small { color: var(--muted); font-size: 12px; }
-      .progress { margin-top: 6px; height: 8px; background: #e5e7eb; border-radius: 999px; overflow: hidden; }
-      .progress > span { display: block; height: 100%; background: linear-gradient(90deg, #60a5fa, #2563eb); }
-      .status { font-size: 11px; padding: 2px 6px; border-radius: 999px; background: #e2e8f0; }
-      textarea, input, button {
-        width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px; font-size: 12px;
-      }
-      button { cursor: pointer; background: #eff6ff; }
       .row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-      pre { margin: 0; background: #0f172a; color: #e2e8f0; border-radius: 8px; padding: 8px; max-height: 46vh; overflow: auto; }
-      @media (max-width: 1000px) {
-        .diag { grid-template-columns: 1fr 1fr; }
+      textarea, input, select { width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px; font-size: 12px; }
+      .progress { margin-top: 7px; height: 8px; border-radius: 999px; background: #e5e7eb; overflow: hidden; }
+      .progress > span { display: block; height: 100%; background: linear-gradient(90deg, #60a5fa, #1d4ed8); }
+      .pill { display: inline-block; font-size: 11px; border-radius: 999px; padding: 2px 8px; background: #e2e8f0; }
+      .pill.running { background: #dbeafe; color: #1d4ed8; }
+      .pill.done { background: #dcfce7; color: var(--ok); }
+      .pill.failed { background: #fee2e2; color: var(--err); }
+      .pill.queued { background: #fef3c7; color: var(--warn); }
+      .skill-grid { display: grid; grid-template-columns: 240px 1fr; gap: 8px; }
+      .file-list { max-height: 220px; overflow: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 6px; background: #f8fbff; }
+      .file-list button { width: 100%; text-align: left; margin-bottom: 6px; }
+      pre { margin: 0; background: #0f172a; color: #e2e8f0; border-radius: 8px; padding: 9px; max-height: 36vh; overflow: auto; white-space: pre-wrap; word-break: break-word; }
+      @media (max-width: 1100px) {
+        .diag { grid-template-columns: repeat(2, 1fr); }
         .layout { grid-template-columns: 1fr; }
+        .skill-grid { grid-template-columns: 1fr; }
       }
     </style>
   </head>
   <body>
     <div id="app" class="app">
       <div class="top">
-        <div><strong>Agent Ops Studio (Stable)</strong> · {{sessionKey}}</div>
+        <div class="title">Agent Console v2 · {{sessionKey}}</div>
         <div class="tabs">
-          <button :class="{active:tab==='commands'}" @click="tab='commands'">命令</button>
-          <button :class="{active:tab==='logs'}" @click="tab='logs'">日志</button>
+          <button :class="{active:tab==='commands'}" @click="tab='commands'">命令中心</button>
+          <button :class="{active:tab==='logs'}" @click="tab='logs'">日志中心</button>
           <button :class="{active:tab==='skills'}" @click="tab='skills'">Skills</button>
+          <button :class="{active:tab==='browserwing'}" @click="tab='browserwing'">Browserwing</button>
         </div>
-        <button @click="logout">退出</button>
+        <button class="btn" @click="logout">退出</button>
       </div>
 
       <div class="diag">
-        <div><strong>SSE</strong><div class="small">{{sseState}}</div></div>
-        <div><strong>Skills</strong><div class="small">{{skills.length}} 条</div></div>
-        <div><strong>Recent</strong><div class="small">{{recentCount}} 条</div></div>
-        <div><strong>Commands</strong><div class="small">{{commands.length}} 条</div></div>
-        <div><strong>Last Event</strong><div class="small">{{lastEventAt || '-'}}</div></div>
+        <div class="metric"><div class="k">SSE</div><div class="v">{{sseState}}</div></div>
+        <div class="metric"><div class="k">Recent</div><div class="v">{{recentCount}}</div></div>
+        <div class="metric"><div class="k">Commands</div><div class="v">{{commands.length}}</div></div>
+        <div class="metric"><div class="k">Skills</div><div class="v">{{skills.length}}</div></div>
+        <div class="metric"><div class="k">Last Event</div><div class="v">{{lastEventAt || '-'}}</div></div>
+        <div class="metric"><div class="k">Sync</div><div class="v">{{syncState}}</div></div>
       </div>
 
-      <div class="layout" v-if="tab==='commands'">
+      <div v-if="tab==='commands'" class="layout">
         <section class="card">
-          <h3>下发命令</h3>
+          <h3>命令下发</h3>
           <div class="content">
-            <textarea v-model="cmd" rows="4" placeholder="输入要执行的命令"></textarea>
+            <textarea v-model="cmd" rows="4" placeholder="输入命令，例如：请总结今天的变更并发到飞书"></textarea>
             <div class="row" style="margin-top:6px;">
-              <button @click="dispatch(false)">发送</button>
-              <button @click="dispatch(true)">紧急</button>
+              <button class="btn" @click="dispatch(false)">发送命令</button>
+              <button class="btn" @click="dispatch(true)">紧急插队</button>
             </div>
+            <div class="small" style="margin-top:6px;">提示：命令会转发到真实会话执行，并在飞书侧回复。</div>
           </div>
         </section>
+
         <section class="card">
-          <h3>命令进度（飞书+Studio 同步）</h3>
-          <div class="content list">
-            <div class="item" v-for="c in sortedCommands" :key="c.id">
-              <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;">
-                <strong>{{c.note || c.action}}</strong>
-                <span class="status">{{c.status}}</span>
+          <h3>命令进度</h3>
+          <div class="content">
+            <div class="row" style="margin-bottom:6px;">
+              <select v-model="cmdFilter">
+                <option value="all">全部</option>
+                <option value="running">仅进行中</option>
+                <option value="done">仅完成</option>
+                <option value="failed">仅失败</option>
+                <option value="feishu">仅飞书来源</option>
+                <option value="studio">仅Studio来源</option>
+              </select>
+              <button class="btn" @click="reloadAll">刷新数据</button>
+            </div>
+            <div class="list">
+              <div class="item" v-for="c in filteredCommands" :key="c.id">
+                <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;">
+                  <strong>{{c.note || c.action}}</strong>
+                  <span class="pill" :class="c.status">{{c.status}}</span>
+                </div>
+                <div class="small">source: {{c.source || '-'}} · {{fmt(c.ts)}}</div>
+                <div class="small">{{c.lastEvent || '-'}}</div>
+                <div class="progress"><span :style="{width:(c.progress||0)+'%'}"></span></div>
               </div>
-              <div class="small">{{c.source || '-'}} · {{fmt(c.ts)}}</div>
-              <div class="small">{{c.lastEvent || '-'}}</div>
-              <div class="progress"><span :style="{width: (c.progress || 0) + '%'}"></span></div>
             </div>
           </div>
         </section>
       </div>
 
-      <div class="layout" v-else-if="tab==='logs'">
+      <div v-else-if="tab==='logs'" class="layout">
         <section class="card" style="grid-column: span 2;">
-          <h3>日志（首屏 recent + 实时 SSE）</h3>
+          <h3>日志（历史 + 实时）</h3>
           <div class="content list">
             <div class="item" v-for="l in sortedLogs" :key="l.id">
               <strong>{{l.title}}</strong>
@@ -123,24 +152,59 @@
         </section>
       </div>
 
-      <div class="layout" v-else>
+      <div v-else-if="tab==='skills'" class="layout">
+        <section class="card" style="grid-column: span 2;">
+          <h3>Skills 工作台</h3>
+          <div class="content skill-grid">
+            <div>
+              <div class="small" style="margin-bottom:6px;">Skills</div>
+              <div class="file-list">
+                <button class="btn" v-for="s in skills" :key="s.name" @click="openSkill(s.name)">{{s.name}}</button>
+              </div>
+              <div class="small" style="margin:8px 0 6px;">文件</div>
+              <div class="file-list">
+                <button class="btn" v-for="f in skillFiles" :key="f" @click="openSource(f)">{{f}}</button>
+              </div>
+            </div>
+            <div>
+              <div><strong>{{skillTitle}}</strong></div>
+              <div class="small" style="margin:4px 0 6px;">介绍</div>
+              <pre>{{skillDetail}}</pre>
+              <div class="small" style="margin:8px 0 6px;">源码</div>
+              <pre>{{skillSource}}</pre>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div v-else class="layout">
         <section class="card">
-          <h3>Skills 列表</h3>
-          <div class="content list">
-            <button style="margin-bottom:6px;text-align:left;" v-for="s in skills" :key="s.name" @click="openSkill(s.name)">{{s.name}}</button>
+          <h3>Browserwing 快速下发</h3>
+          <div class="content">
+            <input v-model="bw.url" placeholder="URL" />
+            <select v-model="bw.action" style="margin-top:6px;">
+              <option value="navigate">navigate</option>
+              <option value="snapshot">snapshot</option>
+              <option value="screenshot">screenshot</option>
+              <option value="click">click</option>
+              <option value="type">type</option>
+            </select>
+            <input v-model="bw.selector" placeholder="selector/ref" style="margin-top:6px;" />
+            <input v-model="bw.text" placeholder="text" style="margin-top:6px;" />
+            <div class="row" style="margin-top:6px;">
+              <button class="btn" @click="dispatchBrowserwing(false)">执行</button>
+              <button class="btn" @click="dispatchBrowserwing(true)">紧急</button>
+            </div>
           </div>
         </section>
         <section class="card">
-          <h3>{{skillTitle}}</h3>
-          <div class="content">
-            <div class="small">介绍</div>
-            <pre>{{skillDetail}}</pre>
-            <div class="small" style="margin:8px 0 6px;">文件</div>
-            <div class="row">
-              <button v-for="f in skillFiles" :key="f" @click="openSource(f)">{{f}}</button>
+          <h3>Browserwing 命令状态</h3>
+          <div class="content list">
+            <div class="item" v-for="c in browserwingCommands" :key="c.id">
+              <strong>{{c.note}}</strong>
+              <div class="small">{{c.status}} · {{c.progress || 0}}%</div>
+              <div class="small">{{c.lastEvent || '-'}}</div>
             </div>
-            <div class="small" style="margin:8px 0 6px;">源码</div>
-            <pre>{{skillSource}}</pre>
           </div>
         </section>
       </div>
@@ -148,40 +212,52 @@
 
     <script>
       const { createApp } = Vue;
+
       createApp({
         data() {
           return {
             tab: 'commands',
             sessionKey: new URLSearchParams(location.search).get('sessionKey') || 'agent:main:main',
             sseState: 'INIT',
+            syncState: 'INIT',
             recentCount: 0,
             lastEventAt: '',
             cmd: '',
+            cmdFilter: 'all',
             commands: [],
             logs: [],
             skills: [],
-            skillTitle: 'Skill 详情',
             skillName: '',
+            skillTitle: 'Skill 详情',
             skillDetail: '-',
             skillFiles: [],
-            skillSource: '-'
+            skillSource: '-',
+            bw: { url: 'https://example.com', action: 'snapshot', selector: '', text: '' }
           };
         },
         computed: {
-          sortedCommands() {
-            const noisy = (n) => {
-              const t = String(n || '');
-              return t.startsWith('Conversation info (untrusted metadata):') || t.startsWith('[media attached') || t.startsWith('Sender (untrusted metadata):');
-            };
-            return [...this.commands]
-              .filter((c) => !noisy(c.note))
-              .sort((a, b) => (b.ts || 0) - (a.ts || 0));
-          },
           sortedLogs() {
-            return [...this.logs].sort((a, b) => (b.ts || 0) - (a.ts || 0));
+            return [...this.logs].sort((a,b)=>(b.ts||0)-(a.ts||0));
+          },
+          filteredCommands() {
+            const list = [...this.commands].sort((a,b)=>(b.ts||0)-(a.ts||0));
+            if (this.cmdFilter === 'all') return list;
+            if (this.cmdFilter === 'running') return list.filter((x)=>x.status === 'running' || x.status === 'queued');
+            if (this.cmdFilter === 'done') return list.filter((x)=>x.status === 'done');
+            if (this.cmdFilter === 'failed') return list.filter((x)=>x.status === 'failed');
+            if (this.cmdFilter === 'feishu') return list.filter((x)=>String(x.source||'').includes('feishu'));
+            if (this.cmdFilter === 'studio') return list.filter((x)=>String(x.source||'').includes('studio'));
+            return list;
+          },
+          browserwingCommands() {
+            return this.filteredCommands.filter((x)=>String(x.note||'').toLowerCase().includes('browserwing')).slice(0, 50);
           }
         },
         methods: {
+          id() {
+            try { if (window.crypto && crypto.randomUUID) return crypto.randomUUID(); } catch {}
+            return 'id-' + Date.now() + '-' + Math.random().toString(16).slice(2);
+          },
           fmt(ts) { return ts ? new Date(ts).toLocaleTimeString() : '-'; },
           async api(path, options) {
             const r = await fetch(path, options);
@@ -191,63 +267,30 @@
             }
             return r;
           },
-          makeId() {
-            try {
-              if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
-            } catch {}
-            return 'id-' + Date.now() + '-' + Math.random().toString(16).slice(2);
-          },
           pushLog(evt) {
-            const title = evt.title || evt.event || 'event';
-            const raw = evt.payload?.out || evt.payload?.why || '-';
-            const out = String(raw).length > 240 ? `${String(raw).slice(0, 240)}...` : String(raw);
-            this.logs.push({ id: this.makeId(), title, out, ts: evt._ts || Date.now() });
-            if (this.logs.length > 800) this.logs.shift();
+            const raw = String(evt.payload?.out || evt.payload?.why || '-');
+            const out = raw.length > 240 ? `${raw.slice(0,240)}...` : raw;
+            this.logs.push({ id: this.id(), title: evt.title || evt.event || 'event', out, ts: evt._ts || Date.now() });
+            if (this.logs.length > 1000) this.logs.shift();
             this.lastEventAt = this.fmt(Date.now());
           },
           upsertCommand(c) {
-            const i = this.commands.findIndex((x) => x.id === c.id);
+            if (!c || !c.id) return;
+            const i = this.commands.findIndex((x)=>x.id===c.id);
             if (i >= 0) this.commands[i] = c;
             else this.commands.push(c);
           },
-          async loadCommands() {
-            const r = await this.api('/api/commands');
-            const j = await r.json();
-            this.commands = Array.isArray(j.items) ? j.items : [];
-          },
-          async loadRecent() {
-            const r = await this.api(`/api/events/recent?sessionKey=${encodeURIComponent(this.sessionKey)}&limit=200`);
-            const j = await r.json();
-            const items = Array.isArray(j.items) ? j.items : [];
-            this.recentCount = items.length;
-            for (const e of items) {
-              try {
-                this.onEvent(e, true);
-              } catch (err) {
-                this.logs.push({ id: this.makeId(), title: 'recent parse error', out: String(err.message || err), ts: Date.now() });
-              }
-            }
-          },
-          connect() {
-            const es = new EventSource(`/api/agent-events?sessionKey=${encodeURIComponent(this.sessionKey)}`);
-            es.onopen = () => { this.sseState = 'CONNECTED'; };
-            es.onmessage = (m) => {
-              try {
-                this.onEvent(JSON.parse(m.data), false);
-              } catch {}
-            };
-            es.onerror = () => { this.sseState = 'DISCONNECTED'; };
-          },
-          onEvent(evt, fromRecent) {
+          onEvent(evt, fromRecent=false) {
             if (!evt) return;
             if (evt.event === 'command.updated' && evt.payload) {
               this.upsertCommand(evt.payload);
+              this.syncState = 'OK';
               return;
             }
             this.pushLog(evt);
             if (!fromRecent && evt.event === 'user.request' && evt.payload?.out) {
               this.upsertCommand({
-                id: this.makeId(),
+                id: this.id(),
                 ts: Date.now(),
                 action: 'inbound_user_command',
                 note: evt.payload.out,
@@ -256,7 +299,30 @@
                 progress: 10,
                 lastEvent: '用户命令已接收'
               });
+              this.syncState = 'OK';
             }
+          },
+          async loadCommands() {
+            const r = await this.api('/api/commands');
+            const j = await r.json();
+            this.commands = Array.isArray(j.items) ? j.items : [];
+          },
+          async loadRecent() {
+            const r = await this.api(`/api/events/recent?sessionKey=${encodeURIComponent(this.sessionKey)}&limit=220`);
+            const j = await r.json();
+            const items = Array.isArray(j.items) ? j.items : [];
+            this.recentCount = items.length;
+            for (const e of items) {
+              try { this.onEvent(e, true); } catch {}
+            }
+          },
+          connect() {
+            const es = new EventSource(`/api/agent-events?sessionKey=${encodeURIComponent(this.sessionKey)}`);
+            es.onopen = () => { this.sseState = 'CONNECTED'; };
+            es.onmessage = (m) => {
+              try { this.onEvent(JSON.parse(m.data), false); } catch {}
+            };
+            es.onerror = () => { this.sseState = 'DISCONNECTED'; };
           },
           async dispatch(urgent) {
             const text = this.cmd.trim();
@@ -270,6 +336,27 @@
             const j = await r.json();
             if (j.command) this.upsertCommand(j.command);
             this.cmd = '';
+          },
+          browserwingPrompt() {
+            const p = [
+              '请使用 browserwing-executor skill 执行浏览器任务。',
+              `目标URL: ${this.bw.url}`,
+              `动作: ${this.bw.action}`,
+              this.bw.selector ? `selector/ref: ${this.bw.selector}` : '',
+              this.bw.text ? `text: ${this.bw.text}` : ''
+            ].filter(Boolean).join('\n');
+            return `[browserwing] ${p}`;
+          },
+          async dispatchBrowserwing(urgent) {
+            const action = urgent ? 'dispatch_command_urgent' : 'dispatch_command';
+            const note = this.browserwingPrompt();
+            const r = await this.api('/api/control', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ action, note, sessionKey: this.sessionKey })
+            });
+            const j = await r.json();
+            if (j.command) this.upsertCommand(j.command);
           },
           async loadSkills() {
             const r = await this.api('/api/skills');
@@ -291,21 +378,18 @@
             const j = await r.json();
             this.skillSource = j.content || '-';
           },
+          async reloadAll() {
+            await Promise.allSettled([this.loadCommands(), this.loadRecent(), this.loadSkills()]);
+          },
           async logout() {
             await fetch('/auth/logout', { method: 'POST' });
             location.href = '/login.html';
           }
         },
         async mounted() {
-          const me = await fetch('/auth/me').then((r) => r.json()).catch(() => ({ authed: false }));
+          const me = await fetch('/auth/me').then((r)=>r.json()).catch(()=>({authed:false}));
           if (!me.authed) return (location.href = '/login.html');
-
-          await Promise.allSettled([
-            this.loadCommands(),
-            this.loadRecent(),
-            this.loadSkills()
-          ]);
-
+          await this.reloadAll();
           this.connect();
         }
       }).mount('#app');
