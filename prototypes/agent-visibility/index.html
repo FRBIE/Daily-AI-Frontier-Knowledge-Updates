@@ -6,267 +6,124 @@
     <title>Agent Ops Studio</title>
     <style>
       :root {
-        --bg: #ebe7df;
+        --bg: #ece7de;
         --panel: #f9f7f2;
         --ink: #1f2a37;
         --muted: #6b7280;
-        --line: #d6d1c7;
+        --line: #d8d1c4;
         --brand: #0e7490;
         --ok: #166534;
         --warn: #b45309;
         --danger: #b91c1c;
       }
-      * { box-sizing: border-box; }
-      body {
-        margin: 0;
-        font-family: "IBM Plex Sans", "Noto Sans SC", sans-serif;
-        color: var(--ink);
-        background: radial-gradient(circle at 20% 0%, #f7f4ee 0%, #ece8df 40%, #e2ddd2 100%);
+      body[data-skin="night"] {
+        --bg: #1d1f24;
+        --panel: #2a2f37;
+        --ink: #eef2f7;
+        --muted: #a6b0bf;
+        --line: #3b4351;
+        --brand: #0284c7;
       }
-      .app { max-width: 1450px; margin: 0 auto; padding: 14px; }
+      body[data-skin="focus"] {
+        --bg: #e7edf5;
+        --panel: #f7fbff;
+        --ink: #172533;
+        --muted: #5b6b7a;
+        --line: #cedae7;
+        --brand: #2563eb;
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--ink); font-family: "IBM Plex Sans", "Noto Sans SC", sans-serif; }
+      .app { max-width: 1500px; margin: 0 auto; padding: 12px; }
       .topbar {
-        display: grid;
-        grid-template-columns: 1fr auto auto auto;
-        gap: 10px;
-        align-items: center;
-        border: 1px solid var(--line);
-        border-radius: 12px;
-        background: var(--panel);
-        padding: 12px;
+        display: grid; grid-template-columns: 1fr auto auto auto auto; gap: 8px; align-items: center;
+        border: 1px solid var(--line); border-radius: 12px; background: var(--panel); padding: 10px;
       }
       .title { font-weight: 700; }
-      .badge {
-        font-size: 12px;
-        border-radius: 999px;
-        padding: 5px 10px;
-        border: 1px solid transparent;
+      .badge { border-radius: 999px; padding: 5px 10px; font-size: 12px; border: 1px solid transparent; }
+      .run { background: #dcfce7; color: var(--ok); border-color: #86efac; }
+      .warn { background: #fef3c7; color: var(--warn); border-color: #fcd34d; }
+      .fail { background: #fee2e2; color: var(--danger); border-color: #fca5a5; }
+      .off { background: #e5e7eb; color: #374151; border-color: #cbd5e1; }
+      button, select {
+        border: 1px solid var(--line); border-radius: 10px; background: #fff; color: #111; padding: 7px 10px; font-size: 12px;
       }
-      .badge.run { background: #dcfce7; color: var(--ok); border-color: #86efac; }
-      .badge.pause { background: #fef3c7; color: var(--warn); border-color: #fcd34d; }
-      .badge.stop, .badge.fail { background: #fee2e2; color: var(--danger); border-color: #fca5a5; }
-      .badge.off { background: #e5e7eb; color: #374151; border-color: #cbd5e1; }
-      button {
-        border: 0;
-        border-radius: 10px;
-        padding: 8px 12px;
-        font-weight: 600;
-        cursor: pointer;
-        color: white;
-        background: var(--brand);
-      }
-      .danger { background: var(--danger); }
-      .layout {
-        margin-top: 12px;
-        display: grid;
-        grid-template-columns: 320px 1fr 340px;
-        gap: 12px;
-      }
-      .panel {
-        border: 1px solid var(--line);
-        border-radius: 12px;
-        background: var(--panel);
-        overflow: hidden;
-      }
-      .panel h3 {
-        margin: 0;
-        padding: 10px 12px;
-        font-size: 14px;
-        background: #f2eee7;
-        border-bottom: 1px solid var(--line);
-      }
-      .content { padding: 10px 12px; }
+      body[data-skin="night"] button, body[data-skin="night"] select { background: #111827; color: #eef2f7; border-color: #475569; }
 
-      .filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
-      .filters button {
-        background: #e5e7eb;
-        color: #374151;
-        padding: 5px 10px;
-        border-radius: 999px;
-        font-size: 12px;
-      }
-      .filters .active { background: #dbeafe; color: #1d4ed8; }
-      .timeline-scroller {
-        max-height: 70vh;
-        overflow-y: auto;
-        padding-right: 4px;
-        scroll-behavior: smooth;
-      }
-      .timeline-item {
-        border: 1px solid #dbe3ef;
-        background: #ffffff;
-        border-radius: 12px;
-        padding: 8px 10px;
-        margin: 7px 0;
-        cursor: pointer;
-        width: 88%;
-      }
-      .timeline-item.right {
-        margin-left: auto;
-        background: #eaf3ff;
-        border-color: #c7dbff;
-      }
+      .layout { margin-top: 10px; display: grid; grid-template-columns: 340px 1fr 360px; gap: 10px; }
+      .panel { border: 1px solid var(--line); border-radius: 12px; background: var(--panel); overflow: hidden; }
+      .panel h3 { margin: 0; padding: 10px; font-size: 14px; border-bottom: 1px solid var(--line); }
+      .content { padding: 10px; }
+
+      .filters { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+      .filters button.active { background: #dbeafe; color: #1d4ed8; }
+      .timeline-scroller { max-height: 72vh; overflow-y: auto; scroll-behavior: smooth; padding-right: 4px; }
+      .timeline-group { margin-bottom: 10px; }
+      .timeline-group-title { font-size: 11px; color: var(--muted); margin-bottom: 5px; }
+      .time-sep { text-align: center; color: var(--muted); font-size: 11px; margin: 8px 0 4px 0; }
+      .unread { text-align: center; color: #1d4ed8; font-size: 11px; margin: 8px 0; }
+      .timeline-item { width: 88%; border: 1px solid #dbe3ef; border-radius: 12px; padding: 8px; margin: 6px 0; background: #fff; cursor: pointer; }
+      .timeline-item.right { margin-left: auto; background: #eaf3ff; }
       .timeline-item.high { border-color: #fca5a5; background: #fff1f2; }
       .timeline-item.medium { border-color: #fcd34d; background: #fffbeb; }
-      .t-sub { font-size: 12px; color: var(--muted); margin-top: 3px; }
+      .t-sub { font-size: 12px; color: var(--muted); }
 
       .studio {
-        border: 1px solid #6b4f38;
-        border-radius: 12px;
-        background: linear-gradient(180deg, #8b6a4f 0%, #6f533f 45%, #4f3a2d 100%);
-        color: #fff7ed;
-        padding: 12px;
-        box-shadow: inset 0 1px 0 rgba(255, 235, 210, 0.35), 0 12px 30px rgba(36, 27, 21, 0.35);
+        border: 1px solid #6e5039; border-radius: 12px; padding: 10px; color: #fff7ed;
+        background: linear-gradient(180deg, #8d6a4e 0%, #6d503d 48%, #4d382c 100%);
       }
-      .studio-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-      .studio-note { font-size: 12px; color: #eadfcf; }
-      .desk {
-        border: 1px solid #7e6046;
-        border-radius: 12px;
-        background: linear-gradient(180deg, rgba(255, 245, 230, 0.18), rgba(255, 245, 230, 0.08));
-        padding: 10px;
-      }
-      .desk-grid {
-        display: grid;
-        grid-template-columns: 180px 1fr 180px;
-        gap: 10px;
-      }
-      .panel-mini {
-        border: 1px solid #9b7a5f;
-        border-radius: 10px;
-        background: rgba(255, 247, 237, 0.18);
-        padding: 8px;
-      }
-      .mini-title { font-size: 12px; color: #fff1df; margin-bottom: 6px; }
+      .desk-grid { display: grid; grid-template-columns: 180px 1fr 180px; gap: 10px; }
+      .mini, .actor { border: 1px solid #9d7b60; border-radius: 10px; padding: 8px; background: rgba(255, 248, 237, 0.16); }
+      .mini-title { font-size: 12px; margin-bottom: 6px; }
       .note { font-size: 11px; border-radius: 8px; padding: 6px; margin-bottom: 6px; background: #fef3c7; color: #4b3b2a; }
-      .tool-chip { font-size: 11px; border-radius: 999px; padding: 4px 8px; margin: 0 4px 6px 0; display: inline-block; background: #dbeafe; color: #1e3a8a; }
-      .actor {
-        border: 1px solid #9b7a5f;
-        border-radius: 10px;
-        padding: 10px;
-        background: rgba(255, 250, 242, 0.22);
+      .tool { display: inline-block; margin: 0 4px 6px 0; padding: 4px 8px; border-radius: 999px; font-size: 11px; background: #dbeafe; color: #1e3a8a; }
+      .avatar { height: 58px; display: flex; align-items: center; gap: 10px; }
+      .person {
+        width: 34px; height: 34px; border-radius: 50%; background: #f59e0b; display: inline-flex; align-items: center; justify-content: center;
+        color: #111; font-weight: 700;
       }
-      .lane-head {
-        display: grid;
-        grid-template-columns: 130px 1fr 120px;
-        gap: 8px;
-        align-items: center;
-        margin-bottom: 6px;
-      }
-      .agent-chip {
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        font-size: 12px;
-      }
-      .dot {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background: #94a3b8;
-      }
-      .dot.exec { background: #22c55e; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6); animation: pulse 1.2s infinite; }
-      .dot.block { background: #ef4444; box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); animation: pulse 1s infinite; }
-      .dot.idle { background: #94a3b8; }
+      .person.typing { animation: bob 0.9s infinite alternate; }
+      .person.searching { animation: spin 1.3s infinite linear; }
+      .person.waiting { animation: breathe 2s infinite; }
+      .person.blocked { animation: shake 0.35s infinite; }
+      .stations { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 8px; }
+      .station { border: 1px solid #a27a56; border-radius: 8px; padding: 6px; text-align: center; font-size: 11px; background: rgba(255,245,230,0.14); }
+      .station.active { border-color: #5eead4; background: rgba(45,212,191,0.2); }
 
-      .stations { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; position: relative; }
-      .stations::before {
-        content: "";
-        position: absolute;
-        left: 2%;
-        right: 2%;
-        top: 50%;
-        height: 2px;
-        background: linear-gradient(90deg, rgba(190,160,130,0.15), rgba(240,210,170,0.65), rgba(190,160,130,0.15));
-        transform: translateY(-50%);
-        z-index: 0;
-      }
-      .station {
-        border: 1px solid #a27a56;
-        border-radius: 8px;
-        padding: 6px;
-        text-align: center;
-        font-size: 11px;
-        background: rgba(255, 245, 230, 0.14);
-        position: relative;
-        z-index: 1;
-      }
-      .station.active {
-        border-color: #5eead4;
-        background: rgba(45, 212, 191, 0.2);
-        animation: drift 1.6s infinite alternate ease-in-out;
-      }
-      .queue {
-        display: flex;
-        gap: 4px;
-        flex-wrap: wrap;
-        justify-content: flex-end;
-      }
-      .q-item {
-        font-size: 10px;
-        border: 1px solid #93c5fd;
-        background: rgba(147, 197, 253, 0.2);
-        border-radius: 999px;
-        padding: 2px 6px;
-      }
-      .ring {
-        width: 18px;
-        height: 18px;
-        border-radius: 50%;
-        background: #f59e0b;
-        opacity: 0;
-      }
-      .ring.on { opacity: 1; animation: bell 1.1s infinite; }
-
-      .kpi { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 10px; }
+      .kpi { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px; }
       .kpi div { border: 1px solid var(--line); border-radius: 8px; padding: 7px; background: #fdfcf9; }
-      .small { font-size: 12px; color: var(--muted); }
-      pre {
-        margin: 0;
-        background: #111827;
-        color: #e5e7eb;
-        border-radius: 10px;
-        min-height: 170px;
-        max-height: 260px;
-        overflow: auto;
-        padding: 10px;
-      }
-      .risk-card {
-        border: 1px solid #fcd34d;
-        border-radius: 8px;
-        background: #fffbeb;
-        padding: 8px;
-        margin: 10px 0;
-      }
-      .artifacts { display: flex; gap: 6px; flex-wrap: wrap; }
-      .artifact { font-size: 12px; border-radius: 999px; padding: 4px 9px; border: 1px solid #a5f3fc; background: #ecfeff; }
+      .risk { border: 1px solid #fcd34d; border-radius: 8px; background: #fffbeb; padding: 8px; margin: 9px 0; }
+      pre { margin: 0; background: #111827; color: #e5e7eb; border-radius: 10px; min-height: 130px; max-height: 220px; overflow: auto; padding: 10px; }
+      .artifacts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+      .artifact { font-size: 12px; padding: 4px 8px; border-radius: 999px; background: #ecfeff; border: 1px solid #a5f3fc; }
+      .approval-item { border: 1px solid #fca5a5; border-radius: 8px; background: #fff1f2; padding: 8px; margin-bottom: 6px; }
+      .diag { border: 1px solid var(--line); border-radius: 8px; background: #fff; padding: 8px; font-size: 12px; }
 
-      @keyframes pulse {
-        0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.55); }
-        100% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
-      }
-      @keyframes drift {
-        from { transform: translateY(0px); }
-        to { transform: translateY(-2px); }
-      }
-      @keyframes bell {
-        0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.5); transform: scale(1); }
-        100% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); transform: scale(1.15); }
-      }
-      @media (max-width: 1120px) {
-        .layout { grid-template-columns: 1fr; }
-        .desk-grid { grid-template-columns: 1fr; }
-      }
+      @keyframes bob { from { transform: translateY(0); } to { transform: translateY(-3px); } }
+      @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+      @keyframes breathe { 0% { transform: scale(1); } 50% { transform: scale(0.94); } 100% { transform: scale(1); } }
+      @keyframes shake { 0% { transform: translateX(0); } 50% { transform: translateX(-2px); } 100% { transform: translateX(2px); } }
+      @media (max-width: 1140px) { .layout { grid-template-columns: 1fr; } .desk-grid { grid-template-columns: 1fr; } }
     </style>
   </head>
-  <body>
+  <body data-skin="desk">
     <div class="app">
       <div class="topbar">
-        <div class="title">Agent Ops Studio · session <span id="sessionKey">agent:main:main</span></div>
+        <div class="title">Agent Ops Studio · <span id="sessionKey">agent:main:main</span></div>
         <div class="badge run" id="status">RUNNING</div>
         <div class="badge run" id="conn">CONNECTED</div>
         <div>
           <button id="pauseBtn">Pause</button>
-          <button id="stopBtn" class="danger">Stop</button>
+          <button id="stopBtn">Stop</button>
+          <button id="jumpLatest">跳到最新</button>
+        </div>
+        <div>
+          <select id="skin">
+            <option value="desk">桌面叙事</option>
+            <option value="focus">极简企业</option>
+            <option value="night">夜间值守</option>
+          </select>
+          <button id="replayBtn">回放</button>
         </div>
       </div>
 
@@ -275,38 +132,41 @@
           <h3>事件时间线</h3>
           <div class="content">
             <div class="filters" id="filters"></div>
-            <div class="timeline-scroller" id="timelineScroller">
-              <div id="timeline"></div>
-            </div>
+            <div class="timeline-scroller" id="timelineScroller"><div id="timeline"></div></div>
           </div>
         </section>
 
-        <section class="studio">
-          <div class="studio-head">
-            <div><strong>桌面工作流视图</strong></div>
-            <div class="studio-note">像看一个人办公：待办便签、当前动作、工具抽屉</div>
+        <section class="studio panel" style="overflow:visible;">
+          <h3 style="background:transparent;border-bottom:0;padding:0 0 8px 0;color:#fff7ed;">桌面工作流视图</h3>
+          <div class="desk-grid">
+            <div class="mini"><div class="mini-title">待办便签</div><div id="todo"></div></div>
+            <div class="actor">
+              <div class="avatar"><span class="person waiting" id="person">我</span><div id="doingText">我在待命</div></div>
+              <div class="stations" id="stations"></div>
+            </div>
+            <div class="mini"><div class="mini-title">工具抽屉</div><div id="tools"></div></div>
           </div>
-          <div id="lanes"></div>
         </section>
 
         <section class="panel">
-          <h3>Inspector</h3>
+          <h3>Inspector / 干预中心</h3>
           <div class="content">
             <div class="kpi">
-              <div><div class="small">Elapsed</div><strong id="elapsed">0s</strong></div>
-              <div><div class="small">Tokens</div><strong id="tokens">0</strong></div>
-              <div><div class="small">Cost</div><strong id="cost">$0.0000</strong></div>
-              <div><div class="small">Retry</div><strong id="retry">0</strong></div>
+              <div><div class="t-sub">Elapsed</div><strong id="elapsed">0s</strong></div>
+              <div><div class="t-sub">Tokens</div><strong id="tokens">0</strong></div>
+              <div><div class="t-sub">Cost</div><strong id="cost">$0.0000</strong></div>
+              <div><div class="t-sub">Retry</div><strong id="retry">0</strong></div>
             </div>
-
             <div><strong id="focusTitle">等待事件...</strong></div>
-            <div class="small" id="focusWhy">why: -</div>
-            <div class="small" id="focusNext">next: -</div>
-
-            <div class="risk-card" id="risk">风险: low</div>
+            <div class="t-sub" id="focusWhy">why: -</div>
+            <div class="t-sub" id="focusNext">next: -</div>
+            <div class="risk" id="risk">风险: low</div>
             <pre id="stdout"></pre>
-
-            <div style="margin-top:10px;"><strong>Artifacts</strong></div>
+            <div style="margin-top:8px;"><strong>审批中心</strong></div>
+            <div id="approvals"></div>
+            <div style="margin-top:8px;"><strong>失败诊断</strong></div>
+            <div class="diag" id="diag">暂无异常</div>
+            <div style="margin-top:8px;"><strong>Artifacts</strong></div>
             <div class="artifacts" id="artifacts"></div>
           </div>
         </section>
@@ -314,154 +174,111 @@
     </div>
 
     <script>
-      const state = {
-        start: Date.now(),
-        paused: false,
-        connected: false,
-        stream: null,
-        filter: "all",
-        tokens: 0,
-        cost: 0,
-        retry: 0,
-        events: [],
-        timelineStickToBottom: true
-      };
-
       const stations = ["Planning", "Search", "Build", "Verify", "Delivery"];
-      const agents = [
-        { id: "agent-main", name: "我", status: "idle", active: "Planning", queue: [], ring: false }
-      ];
-      const agentMap = Object.fromEntries(agents.map((a) => [a.id, a]));
+      const tools = ["read", "web_fetch", "edit", "write", "exec", "message"];
+      const state = {
+        start: Date.now(), paused: false, connected: false, stream: null, filter: "all", skin: "desk",
+        tokens: 0, cost: 0, retry: 0, events: [], approvals: [], unreadCount: 0, stickBottom: true,
+        replay: { mode: false, timer: null, idx: 0, source: [] }, taskId: 1, lastReadIdx: 0,
+        actor: { status: "idle", stage: "Planning", todo: [], actionText: "我在待命" }
+      };
 
       const el = {
-        status: document.getElementById("status"),
-        conn: document.getElementById("conn"),
-        pauseBtn: document.getElementById("pauseBtn"),
-        stopBtn: document.getElementById("stopBtn"),
-        timeline: document.getElementById("timeline"),
-        timelineScroller: document.getElementById("timelineScroller"),
-        lanes: document.getElementById("lanes"),
-        elapsed: document.getElementById("elapsed"),
-        tokens: document.getElementById("tokens"),
-        cost: document.getElementById("cost"),
-        retry: document.getElementById("retry"),
-        focusTitle: document.getElementById("focusTitle"),
-        focusWhy: document.getElementById("focusWhy"),
-        focusNext: document.getElementById("focusNext"),
-        risk: document.getElementById("risk"),
-        stdout: document.getElementById("stdout"),
-        artifacts: document.getElementById("artifacts"),
-        filters: document.getElementById("filters"),
-        sessionKey: document.getElementById("sessionKey")
+        status: document.getElementById("status"), conn: document.getElementById("conn"), timeline: document.getElementById("timeline"),
+        scroller: document.getElementById("timelineScroller"), focusTitle: document.getElementById("focusTitle"), focusWhy: document.getElementById("focusWhy"),
+        focusNext: document.getElementById("focusNext"), risk: document.getElementById("risk"), stdout: document.getElementById("stdout"),
+        tokens: document.getElementById("tokens"), cost: document.getElementById("cost"), retry: document.getElementById("retry"), elapsed: document.getElementById("elapsed"),
+        todo: document.getElementById("todo"), tools: document.getElementById("tools"), stations: document.getElementById("stations"), person: document.getElementById("person"),
+        doingText: document.getElementById("doingText"), artifacts: document.getElementById("artifacts"), approvals: document.getElementById("approvals"),
+        diag: document.getElementById("diag"), filters: document.getElementById("filters"), sessionKey: document.getElementById("sessionKey"),
+        pauseBtn: document.getElementById("pauseBtn"), stopBtn: document.getElementById("stopBtn"), jumpLatest: document.getElementById("jumpLatest"),
+        skin: document.getElementById("skin"), replayBtn: document.getElementById("replayBtn")
       };
 
-      const filterDefs = ["all", "tool", "risk", "file", "error"];
+      const filterDefs = ["all", "tool", "risk", "file", "error", "task"];
 
-      function renderFilters() {
-        el.filters.innerHTML = filterDefs
-          .map((f) => `<button class="${state.filter === f ? "active" : ""}" data-filter="${f}">${f}</button>`)
-          .join("");
-        [...el.filters.querySelectorAll("button")].forEach((b) => {
-          b.onclick = () => {
-            state.filter = b.dataset.filter;
-            renderFilters();
-            renderTimeline();
-          };
-        });
-      }
-
-      function stationFromEvent(evt) {
-        const t = (evt.title || "").toLowerCase();
-        if (t.includes("search") || t.includes("web") || t.includes("read") || t.includes("检索")) return "Search";
-        if (t.includes("build") || t.includes("write") || t.includes("edit") || t.includes("生成") || t.includes("更新")) return "Build";
-        if (t.includes("verify") || t.includes("test") || t.includes("检查")) return "Verify";
-        if (t.includes("deliver") || t.includes("send") || t.includes("回复")) return "Delivery";
+      function setBadge(node, text, cls) { node.textContent = text; node.className = `badge ${cls}`; }
+      function tsToBucket(ts) { const d = new Date(ts); return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2,"0")}`; }
+      function timeOnly(ts) { return new Date(ts).toLocaleTimeString(); }
+      function stationFromTitle(t) {
+        const x = (t || "").toLowerCase();
+        if (x.includes("search") || x.includes("read") || x.includes("检索")) return "Search";
+        if (x.includes("build") || x.includes("write") || x.includes("edit") || x.includes("生成") || x.includes("更新")) return "Build";
+        if (x.includes("verify") || x.includes("test") || x.includes("检查")) return "Verify";
+        if (x.includes("deliver") || x.includes("send") || x.includes("回复")) return "Delivery";
         return "Planning";
       }
 
-      function canonicalAgentId(id) {
-        return agentMap[id] ? id : "agent-main";
-      }
-
-      function renderLanes() {
-        const a = agents[0];
-        const queueNotes = (a.queue.length ? a.queue : ["等待新任务"]).slice(0, 5).map((q) => `<div class="note">${q}</div>`).join("");
-        const tools = ["read", "web_fetch", "edit", "write", "exec", "message"];
-        const toolChips = tools
-          .map((t) => `<span class="tool-chip" style="opacity:${a.active && t.toLowerCase().includes(a.active.toLowerCase().slice(0,3).toLowerCase()) ? 1 : 0.75}">${t}</span>`)
-          .join("");
-        const s = stations
-          .map((x) => `<div class="station ${a.active === x && a.status === "exec" ? "active" : ""}">${x}</div>`)
-          .join("");
-        const doing = a.status === "exec" ? `我正在${a.active}` : a.status === "block" ? "我卡住了，等待处理" : "我在待命";
-
-        el.lanes.innerHTML = `
-          <div class="desk" data-agent="${a.id}">
-            <div class="desk-grid">
-              <div class="panel-mini">
-                <div class="mini-title">待办便签</div>
-                ${queueNotes}
-              </div>
-              <div class="actor">
-                <div class="agent-chip"><span class="dot ${a.status === "exec" ? "exec" : a.status === "block" ? "block" : "idle"}"></span>${a.name}</div>
-                <div class="t-sub" style="color:#fff1df;margin:6px 0 10px 0;">${doing}</div>
-                <div class="stations">${s}</div>
-              </div>
-              <div class="panel-mini">
-                <div class="mini-title">工具抽屉 <span class="ring ${a.ring ? "on" : ""}" style="display:inline-block;vertical-align:middle;margin-left:6px;"></span></div>
-                ${toolChips}
-              </div>
-            </div>
-          </div>
-        `;
-      }
-
       function eventKind(e) {
-        if (e.event && e.event.includes("tool")) return "tool";
-        if (e.event === "file.changed" || e.event === "artifact.created") return "file";
-        if (e.event && (e.event.includes("error") || e.event.includes("failed"))) return "error";
+        if (e.event?.includes("tool")) return "tool";
+        if (["file.changed", "artifact.created"].includes(e.event)) return "file";
+        if (e.event?.includes("error") || e.event?.includes("failed")) return "error";
         if (e.risk === "high" || e.event === "approval.required") return "risk";
         return "all";
       }
 
       function filteredEvents() {
         if (state.filter === "all") return state.events;
+        if (state.filter === "task") return state.events.filter((e) => e.event === "user.request" || e.event === "session.started");
         return state.events.filter((e) => eventKind(e) === state.filter);
       }
 
+      function renderFilters() {
+        el.filters.innerHTML = filterDefs.map((f) => `<button class="${state.filter===f?"active":""}" data-f="${f}">${f}</button>`).join("");
+        [...el.filters.querySelectorAll("button")].forEach((b)=>b.onclick=()=>{ state.filter=b.dataset.f; renderFilters(); renderTimeline(); });
+      }
+
+      function renderDesk() {
+        el.todo.innerHTML = (state.actor.todo.length ? state.actor.todo : ["等待新任务"]).slice(0, 6).map((x)=>`<div class="note">${x}</div>`).join("");
+        el.tools.innerHTML = tools.map((t)=>`<span class="tool" style="opacity:${state.actor.actionText.includes(t)?1:0.75}">${t}</span>`).join("");
+        el.stations.innerHTML = stations.map((s)=>`<div class="station ${state.actor.status==="exec"&&state.actor.stage===s?"active":""}">${s}</div>`).join("");
+        el.person.className = "person " + (state.actor.status === "exec" ? (state.actor.stage === "Search" ? "searching" : "typing") : state.actor.status === "block" ? "blocked" : "waiting");
+        el.doingText.textContent = state.actor.actionText;
+      }
+
       function renderTimeline() {
-        const list = filteredEvents().slice(-140);
-        const nearBottom = el.timelineScroller.scrollHeight - el.timelineScroller.scrollTop - el.timelineScroller.clientHeight < 36;
-        if (nearBottom) state.timelineStickToBottom = true;
-
+        const list = filteredEvents().slice(-160);
+        const nearBottom = el.scroller.scrollHeight - el.scroller.scrollTop - el.scroller.clientHeight < 36;
+        if (nearBottom) state.stickBottom = true;
         let prevBucket = "";
-        el.timeline.innerHTML = list
-          .map((e, idx) => {
-            const ts = new Date(e._ts || Date.now());
-            const bucket = `${ts.getFullYear()}-${ts.getMonth() + 1}-${ts.getDate()} ${ts.getHours()}:${ts.getMinutes()}`;
-            const showBucket = bucket !== prevBucket;
-            prevBucket = bucket;
 
-            const clsRisk = e.risk === "high" ? "high" : e.risk === "medium" ? "medium" : "";
-            const side = idx % 2 === 0 ? "left" : "right";
-            const cls = `${clsRisk} ${side}`.trim();
-            const title = e.title || e.event;
-            const sub = (e.payload && (e.payload.out || e.payload.why)) || "-";
-            const time = ts.toLocaleTimeString();
-            return `${showBucket ? `<div class="small" style="text-align:center;margin:10px 0 6px 0;">${bucket}</div>` : ""}<div class="timeline-item ${cls}" data-i="${idx}"><div><strong>${title}</strong></div><div class="t-sub">${sub}</div><div class="t-sub">${time}</div></div>`;
-          })
-          .join("");
+        el.timeline.innerHTML = list.map((e, i) => {
+          const bucket = tsToBucket(e._ts);
+          const sep = bucket !== prevBucket ? `<div class="time-sep">${bucket}</div>` : "";
+          prevBucket = bucket;
+          const unreadSep = e._idx === state.lastReadIdx + 1 && state.unreadCount > 0 ? `<div class="unread">--- ${state.unreadCount} 条新消息 ---</div>` : "";
+          const side = i % 2 === 0 ? "left" : "right";
+          const risk = e.risk === "high" ? "high" : e.risk === "medium" ? "medium" : "";
+          return `${sep}${unreadSep}<div class="timeline-item ${side} ${risk}" data-i="${i}"><div><strong>${e.title || e.event}</strong></div><div class="t-sub">${e.payload?.out || e.payload?.why || "-"}</div><div class="t-sub">${timeOnly(e._ts)}</div></div>`;
+        }).join("");
 
-        [...el.timeline.querySelectorAll(".timeline-item")].forEach((n) => {
-          n.onclick = () => {
-            const e = list[Number(n.dataset.i)];
-            focus(e);
-          };
-        });
+        [...el.timeline.querySelectorAll(".timeline-item")].forEach((n)=>n.onclick=()=>focus(list[Number(n.dataset.i)]));
+        if (state.stickBottom) { el.scroller.scrollTop = el.scroller.scrollHeight; state.unreadCount = 0; state.lastReadIdx = state.events.length; }
+      }
 
-        if (state.timelineStickToBottom) {
-          el.timelineScroller.scrollTop = el.timelineScroller.scrollHeight;
-        }
+      function renderApprovals() {
+        el.approvals.innerHTML = state.approvals.map((a, i) =>
+          `<div class="approval-item"><div>${a.reason}</div><div style="margin-top:6px;"><button data-ok="${i}">同意</button> <button data-no="${i}">拒绝</button></div></div>`
+        ).join("") || '<div class="t-sub">无待审批</div>';
+
+        [...el.approvals.querySelectorAll("button[data-ok]")].forEach((b)=>b.onclick=()=>resolveApproval(Number(b.dataset.ok), true));
+        [...el.approvals.querySelectorAll("button[data-no]")].forEach((b)=>b.onclick=()=>resolveApproval(Number(b.dataset.no), false));
+      }
+
+      function resolveApproval(idx, pass) {
+        const a = state.approvals[idx];
+        if (!a) return;
+        state.approvals.splice(idx, 1);
+        applyEvent({ event: pass ? "approval.granted" : "approval.denied", title: pass ? "审批通过" : "审批拒绝", risk: pass ? "low" : "medium", payload: { why: "人工干预", out: a.reason, next: pass ? "继续执行" : "终止高风险操作" } });
+        renderApprovals();
+      }
+
+      function renderDiag() {
+        const errs = state.events.filter((e)=>e.event==="tool.error" || e.event==="session.failed").slice(-3);
+        if (!errs.length) { el.diag.textContent = "暂无异常"; return; }
+        const last = errs[errs.length-1];
+        const tip = (last.payload?.out || "").includes("permission") ? "疑似权限不足，建议检查工具权限/认证。" : "建议重试最近步骤，并检查输入参数。";
+        el.diag.textContent = `最近异常: ${last.title || last.event}。建议: ${tip}`;
       }
 
       function focus(e) {
@@ -471,100 +288,48 @@
         el.focusNext.textContent = `next: ${e.payload?.next || "-"}`;
         const risk = e.risk || (e.event === "approval.required" ? "high" : "low");
         el.risk.textContent = `风险: ${risk}`;
-        if (risk === "high") {
-          el.risk.style.borderColor = "#ef4444";
-          el.risk.style.background = "#fef2f2";
-        } else if (risk === "medium") {
-          el.risk.style.borderColor = "#f59e0b";
-          el.risk.style.background = "#fffbeb";
-        } else {
-          el.risk.style.borderColor = "#fcd34d";
-          el.risk.style.background = "#fffbeb";
-        }
       }
 
-      function pushStdout(text) {
-        el.stdout.textContent += `[${new Date().toLocaleTimeString()}] ${text}\n`;
-        el.stdout.scrollTop = el.stdout.scrollHeight;
-      }
+      function pushLog(text) { el.stdout.textContent += `[${new Date().toLocaleTimeString()}] ${text}\n`; el.stdout.scrollTop = el.stdout.scrollHeight; }
+      function addArtifact(name) { if (!name) return; const n=document.createElement("span"); n.className="artifact"; n.textContent=name; el.artifacts.prepend(n); }
 
-      function addArtifact(name) {
-        if (!name) return;
-        const tag = document.createElement("span");
-        tag.className = "artifact";
-        tag.textContent = name;
-        el.artifacts.prepend(tag);
-      }
-
-      function setStatus(text, cls) {
-        el.status.textContent = text;
-        el.status.className = `badge ${cls}`;
-      }
-
-      function setConn(text, cls) {
-        el.conn.textContent = text;
-        el.conn.className = `badge ${cls}`;
-      }
-
-      function onEvent(evt) {
+      function applyEvent(evt, fromStream = false) {
         if (!evt || state.paused) return;
         evt._ts = evt._ts || Date.now();
+        evt._idx = state.events.length + 1;
+        if (fromStream) evt.taskId = evt.taskId || state.taskId;
         state.events.push(evt);
-        if (state.events.length > 600) state.events.shift();
 
-        if (evt.event === "session.started") setStatus("RUNNING", "run");
-        if (evt.event === "session.completed") setStatus("COMPLETED", "run");
-        if (evt.event === "session.failed") setStatus("FAILED", "fail");
+        if (!state.stickBottom) state.unreadCount += 1;
+        if (evt.event === "session.started") setBadge(el.status, "RUNNING", "run");
+        if (evt.event === "session.failed") setBadge(el.status, "FAILED", "fail");
+        if (evt.event === "session.completed") setBadge(el.status, "COMPLETED", "run");
 
-        if (evt.event === "cost.updated") {
-          state.tokens = evt.payload?.tokens || state.tokens;
-          state.cost = evt.payload?.cost || state.cost;
-          state.retry = evt.payload?.retry || state.retry;
-        }
+        if (evt.event === "cost.updated") { state.tokens = evt.payload?.tokens || state.tokens; state.cost = evt.payload?.cost || state.cost; state.retry = evt.payload?.retry || state.retry; }
+        if (["artifact.created", "file.changed"].includes(evt.event)) addArtifact(evt.payload?.name || evt.payload?.path || "artifact");
+        if (evt.event === "queue.updated") state.actor.todo = evt.payload?.items || state.actor.todo;
 
-        if (evt.event === "artifact.created" || evt.event === "file.changed") {
-          addArtifact(evt.payload?.name || evt.payload?.path || "artifact");
-        }
-
-        if (evt.event === "queue.updated") {
-          const id = canonicalAgentId(evt.payload?.agentId);
-          if (agentMap[id]) agentMap[id].queue = evt.payload?.items || [];
-        }
-
-        if (["step.started", "tool.started"].includes(evt.event)) {
-          const id = canonicalAgentId(evt.payload?.agentId || "agent-main");
-          const a = agentMap[id];
-          if (a) {
-            a.status = "exec";
-            a.active = stationFromEvent(evt);
-            if (evt.payload?.scheduled) {
-              a.ring = true;
-              setTimeout(() => { a.ring = false; renderLanes(); }, 1800);
-            }
-          }
-          pushStdout(evt.payload?.out || evt.title || evt.event);
+        if (["step.started", "tool.started", "生成回复"].includes(evt.event) || evt.event === "step.started") {
+          state.actor.status = "exec";
+          state.actor.stage = stationFromTitle(evt.title || evt.payload?.out || "");
+          state.actor.actionText = evt.payload?.out ? `我正在: ${evt.payload.out}` : `我正在${state.actor.stage}`;
           focus(evt);
+          pushLog(evt.payload?.out || evt.title || evt.event);
         }
-
-        if (["step.completed", "tool.completed"].includes(evt.event)) {
-          const id = canonicalAgentId(evt.payload?.agentId || "agent-main");
-          if (agentMap[id] && agentMap[id].status !== "block") agentMap[id].status = "idle";
-        }
-
-        if (["tool.error", "session.failed"].includes(evt.event)) {
-          const id = canonicalAgentId(evt.payload?.agentId || "agent-main");
-          if (agentMap[id]) agentMap[id].status = "block";
-          pushStdout(evt.payload?.out || "error");
-          focus(evt);
-        }
+        if (["step.completed", "tool.completed"].includes(evt.event)) { state.actor.status = "idle"; state.actor.actionText = "我在待命"; }
+        if (["tool.error", "session.failed"].includes(evt.event)) { state.actor.status = "block"; state.actor.actionText = "我卡住了，等待处理"; }
 
         if (evt.event === "approval.required") {
-          focus({ ...evt, risk: "high", title: evt.title || "需要审批" });
-          pushStdout(evt.payload?.reason || "approval required");
+          const reason = evt.payload?.reason || evt.payload?.out || "需要审批";
+          state.approvals.unshift({ reason, ts: evt._ts });
+          if (Notification.permission === "granted") new Notification("Agent 审批提醒", { body: reason });
+          focus({ ...evt, risk: "high" });
         }
 
-        renderLanes();
+        renderDesk();
         renderTimeline();
+        renderApprovals();
+        renderDiag();
       }
 
       function connect() {
@@ -572,31 +337,40 @@
         const sk = p.get("sessionKey") || "agent:main:main";
         el.sessionKey.textContent = sk;
         const url = p.get("stream") || `/api/agent-events?sessionKey=${encodeURIComponent(sk)}`;
-
         const es = new EventSource(url);
         state.stream = es;
 
-        es.onopen = () => {
-          state.connected = true;
-          setConn("CONNECTED", "run");
-          if (!state.paused) setStatus("RUNNING", "run");
-          pushStdout(`connected -> ${url}`);
-        };
-
+        es.onopen = () => { state.connected = true; setBadge(el.conn, "CONNECTED", "run"); setBadge(el.status, "RUNNING", "run"); pushLog(`connected -> ${url}`); };
         es.onmessage = (msg) => {
           try {
             const evt = JSON.parse(msg.data);
-            onEvent(evt);
-          } catch {
-            pushStdout(`invalid event: ${msg.data}`);
-          }
+            if (evt.event === "queue.updated" && !evt.payload?.items?.length) return;
+            applyEvent(evt, true);
+          } catch { pushLog(`invalid event: ${msg.data}`); }
         };
+        es.onerror = () => { state.connected = false; setBadge(el.conn, "DISCONNECTED", "off"); if (!state.paused) setBadge(el.status, "OFFLINE", "off"); };
+      }
 
-        es.onerror = () => {
-          state.connected = false;
-          setConn("DISCONNECTED", "off");
-          if (!state.paused) setStatus("OFFLINE", "off");
-        };
+      function startReplay() {
+        if (state.replay.mode) {
+          clearInterval(state.replay.timer);
+          state.replay.mode = false;
+          el.replayBtn.textContent = "回放";
+          return;
+        }
+        state.replay.mode = true;
+        el.replayBtn.textContent = "停止回放";
+        state.replay.source = state.events.slice();
+        state.events = [];
+        state.actor = { status: "idle", stage: "Planning", todo: [], actionText: "我在待命" };
+        state.approvals = [];
+        renderDesk(); renderTimeline(); renderApprovals();
+        let i = 0;
+        state.replay.timer = setInterval(() => {
+          if (i >= state.replay.source.length) return startReplay();
+          applyEvent({ ...state.replay.source[i] }, false);
+          i += 1;
+        }, 220);
       }
 
       function tick() {
@@ -607,35 +381,19 @@
         el.retry.textContent = String(state.retry);
       }
 
-      el.pauseBtn.onclick = () => {
-        state.paused = !state.paused;
-        el.pauseBtn.textContent = state.paused ? "Resume" : "Pause";
-        if (state.paused) {
-          setStatus("PAUSED", "pause");
-          agents.forEach((a) => { if (a.status !== "block") a.status = "idle"; });
-          renderLanes();
-        } else {
-          setStatus(state.connected ? "RUNNING" : "OFFLINE", state.connected ? "run" : "off");
-        }
-      };
-
-      el.stopBtn.onclick = () => {
-        state.paused = true;
-        setStatus("STOPPED", "stop");
-        if (state.stream) state.stream.close();
-        pushStdout("session stopped by operator");
-      };
-
-      el.timelineScroller.addEventListener("scroll", () => {
-        const delta = el.timelineScroller.scrollHeight - el.timelineScroller.scrollTop - el.timelineScroller.clientHeight;
-        state.timelineStickToBottom = delta < 36;
+      el.pauseBtn.onclick = () => { state.paused = !state.paused; el.pauseBtn.textContent = state.paused ? "Resume" : "Pause"; setBadge(el.status, state.paused ? "PAUSED" : (state.connected ? "RUNNING" : "OFFLINE"), state.paused ? "warn" : (state.connected ? "run" : "off")); };
+      el.stopBtn.onclick = () => { state.paused = true; setBadge(el.status, "STOPPED", "fail"); if (state.stream) state.stream.close(); pushLog("session stopped by operator"); };
+      el.jumpLatest.onclick = () => { state.stickBottom = true; el.scroller.scrollTop = el.scroller.scrollHeight; state.unreadCount = 0; state.lastReadIdx = state.events.length; renderTimeline(); };
+      el.skin.onchange = () => { document.body.dataset.skin = el.skin.value; };
+      el.replayBtn.onclick = () => startReplay();
+      el.scroller.addEventListener("scroll", () => {
+        const delta = el.scroller.scrollHeight - el.scroller.scrollTop - el.scroller.clientHeight;
+        state.stickBottom = delta < 36;
+        if (state.stickBottom) { state.unreadCount = 0; state.lastReadIdx = state.events.length; renderTimeline(); }
       });
 
-      renderFilters();
-      renderLanes();
-      renderTimeline();
-      connect();
-      setInterval(tick, 400);
+      if (window.Notification && Notification.permission === "default") Notification.requestPermission();
+      renderFilters(); renderDesk(); renderTimeline(); renderApprovals(); renderDiag(); connect(); setInterval(tick, 400);
     </script>
   </body>
 </html>
