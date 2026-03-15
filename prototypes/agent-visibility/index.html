@@ -86,34 +86,84 @@
       }
       .world {
         position: relative;
-        height: 230px;
-        border: 2px solid #203352;
-        border-radius: 8px;
+        height: 260px;
+        border: 2px solid #1a2a44;
+        border-radius: 10px;
         background:
-          linear-gradient(180deg, rgba(130, 176, 255, 0.35) 0 35%, transparent 35%),
-          repeating-linear-gradient(0deg, #87a96b 0 16px, #7fa063 16px 32px),
-          repeating-linear-gradient(90deg, rgba(34, 58, 91, 0.22) 0 1px, transparent 1px 16px);
+          radial-gradient(circle at 12% 8%, rgba(255, 255, 255, 0.26), transparent 32%),
+          radial-gradient(circle at 82% 18%, rgba(255, 255, 255, 0.18), transparent 40%),
+          linear-gradient(180deg, rgba(154, 197, 255, 0.45) 0 34%, transparent 34%),
+          repeating-linear-gradient(0deg, #82a763 0 14px, #769b58 14px 28px),
+          repeating-linear-gradient(90deg, rgba(22, 38, 66, 0.24) 0 1px, transparent 1px 14px);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2), inset 0 -18px 30px rgba(8, 15, 25, 0.35);
         overflow: hidden;
+        image-rendering: pixelated;
+      }
+      .world::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0 3px, transparent 3px 6px);
+        pointer-events: none;
       }
       .zone {
         position: absolute;
-        border: 2px dashed rgba(244, 244, 245, 0.55);
-        border-radius: 6px;
+        border: 2px solid rgba(230, 240, 255, 0.45);
+        border-radius: 7px;
         font-size: 10px;
-        padding: 2px 5px;
+        padding: 2px 6px;
         color: #e2e8f0;
-        background: rgba(15, 23, 42, 0.3);
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.42), rgba(15, 23, 42, 0.22));
+        box-shadow: 0 2px 0 rgba(16, 25, 40, 0.45);
       }
-      .zone.active { border-color: #34d399; color: #bbf7d0; }
+      .zone.active {
+        border-color: #34d399;
+        color: #bbf7d0;
+        box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.25), 0 3px 0 rgba(16, 25, 40, 0.45);
+      }
       .zone.plan { left: 8px; top: 12px; width: 100px; height: 58px; }
       .zone.search { right: 8px; top: 12px; width: 110px; height: 58px; }
       .zone.build { left: 20px; bottom: 16px; width: 120px; height: 66px; }
       .zone.verify { right: 16px; bottom: 16px; width: 120px; height: 66px; }
       .zone.delivery { left: 50%; transform: translateX(-50%); bottom: 84px; width: 120px; height: 56px; }
+      .path-glow {
+        position: absolute;
+        left: var(--from-x, 50%);
+        top: var(--from-y, 56%);
+        width: 2px;
+        height: 2px;
+        background: #7dd3fc;
+        box-shadow: 0 0 10px rgba(125, 211, 252, 0.8);
+        transform: translate(-50%, -50%);
+        opacity: 0;
+        pointer-events: none;
+      }
+      .path-glow.on {
+        opacity: 1;
+        animation: fly-path 520ms ease;
+      }
 
-      .avatar { position: absolute; width: 24px; height: 30px; left: 50%; top: 56%; transform: translate(-50%, -50%); transition: all 420ms ease; image-rendering: pixelated; }
-      .avatar::before { content: ""; position: absolute; width: 24px; height: 30px; background: linear-gradient(180deg, #fbbf24 0 30%, #1d4ed8 30% 100%); box-shadow: inset 0 0 0 2px #0f172a; }
-      .avatar::after { content: ""; position: absolute; width: 6px; height: 6px; border-radius: 1px; background: #0f172a; left: 9px; top: 8px; }
+      .avatar { position: absolute; width: 26px; height: 34px; left: 50%; top: 56%; transform: translate(-50%, -50%); transition: left 420ms ease, top 420ms ease; image-rendering: pixelated; z-index: 5; }
+      .avatar .shadow {
+        position: absolute;
+        width: 22px;
+        height: 6px;
+        left: 2px;
+        bottom: -4px;
+        background: rgba(10, 15, 25, 0.45);
+        border-radius: 50%;
+        filter: blur(0.5px);
+      }
+      .avatar::before {
+        content: "";
+        position: absolute;
+        width: 26px;
+        height: 34px;
+        background:
+          linear-gradient(180deg, #fde68a 0 26%, #3b82f6 26% 70%, #1e40af 70% 100%);
+        box-shadow: inset 0 0 0 2px #0f172a, inset 0 -4px 0 rgba(15, 23, 42, 0.35);
+      }
+      .avatar::after { content: ""; position: absolute; width: 6px; height: 6px; border-radius: 1px; background: #0f172a; left: 10px; top: 9px; }
       .avatar.face-left::after { left: 6px; }
       .avatar.face-right::after { left: 12px; }
       .avatar.face-up::after { top: 6px; }
@@ -144,6 +194,11 @@
       @keyframes breathe { 0% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(0.94); } 100% { transform: translate(-50%, -50%) scale(1); } }
       @keyframes shake { 0% { transform: translate(-50%, -50%) translateX(0); } 50% { transform: translate(-50%, -50%) translateX(-2px); } 100% { transform: translate(-50%, -50%) translateX(2px); } }
       @keyframes walk-frame { from { filter: brightness(1); } to { filter: brightness(1.18); } }
+      @keyframes fly-path {
+        0% { transform: translate(-50%, -50%) scale(0.7); }
+        40% { transform: translate(calc(var(--dx, 0) * 0.4), calc(var(--dy, 0) * 0.4)) scale(1.1); }
+        100% { transform: translate(calc(var(--dx, 0)), calc(var(--dy, 0))) scale(0.7); opacity: 0; }
+      }
       @media (max-width: 1140px) { .layout { grid-template-columns: 1fr; } .desk-grid { grid-template-columns: 1fr; } }
     </style>
   </head>
@@ -188,7 +243,8 @@
                 <div class="zone build" data-stage="Build">Build</div>
                 <div class="zone verify" data-stage="Verify">Verify</div>
                 <div class="zone delivery" data-stage="Delivery">Delivery</div>
-                <div class="avatar waiting" id="person"></div>
+                <div class="path-glow" id="pathGlow"></div>
+                <div class="avatar waiting" id="person"><div class="shadow"></div></div>
               </div>
               <div class="action-strip">
                 <div class="action-text" id="doingText">我在待命</div>
@@ -239,7 +295,7 @@
         scroller: document.getElementById("timelineScroller"), focusTitle: document.getElementById("focusTitle"), focusWhy: document.getElementById("focusWhy"),
         focusNext: document.getElementById("focusNext"), risk: document.getElementById("risk"), stdout: document.getElementById("stdout"),
         tokens: document.getElementById("tokens"), cost: document.getElementById("cost"), retry: document.getElementById("retry"), elapsed: document.getElementById("elapsed"),
-        todo: document.getElementById("todo"), tools: document.getElementById("tools"), stations: document.getElementById("stations"), person: document.getElementById("person"),
+        todo: document.getElementById("todo"), tools: document.getElementById("tools"), stations: document.getElementById("stations"), person: document.getElementById("person"), pathGlow: document.getElementById("pathGlow"),
         doingText: document.getElementById("doingText"), artifacts: document.getElementById("artifacts"), approvals: document.getElementById("approvals"),
         diag: document.getElementById("diag"), filters: document.getElementById("filters"), sessionKey: document.getElementById("sessionKey"),
         pauseBtn: document.getElementById("pauseBtn"), stopBtn: document.getElementById("stopBtn"), jumpLatest: document.getElementById("jumpLatest"),
@@ -301,6 +357,16 @@
           state.actor.facing = dx >= 0 ? "face-right" : "face-left";
         } else {
           state.actor.facing = dy >= 0 ? "face-down" : "face-up";
+        }
+
+        if (state.actor.walking) {
+          el.pathGlow.style.setProperty("--from-x", `${prev.x}%`);
+          el.pathGlow.style.setProperty("--from-y", `${prev.y}%`);
+          el.pathGlow.style.setProperty("--dx", `${(next.x - prev.x) * 1}%`);
+          el.pathGlow.style.setProperty("--dy", `${(next.y - prev.y) * 1}%`);
+          el.pathGlow.classList.remove("on");
+          void el.pathGlow.offsetWidth;
+          el.pathGlow.classList.add("on");
         }
 
         el.person.className = `avatar ${motion} ${state.actor.facing} ${state.actor.walking ? "walking" : ""}`;
