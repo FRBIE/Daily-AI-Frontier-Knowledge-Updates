@@ -10,6 +10,63 @@ const OPENCLAW_SESSIONS = "/home/ubuntu/.openclaw/agents/main/sessions/sessions.
 const APPROVAL_LOG = path.join(__dirname, ".runtime", "approvals.jsonl");
 const CONTROL_LOG = path.join(__dirname, ".runtime", "controls.jsonl");
 const LIVE_CLIENTS = new Set();
+const SKILLS = [
+  {
+    name: "feishu-doc",
+    description: "Feishu document read/write operations.",
+    location: "/home/ubuntu/.npm-global/lib/node_modules/openclaw/extensions/feishu/skills/feishu-doc/SKILL.md"
+  },
+  {
+    name: "feishu-drive",
+    description: "Feishu cloud storage file management.",
+    location: "/home/ubuntu/.npm-global/lib/node_modules/openclaw/extensions/feishu/skills/feishu-drive/SKILL.md"
+  },
+  {
+    name: "feishu-perm",
+    description: "Feishu permission management.",
+    location: "/home/ubuntu/.npm-global/lib/node_modules/openclaw/extensions/feishu/skills/feishu-perm/SKILL.md"
+  },
+  {
+    name: "feishu-wiki",
+    description: "Feishu knowledge base navigation.",
+    location: "/home/ubuntu/.npm-global/lib/node_modules/openclaw/extensions/feishu/skills/feishu-wiki/SKILL.md"
+  },
+  {
+    name: "healthcheck",
+    description: "OpenClaw host security hardening checks.",
+    location: "/home/ubuntu/.npm-global/lib/node_modules/openclaw/skills/healthcheck/SKILL.md"
+  },
+  {
+    name: "skill-creator",
+    description: "Create or update AgentSkills.",
+    location: "/home/ubuntu/.npm-global/lib/node_modules/openclaw/skills/skill-creator/SKILL.md"
+  },
+  {
+    name: "tmux",
+    description: "Remote-control tmux sessions for interactive CLIs.",
+    location: "/home/ubuntu/.npm-global/lib/node_modules/openclaw/skills/tmux/SKILL.md"
+  },
+  {
+    name: "weather",
+    description: "Current weather and forecasts via wttr.in/Open-Meteo.",
+    location: "/home/ubuntu/.npm-global/lib/node_modules/openclaw/skills/weather/SKILL.md"
+  },
+  {
+    name: "auto-updater",
+    description: "Automatically update Clawdbot and installed skills.",
+    location: "/home/ubuntu/.openclaw/workspace/skills/auto-updater/SKILL.md"
+  },
+  {
+    name: "browserwing-executor",
+    description: "Control browser automation through HTTP API.",
+    location: "/home/ubuntu/.openclaw/workspace/skills/browserwing-executor/SKILL.md"
+  },
+  {
+    name: "skill-vetter",
+    description: "Security-first skill vetting for AI agents.",
+    location: "/home/ubuntu/.openclaw/workspace/skills/skill-vetter/SKILL.md"
+  }
+];
 
 const MIME = {
   ".html": "text/html; charset=utf-8",
@@ -203,6 +260,41 @@ function readBody(req) {
   });
 }
 
+function getSkill(name) {
+  return SKILLS.find((s) => s.name === name) || null;
+}
+
+function safeReadText(file, max = 30000) {
+  try {
+    const txt = fs.readFileSync(file, "utf8");
+    return txt.length > max ? `${txt.slice(0, max)}\n\n...truncated...` : txt;
+  } catch {
+    return "";
+  }
+}
+
+function listSkillFiles(skill) {
+  const dir = path.dirname(skill.location);
+  try {
+    const names = fs.readdirSync(dir, { withFileTypes: true })
+      .filter((d) => d.isFile())
+      .map((d) => d.name)
+      .filter((n) => n.endsWith(".md") || n.endsWith(".js") || n.endsWith(".mjs") || n.endsWith(".json") || n.endsWith(".txt") || n.endsWith(".yaml") || n.endsWith(".yml"))
+      .slice(0, 50);
+    return names;
+  } catch {
+    return [];
+  }
+}
+
+function safeSkillFile(skill, rel) {
+  const dir = path.dirname(skill.location);
+  const target = path.normalize(path.join(dir, rel || ""));
+  if (!target.startsWith(dir)) return null;
+  if (!fs.existsSync(target) || !fs.statSync(target).isFile()) return null;
+  return target;
+}
+
 function streamSessionEvents(res, sessionFile) {
   res.writeHead(200, {
     "Content-Type": "text/event-stream",
@@ -279,6 +371,54 @@ const server = http.createServer(async (req, res) => {
 
   if (url.pathname === "/health") {
     return send(res, 200, JSON.stringify({ ok: true }), { "Content-Type": MIME[".json"] });
+  }
+
+  if (url.pathname === "/api/skills" && req.method === "GET") {
+    const items = SKILLS.map((s) => ({ name: s.name, description: s.description, location: s.location }));
+    return send(res, 200, JSON.stringify({ items }), {
+      "Content-Type": MIME[".json"],
+      "Access-Control-Allow-Origin": "*"
+    });
+  }
+
+  if (url.pathname === "/api/skills/detail" && req.method === "GET") {
+    const name = url.searchParams.get("name") || "";
+    const skill = getSkill(name);
+    if (!skill) {
+      return send(res, 404, JSON.stringify({ error: "skill not found" }), {
+        "Content-Type": MIME[".json"],
+        "Access-Control-Allow-Origin": "*"
+      });
+    }
+    const content = safeReadText(skill.location);
+    const files = listSkillFiles(skill);
+    return send(res, 200, JSON.stringify({ skill, content, files }), {
+      "Content-Type": MIME[".json"],
+      "Access-Control-Allow-Origin": "*"
+    });
+  }
+
+  if (url.pathname === "/api/skills/source" && req.method === "GET") {
+    const name = url.searchParams.get("name") || "";
+    const file = url.searchParams.get("file") || "";
+    const skill = getSkill(name);
+    if (!skill) {
+      return send(res, 404, JSON.stringify({ error: "skill not found" }), {
+        "Content-Type": MIME[".json"],
+        "Access-Control-Allow-Origin": "*"
+      });
+    }
+    const target = safeSkillFile(skill, file);
+    if (!target) {
+      return send(res, 404, JSON.stringify({ error: "file not found" }), {
+        "Content-Type": MIME[".json"],
+        "Access-Control-Allow-Origin": "*"
+      });
+    }
+    return send(res, 200, JSON.stringify({ file, content: safeReadText(target, 50000) }), {
+      "Content-Type": MIME[".json"],
+      "Access-Control-Allow-Origin": "*"
+    });
   }
 
   if (url.pathname === "/api/approvals" && req.method === "GET") {

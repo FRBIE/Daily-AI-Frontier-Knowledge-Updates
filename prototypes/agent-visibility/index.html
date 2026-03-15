@@ -193,6 +193,8 @@
       .task-row:last-child { border-bottom: 0; }
       .ctrls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px; }
       .ctrls button { width: 100%; }
+      .skill-item { font-size: 12px; padding: 4px 6px; border: 1px solid rgba(191,219,254,0.6); border-radius: 6px; background: rgba(219,234,254,0.18); margin-bottom: 5px; cursor: pointer; }
+      .skill-item.active { border-color: #34d399; background: rgba(52,211,153,0.16); }
 
       @keyframes bob { from { transform: translate(-50%, -50%) translateY(0); } to { transform: translate(-50%, -50%) translateY(-3px); } }
       @keyframes stepwalk { from { transform: translate(-50%, -50%) translateX(-1px); } to { transform: translate(-50%, -50%) translateX(1px); } }
@@ -256,7 +258,12 @@
                 <div class="stations" id="stations"></div>
               </div>
             </div>
-            <div class="mini"><div class="mini-title">工具抽屉</div><div id="tools"></div></div>
+            <div class="mini">
+              <div class="mini-title">工具抽屉</div>
+              <div id="tools"></div>
+              <div class="mini-title" style="margin-top:8px;">Skills</div>
+              <div id="skillList" class="t-sub"></div>
+            </div>
           </div>
         </section>
 
@@ -290,6 +297,23 @@
               <button data-control="priority_cost">模式: 低成本优先</button>
             </div>
 
+            <div style="margin-top:8px;"><strong>命令下发区</strong></div>
+            <div class="task-board">
+              <input id="cmdInput" placeholder="例如: 重新检索 LangChain 文档并输出要点" style="width:100%;padding:7px;border:1px solid #cbd5e1;border-radius:8px;" />
+              <div style="display:flex;gap:6px;margin-top:6px;">
+                <button id="cmdSend" style="flex:1;">发送命令</button>
+                <button id="cmdUrgent" style="flex:1;">紧急插队</button>
+              </div>
+            </div>
+
+            <div style="margin-top:8px;"><strong>Skill 详情</strong></div>
+            <div class="task-board">
+              <div id="skillTitle" class="t-sub">点击左侧 Skill 查看介绍</div>
+              <pre id="skillDetail" style="min-height:120px;max-height:180px;">-</pre>
+              <div id="skillFiles" class="t-sub" style="margin-top:6px;"></div>
+              <pre id="skillSource" style="min-height:90px;max-height:140px;">-</pre>
+            </div>
+
             <div style="margin-top:8px;"><strong>Artifacts</strong></div>
             <div class="artifacts" id="artifacts"></div>
           </div>
@@ -317,7 +341,10 @@
         doingText: document.getElementById("doingText"), artifacts: document.getElementById("artifacts"), approvals: document.getElementById("approvals"),
         diag: document.getElementById("diag"), taskBoard: document.getElementById("taskBoard"), filters: document.getElementById("filters"), sessionKey: document.getElementById("sessionKey"),
         pauseBtn: document.getElementById("pauseBtn"), stopBtn: document.getElementById("stopBtn"), jumpLatest: document.getElementById("jumpLatest"),
-        skin: document.getElementById("skin"), replayBtn: document.getElementById("replayBtn")
+        skin: document.getElementById("skin"), replayBtn: document.getElementById("replayBtn"),
+        skillList: document.getElementById("skillList"), skillTitle: document.getElementById("skillTitle"), skillDetail: document.getElementById("skillDetail"),
+        skillFiles: document.getElementById("skillFiles"), skillSource: document.getElementById("skillSource"),
+        cmdInput: document.getElementById("cmdInput"), cmdSend: document.getElementById("cmdSend"), cmdUrgent: document.getElementById("cmdUrgent")
       };
 
       const filterDefs = ["all", "tool", "risk", "file", "error", "task"];
@@ -496,17 +523,66 @@
         ).join("");
       }
 
-      async function sendControl(action) {
+      async function sendControl(action, note = "") {
         try {
           const resp = await fetch('/api/control', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action, note: `mode=${state.mode}` })
+            body: JSON.stringify({ action, note: note || `mode=${state.mode}` })
           });
           if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
           pushLog(`控制指令已下发: ${action}`);
         } catch (err) {
           pushLog(`控制指令失败: ${err.message || err}`);
+        }
+      }
+
+      async function loadSkills() {
+        try {
+          const resp = await fetch('/api/skills');
+          if (!resp.ok) return;
+          const data = await resp.json();
+          const items = Array.isArray(data.items) ? data.items : [];
+          el.skillList.innerHTML = items.map((s, i) => `<div class="skill-item ${i===0?"active":""}" data-skill="${s.name}">${s.name}</div>`).join("");
+          [...el.skillList.querySelectorAll('.skill-item')].forEach((n) => {
+            n.onclick = () => {
+              [...el.skillList.querySelectorAll('.skill-item')].forEach((x) => x.classList.remove('active'));
+              n.classList.add('active');
+              loadSkillDetail(n.dataset.skill);
+            };
+          });
+          if (items[0]) loadSkillDetail(items[0].name);
+        } catch {
+          // ignore
+        }
+      }
+
+      async function loadSkillDetail(name) {
+        try {
+          const resp = await fetch(`/api/skills/detail?name=${encodeURIComponent(name)}`);
+          if (!resp.ok) return;
+          const data = await resp.json();
+          el.skillTitle.textContent = `${data.skill.name} - ${data.skill.description}`;
+          el.skillDetail.textContent = data.content || '-';
+          const files = Array.isArray(data.files) ? data.files : [];
+          el.skillFiles.innerHTML = files.map((f) => `<button data-source="${f}">${f}</button>`).join(' ');
+          [...el.skillFiles.querySelectorAll('button')].forEach((b) => {
+            b.onclick = () => loadSkillSource(name, b.getAttribute('data-source'));
+          });
+          if (files[0]) loadSkillSource(name, files[0]);
+        } catch {
+          // ignore
+        }
+      }
+
+      async function loadSkillSource(name, file) {
+        try {
+          const resp = await fetch(`/api/skills/source?name=${encodeURIComponent(name)}&file=${encodeURIComponent(file)}`);
+          if (!resp.ok) return;
+          const data = await resp.json();
+          el.skillSource.textContent = data.content || '-';
+        } catch {
+          // ignore
         }
       }
 
@@ -665,6 +741,18 @@
           await sendControl(action);
         };
       });
+      el.cmdSend.onclick = async () => {
+        const text = (el.cmdInput.value || '').trim();
+        if (!text) return;
+        await sendControl('dispatch_command', text);
+        el.cmdInput.value = '';
+      };
+      el.cmdUrgent.onclick = async () => {
+        const text = (el.cmdInput.value || '').trim();
+        if (!text) return;
+        await sendControl('dispatch_command_urgent', text);
+        el.cmdInput.value = '';
+      };
       el.scroller.addEventListener("scroll", () => {
         const delta = el.scroller.scrollHeight - el.scroller.scrollTop - el.scroller.clientHeight;
         state.stickBottom = delta < 36;
@@ -673,6 +761,7 @@
 
       if (window.Notification && Notification.permission === "default") Notification.requestPermission();
       renderFilters(); renderDesk(); renderTimeline(); renderApprovals(); renderDiag(); renderTaskBoard();
+      loadSkills();
       syncApprovals();
       connect();
       setInterval(tick, 400);
