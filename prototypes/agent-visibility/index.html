@@ -265,12 +265,54 @@
         [...el.approvals.querySelectorAll("button[data-no]")].forEach((b)=>b.onclick=()=>resolveApproval(Number(b.dataset.no), false));
       }
 
-      function resolveApproval(idx, pass) {
+      async function resolveApproval(idx, pass) {
         const a = state.approvals[idx];
         if (!a) return;
         state.approvals.splice(idx, 1);
-        applyEvent({ event: pass ? "approval.granted" : "approval.denied", title: pass ? "审批通过" : "审批拒绝", risk: pass ? "low" : "medium", payload: { why: "人工干预", out: a.reason, next: pass ? "继续执行" : "终止高风险操作" } });
         renderApprovals();
+        try {
+          const resp = await fetch("/api/approvals", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: pass ? "approve" : "deny", reason: a.reason })
+          });
+          if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+          pushLog(pass ? "审批已提交: 同意" : "审批已提交: 拒绝");
+        } catch (err) {
+          pushLog(`审批提交失败: ${err.message || err}`);
+          applyEvent({
+            event: pass ? "approval.granted" : "approval.denied",
+            title: pass ? "审批通过(本地兜底)" : "审批拒绝(本地兜底)",
+            risk: pass ? "low" : "medium",
+            payload: { why: "人工干预", out: a.reason, next: pass ? "继续执行" : "终止高风险操作" }
+          });
+        }
+      }
+
+      async function syncApprovals() {
+        try {
+          const resp = await fetch("/api/approvals");
+          if (!resp.ok) return;
+          const data = await resp.json();
+          const items = Array.isArray(data.items) ? data.items : [];
+          for (const item of items.slice(-10)) {
+            if (item.action === "deny" || item.action === "approve") {
+              applyEvent({
+                event: item.action === "approve" ? "approval.granted" : "approval.denied",
+                title: item.action === "approve" ? "审批通过(历史)" : "审批拒绝(历史)",
+                risk: item.action === "approve" ? "low" : "medium",
+                _ts: item.ts,
+                payload: {
+                  why: "历史审批记录",
+                  out: item.reason || "manual decision",
+                  next: item.action === "approve" ? "继续执行" : "终止或改写方案"
+                }
+              });
+            }
+          }
+        } catch {
+          // ignore
+        }
       }
 
       function renderDiag() {
@@ -393,7 +435,10 @@
       });
 
       if (window.Notification && Notification.permission === "default") Notification.requestPermission();
-      renderFilters(); renderDesk(); renderTimeline(); renderApprovals(); renderDiag(); connect(); setInterval(tick, 400);
+      renderFilters(); renderDesk(); renderTimeline(); renderApprovals(); renderDiag();
+      syncApprovals();
+      connect();
+      setInterval(tick, 400);
     </script>
   </body>
 </html>

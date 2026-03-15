@@ -7,6 +7,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const PORT = Number(process.env.PORT || 8787);
 const OPENCLAW_SESSIONS = "/home/ubuntu/.openclaw/agents/main/sessions/sessions.json";
+const APPROVAL_LOG = path.join(__dirname, ".runtime", "approvals.jsonl");
+const LIVE_CLIENTS = new Set();
 
 const MIME = {
   ".html": "text/html; charset=utf-8",
@@ -176,6 +178,30 @@ function sseWrite(res, data) {
   res.write(`data: ${JSON.stringify(data)}\n\n`);
 }
 
+function broadcast(data) {
+  for (const client of LIVE_CLIENTS) {
+    try {
+      sseWrite(client, data);
+    } catch {
+      // ignore stale clients
+    }
+  }
+}
+
+function readBody(req) {
+  return new Promise((resolve, reject) => {
+    let raw = "";
+    req.on("data", (chunk) => {
+      raw += chunk.toString("utf8");
+      if (raw.length > 1024 * 1024) {
+        reject(new Error("payload too large"));
+      }
+    });
+    req.on("end", () => resolve(raw));
+    req.on("error", reject);
+  });
+}
+
 function streamSessionEvents(res, sessionFile) {
   res.writeHead(200, {
     "Content-Type": "text/event-stream",
@@ -184,6 +210,7 @@ function streamSessionEvents(res, sessionFile) {
     "Access-Control-Allow-Origin": "*"
   });
 
+  LIVE_CLIENTS.add(res);
   sseWrite(res, { event: "session.started" });
 
   let offset = 0;
@@ -232,16 +259,81 @@ function streamSessionEvents(res, sessionFile) {
   const heartbeat = setInterval(() => res.write(": ping\n\n"), 15000);
 
   res.on("close", () => {
+    LIVE_CLIENTS.delete(res);
     clearInterval(timer);
     clearInterval(heartbeat);
   });
 }
 
-const server = http.createServer((req, res) => {
+const server = http.createServer(async (req, res) => {
   const url = new URL(req.url || "/", `http://${req.headers.host}`);
+
+  if (req.method === "OPTIONS") {
+    return send(res, 204, "", {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type"
+    });
+  }
 
   if (url.pathname === "/health") {
     return send(res, 200, JSON.stringify({ ok: true }), { "Content-Type": MIME[".json"] });
+  }
+
+  if (url.pathname === "/api/approvals" && req.method === "GET") {
+    const out = [];
+    try {
+      if (fs.existsSync(APPROVAL_LOG)) {
+        const lines = fs.readFileSync(APPROVAL_LOG, "utf8").trim().split("\n");
+        for (const line of lines.slice(-100)) {
+          if (!line.trim()) continue;
+          out.push(JSON.parse(line));
+        }
+      }
+    } catch {
+      // ignore
+    }
+    return send(res, 200, JSON.stringify({ items: out }), {
+      "Content-Type": MIME[".json"],
+      "Access-Control-Allow-Origin": "*"
+    });
+  }
+
+  if (url.pathname === "/api/approvals" && req.method === "POST") {
+    try {
+      const raw = await readBody(req);
+      const body = raw ? JSON.parse(raw) : {};
+      const decision = {
+        ts: Date.now(),
+        action: body.action === "approve" ? "approve" : "deny",
+        reason: String(body.reason || "manual decision"),
+        source: "ops-studio"
+      };
+      fs.mkdirSync(path.dirname(APPROVAL_LOG), { recursive: true });
+      fs.appendFileSync(APPROVAL_LOG, `${JSON.stringify(decision)}\n`);
+
+      const evt = {
+        event: decision.action === "approve" ? "approval.granted" : "approval.denied",
+        title: decision.action === "approve" ? "审批通过" : "审批拒绝",
+        risk: decision.action === "approve" ? "low" : "medium",
+        payload: {
+          agentId: "agent-main",
+          why: "人工审批",
+          out: decision.reason,
+          next: decision.action === "approve" ? "继续执行" : "终止或改写方案"
+        }
+      };
+      broadcast(evt);
+      return send(res, 200, JSON.stringify({ ok: true, decision }), {
+        "Content-Type": MIME[".json"],
+        "Access-Control-Allow-Origin": "*"
+      });
+    } catch (err) {
+      return send(res, 400, JSON.stringify({ error: err.message || "invalid request" }), {
+        "Content-Type": MIME[".json"],
+        "Access-Control-Allow-Origin": "*"
+      });
+    }
   }
 
   if (url.pathname === "/api/agent-events") {
