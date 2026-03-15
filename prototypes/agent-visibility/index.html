@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Agent Ops Studio</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/highlight.js@11.10.0/styles/github-dark.min.css" />
-    <script src="https://unpkg.com/highlight.js@11.10.0/lib/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.2/min/vs/loader.min.js"></script>
     <style>
       :root {
@@ -211,6 +209,7 @@
                   </select>
                   <input v-model="jumpLine" placeholder="行号" />
                   <button @click="goLine">跳转</button>
+                  <button @click="enableMonaco">启用高级编辑器</button>
                 </div>
               </div>
               <div class="editor-top" style="border-top:1px solid #334155;">
@@ -218,8 +217,8 @@
                   <button v-for="t in openTabs" :key="t.file" :class="{active:activeTab===t.file}" @click="activateTab(t.file)">{{t.file}}</button>
                 </div>
               </div>
-              <div class="monaco-host" id="monacoHost" v-show="monacoReady"></div>
-              <pre v-if="!monacoReady" style="margin:0;height:62vh;max-height:none;border-radius:0;"><code class="hljs" v-html="highlightedFallback"></code></pre>
+              <div class="monaco-host" id="monacoHost" v-show="monacoEnabled && monacoReady"></div>
+              <pre v-if="!monacoEnabled || !monacoReady" style="margin:0;height:62vh;max-height:none;border-radius:0;" v-text="plainFallback"></pre>
             </div>
           </div>
         </section>
@@ -262,6 +261,7 @@
             editorTheme: 'vs-dark',
             jumpLine: '',
             editor: null,
+            monacoEnabled: false,
             monacoReady: false,
             actor: { stage: 'Planning', status: 'idle', motion: 'waiting', facing: 'face-down', x: 50, y: 54, text: '待命', walking: false }
           }
@@ -270,10 +270,10 @@
           commandList() {
             return [...this.commands].sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0, 50);
           },
-          highlightedFallback() {
+          plainFallback() {
             const tab = this.openTabs.find((t) => t.file === this.activeTab) || this.openTabs[0];
             const text = tab ? tab.content : (this.skillDetail || '-');
-            try { return hljs.highlightAuto(text).value; } catch { return text; }
+            return text || '-';
           }
         },
         methods: {
@@ -463,17 +463,24 @@
             this.editor.setPosition({ lineNumber: line, column: 1 });
             this.editor.focus();
           },
+          async enableMonaco() {
+            this.monacoEnabled = true;
+            const ok = await this.initMonaco();
+            if (!ok) {
+              this.monacoEnabled = false;
+              this.pushLog('Monaco 加载失败', '已回退为文本预览模式');
+              return;
+            }
+            this.refreshEditor();
+          },
           async logout() {
             await fetch('/auth/logout', { method: 'POST' });
             location.href = '/login.html';
           }
         },
         watch: {
-          async tab(v) {
-            if (v === 'skills' && !this.monacoReady) {
-              await this.initMonaco();
-              this.refreshEditor();
-            }
+          tab() {
+            // skills tab no longer auto-loads Monaco to avoid UI freeze.
           }
         },
         async mounted() {
