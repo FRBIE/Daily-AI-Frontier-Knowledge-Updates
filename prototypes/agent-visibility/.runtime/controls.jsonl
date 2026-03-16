@@ -1,0 +1,15 @@
+{"ts":1773566940136,"action":"retry_last","note":"manual test","source":"ops-studio"}
+{"ts":1773566974764,"action":"retry_last","note":"mode=balanced","source":"ops-studio"}
+{"ts":1773566998675,"action":"priority_speed","note":"mode=speed","source":"ops-studio"}
+{"ts":1773567332682,"action":"dispatch_command","note":"test cmd","source":"ops-studio"}
+{"ts":1773568118057,"action":"dispatch_command","note":"当前的studio是纯html写的吗？界面有些简陋了，你可以使用 Vue 去美化一下，或者多做一些交互性的东西","source":"ops-studio"}
+{"ts":1773568685894,"action":"dispatch_command","note":"请回复: 收到studio命令","sessionKey":"agent:main:main","source":"ops-studio"}
+{"ts":1773568719041,"action":"dispatch_command","note":"另外加一个，我希望能看到，就是如果我有给你下达什么命令，你需要有一个比较清晰的显示： 1. 我给你发了什么命令 2. 是否正在执行 3. 你的执行进度 等等这类  可以用一个进度条去表示，或者其他比较美观的方式，主要就是要区别于日志。日志也可以保留，但我希望有一个专门面向我的进度展示，你能明白吗？   其次是之前跟你说的，你可以用 Vue 去做。  因为你现在单纯用 HTML，可能受限于技术，不能做得太美观。我希望有一些更多的交互性，比如： 1. 把它真正做成一个应用 2. 可以点击一些按钮，进入编辑区等 3. 不一定一直停留在这个首页  总的是要让它的实用性、交互性以及用户体验更好一点","sessionKey":"agent:main:main","source":"ops-studio"}
+{"id":"f91f3662-fffc-4a3a-88bc-300ddad974ac","ts":1773569033812,"action":"dispatch_command","note":"[studio] 请回复: 已收到进度命令","sessionKey":"agent:main:main","source":"ops-studio","status":"queued","progress":6,"lastEvent":"命令已接收"}
+{"id":"a00706db-ee88-4079-bb90-d7e281622281","ts":1773569421905,"action":"dispatch_command","note":"[studio bridge test] 请回复: bridge ok","sessionKey":"agent:main:main","source":"ops-studio","status":"queued","progress":6,"lastEvent":"命令已接收"}
+{"id":"cbab6df9-2274-4fac-9661-3cdd673c9983","ts":1773569500171,"action":"dispatch_command","note":"愿意","sessionKey":"agent:main:main","source":"ops-studio","status":"queued","progress":6,"lastEvent":"命令已接收"}
+{"id":"3bb4bed4-e828-461e-ae2d-b9c74fb6e364","ts":1773571042407,"action":"dispatch_command_urgent","note":"日志也没有","sessionKey":"agent:main:main","source":"ops-studio","status":"queued","progress":6,"lastEvent":"命令已接收"}
+{"id":"9c596c39-fdbe-4823-8e3f-8af36e4af2c0","ts":1773571146030,"action":"dispatch_command","note":"[sync test] 请回复: sync done","sessionKey":"agent:main:main","source":"ops-studio","status":"queued","progress":6,"lastEvent":"命令已接收"}
+{"id":"be0abbb6-84e7-4068-b200-51c2d3667322","ts":1773571478011,"action":"dispatch_command","note":"[browser self-test] 请回复: self test ok","sessionKey":"agent:main:main","source":"ops-studio","status":"queued","progress":6,"lastEvent":"命令已接收"}
+{"id":"cc6bbfe2-1c4d-4795-bac2-240de387757a","ts":1773573423701,"action":"dispatch_command_urgent","note":"这个紧急插队是真实可用的吗","sessionKey":"agent:main:main","source":"ops-studio","status":"queued","progress":6,"lastEvent":"命令已接收"}
+{"id":"cb8bb7ec-473a-4ed0-88fb-29763fe2941c","ts":1773573682991,"action":"dispatch_command","note":"[browserwing] 请使用 browserwing-executor skill 执行浏览器任务。\n目标URL: https://www.baidu.com\n动作: snapshot","sessionKey":"agent:main:main","source":"ops-studio","status":"queued","progress":6,"lastEvent":"命令已接收"}

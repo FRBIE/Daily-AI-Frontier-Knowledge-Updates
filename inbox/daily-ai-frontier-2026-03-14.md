@@ -1,27 +1,23 @@
 # Daily AI Frontier - 2026-03-14
 
-## High-signal updates (5)
+## 高价值资讯（4）
 
-- **Anthropic released Claude Sonnet 4.6 (2026-02-17).**
-  Why it matters: Sonnet-tier price with near-Opus capability and 1M-token context pushes down the cost of production-grade coding/agent workflows.
-  Source: https://www.anthropic.com/news/claude-sonnet-4-6
+- **OpenAI 被曝将把 Sora 集成进 ChatGPT（2026-03-11）**  
+  意义：文生视频能力若并入主入口，将显著提升多模态创作与商业化落地速度。  
+  来源：https://www.reuters.com/business/openai-plans-launch-its-sora-video-tool-chatgpt-information-reports-2026-03-11/
 
-- **Anthropic published "Where things stand with the Department of War" (2026-03-05).**
-  Why it matters: frontier model providers are now explicitly defining government/national-security boundaries, which will affect enterprise procurement and compliance requirements.
-  Source: https://www.anthropic.com/news/where-stand-department-war
+- **微软发布 Frontier Suite / Microsoft 365 Copilot Wave 3（2026-03-09）**  
+  意义：企业 AI 从“单点 Copilot”走向“多智能体+多模型”协同，组织级部署门槛进一步降低。  
+  来源：https://blogs.microsoft.com/blog/2026/03/09/introducing-the-first-frontier-suite-built-on-intelligence-trust/
 
-- **Anthropic responded publicly to comments from Secretary of War Pete Hegseth (2026-02-27).**
-  Why it matters: policy pressure is becoming an operational variable for model vendors, not just communications risk.
-  Source: https://www.anthropic.com/news/statement-comments-secretary-war
+- **Anthropic CEO 发布关于国家安全场景的公开声明（2026-03-05）**  
+  意义：头部模型公司在政府/国防使用边界上的表态，正在直接影响企业合规与采购决策。  
+  来源：https://www.anthropic.com/news/a-statement-from-dario-amodei
 
-- **Anthropic issued a CEO statement on discussions with the U.S. Department of War (2026-02-26).**
-  Why it matters: direct executive-level positioning suggests tighter governance and access controls are becoming core to frontier AI go-to-market.
-  Source: https://www.anthropic.com/news/statement-department-of-war
+- **NVIDIA GTC 2026 聚焦 Agentic AI 与 AI Factory（会期 2026-03-16 至 03-19）**  
+  意义：算力与基础设施路线图仍是大模型竞争的底层变量，GTC 对全年产业节奏有强指引。  
+  来源：https://www.nvidia.com/gtc/
 
-- **Stability AI joined the Tech Coalition (2026-02-11).**
-  Why it matters: trust/safety alliances are increasingly a baseline expectation for enterprise-facing generative AI providers.
-  Source: https://stability.ai/news/stability-ai-joins-the-tech-coalition
+## 简要判断
 
-## Takeaway
-
-The short-term frontier signal is less about raw benchmark jumps and more about capability-plus-governance packaging: better models are shipping alongside clearer policy posture, safety commitments, and deployment guardrails.
+本周前沿信号不是“单一模型刷榜”，而是“多模态产品入口 + 企业级智能体编排 + 政策/合规约束 + 算力供给路线”的四线并进。
