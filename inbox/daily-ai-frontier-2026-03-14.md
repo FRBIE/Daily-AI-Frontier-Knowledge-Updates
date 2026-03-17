@@ -2,22 +2,22 @@
 
 ## 高价值资讯（4）
 
-- **OpenAI 被曝将把 Sora 集成进 ChatGPT（2026-03-11）**  
-  意义：文生视频能力若并入主入口，将显著提升多模态创作与商业化落地速度。  
-  来源：https://www.reuters.com/business/openai-plans-launch-its-sora-video-tool-chatgpt-information-reports-2026-03-11/
+- **美国商务部撤回 AI 芯片出口拟议规则（2026-03-13）**  
+  意义：全球高端算力流动与合规预期短期重定价，直接影响云厂商、芯片厂商和跨境部署策略。  
+  来源：https://www.reuters.com/business/us-commerce-department-withdraws-planned-rule-ai-chip-exports-government-website-2026-03-13/
 
-- **微软发布 Frontier Suite / Microsoft 365 Copilot Wave 3（2026-03-09）**  
-  意义：企业 AI 从“单点 Copilot”走向“多智能体+多模型”协同，组织级部署门槛进一步降低。  
-  来源：https://blogs.microsoft.com/blog/2026/03/09/introducing-the-first-frontier-suite-built-on-intelligence-trust/
+- **ByteDance 暂缓视频生成模型 Seedance 2.0 全球发布（2026-03-14）**  
+  意义：版权合规已从“事后风控”升级为“发布闸门”，视频生成赛道商业化节奏受监管与版权博弈显著制约。  
+  来源：https://www.reuters.com/technology/bytedance-suspends-launch-video-ai-model-after-copyright-disputes-information-2026-03-14/
 
-- **Anthropic CEO 发布关于国家安全场景的公开声明（2026-03-05）**  
-  意义：头部模型公司在政府/国防使用边界上的表态，正在直接影响企业合规与采购决策。  
-  来源：https://www.anthropic.com/news/a-statement-from-dario-amodei
+- **OpenAI 在 ChatGPT 侧下线 GPT-5.1，并切换到 5.3/5.4 系列（2026-03-11）**  
+  意义：头部产品线进一步收敛到更强推理与代理工作流，说明“模型迭代速度 + 产品统一体验”成为竞争核心。  
+  来源：https://help.openai.com/en/articles/6825453-chatgpt-release-notes
 
-- **NVIDIA GTC 2026 聚焦 Agentic AI 与 AI Factory（会期 2026-03-16 至 03-19）**  
-  意义：算力与基础设施路线图仍是大模型竞争的底层变量，GTC 对全年产业节奏有强指引。  
-  来源：https://www.nvidia.com/gtc/
+- **NVIDIA GTC 2026 发布新一代 AI 基础设施路线（Vera Rubin / Feynman）（2026-03-16）**  
+  意义：AI 基建竞争进入系统级全栈优化阶段，算力、互联、存储与软件协同将决定下一轮模型与代理应用上限。  
+  来源：https://blogs.nvidia.com/blog/gtc-2026-news/
 
 ## 简要判断
 
-本周前沿信号不是“单一模型刷榜”，而是“多模态产品入口 + 企业级智能体编排 + 政策/合规约束 + 算力供给路线”的四线并进。
+2026-03-14 前后，行业焦点已从“单模型能力”转向“三件事”：算力与出口规则、版权与内容合规、以及模型到产品的一体化交付速度。
