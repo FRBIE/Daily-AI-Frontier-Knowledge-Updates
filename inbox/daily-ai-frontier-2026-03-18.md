@@ -24,3 +24,8 @@
 - NVIDIA highlighted new open models for local agents, optimization efforts for popular open families, and an open-source stack focused on running agent workflows locally on NVIDIA hardware.
 - Why it matters: The frontier is extending from cloud APIs to on-device agent runtime, where privacy, latency, and hardware ecosystems become core competitive factors.
 - Source: https://blogs.nvidia.com/blog/rtx-ai-garage-gtc-2026-nemoclaw/
+
+## 6) Google: Check Up 2026 emphasizes health-AI deployment + clinician training (Mar 17)
+- Google highlighted healthcare AI initiatives at The Check Up 2026, including a $10M clinician AI training commitment and product-side AI updates tied to Search/Fitbit health experiences.
+- Why it matters: Vertical AI (healthcare) is moving from pilot narratives to ecosystem investment + workflow integration, a pattern likely to replicate in other regulated sectors.
+- Source: https://blog.google/innovation-and-ai/technology/health/google-health-check-up-2026/
