@@ -19,3 +19,8 @@
 - Google expanded Gemini capabilities in Docs/Sheets/Slides/Drive (context from files/emails/web, style/format matching, faster drafting workflows) for paid tiers.
 - Why it matters: Productivity-suite AI is becoming more context-native and workflow-level, increasing lock-in around data gravity and integrated work surfaces.
 - Source: https://blog.google/products-and-platforms/products/workspace/gemini-workspace-updates-march-2026/
+
+## 5) NVIDIA: local-agent stack push for RTX PCs + DGX Spark (Mar 18)
+- NVIDIA highlighted new open models for local agents, optimization efforts for popular open families, and an open-source stack focused on running agent workflows locally on NVIDIA hardware.
+- Why it matters: The frontier is extending from cloud APIs to on-device agent runtime, where privacy, latency, and hardware ecosystems become core competitive factors.
+- Source: https://blogs.nvidia.com/blog/rtx-ai-garage-gtc-2026-nemoclaw/
