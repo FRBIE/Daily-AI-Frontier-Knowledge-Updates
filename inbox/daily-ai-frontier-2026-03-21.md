@@ -16,3 +16,6 @@
 
 - **Google added spend-cap controls for Gemini API in AI Studio**: New controls let developers set monthly project spend caps and better manage tier-based usage. This matters because cost governance is a key blocker for enterprise rollout, and stronger budget controls reduce adoption friction.
   - Source: https://blog.google/innovation-and-ai/technology/developers-tools/more-control-over-gemini-api-costs/
+
+- **Google AI Studio launched a new full-stack "vibe coding" experience**: Google introduced an end-to-end app-building flow in AI Studio powered by Gemini to move from prompt to runnable product faster. This matters because integrated build workflows can compress prototyping cycles and increase developer lock-in to the underlying model platform.
+  - Source: https://blog.google/innovation-and-ai/technology/developers-tools/full-stack-vibe-coding-google-ai-studio/
