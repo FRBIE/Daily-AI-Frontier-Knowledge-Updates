@@ -13,3 +13,6 @@
 
 - **Google shipped broader Gemini features in Pixel ecosystem**: New on-device and app-connected Gemini experiences were announced in the March Pixel Drop. This matters because tighter device integration increases practical daily usage and strengthens mobile AI distribution.
   - Source: https://blog.google/products-and-platforms/devices/pixel/march-2026-pixel-drop/
+
+- **Google added spend-cap controls for Gemini API in AI Studio**: New controls let developers set monthly project spend caps and better manage tier-based usage. This matters because cost governance is a key blocker for enterprise rollout, and stronger budget controls reduce adoption friction.
+  - Source: https://blog.google/innovation-and-ai/technology/developers-tools/more-control-over-gemini-api-costs/
