@@ -1,0 +1,80 @@
+{
+  "generated_at": "2026-03-22T11:44:04.653323+08:00",
+  "day": "2026-03-22",
+  "repos": [
+    {
+      "repo": "anthropics/claude-code",
+      "description": "Claude Code is an agentic coding tool that lives in your terminal, understands your codebase, and helps you code faster by executing routine tasks, explaining complex code, and handling git workflows - all through natural language commands.",
+      "stars": 81012,
+      "forks": 6722,
+      "open_issues": 7292,
+      "updated_at": "2026-03-22T03:41:01Z",
+      "pushed_at": "2026-03-20T22:24:50Z",
+      "archived": false,
+      "latest_release": {
+        "tag": "v2.1.81",
+        "name": "v2.1.81",
+        "published_at": "2026-03-20T22:24:50Z"
+      },
+      "label": "Claude Code"
+    },
+    {
+      "repo": "openai/codex",
+      "description": "Lightweight coding agent that runs in your terminal",
+      "stars": 66785,
+      "forks": 8926,
+      "open_issues": 2153,
+      "updated_at": "2026-03-22T03:31:35Z",
+      "pushed_at": "2026-03-22T00:16:30Z",
+      "archived": false,
+      "latest_release": {
+        "tag": "rust-v0.117.0-alpha.8",
+        "name": "0.117.0-alpha.8",
+        "published_at": "2026-03-21T21:27:25Z"
+      },
+      "label": "Codex CLI"
+    },
+    {
+      "repo": "google-gemini/gemini-cli",
+      "description": "An open-source AI agent that brings the power of Gemini directly into your terminal.",
+      "stars": 98614,
+      "forks": 12492,
+      "open_issues": 3061,
+      "updated_at": "2026-03-22T03:42:57Z",
+      "pushed_at": "2026-03-22T03:32:38Z",
+      "archived": false,
+      "latest_release": {
+        "tag": "v0.36.0-nightly.20260321.fc03891a1",
+        "name": "Release v0.36.0-nightly.20260321.fc03891a1",
+        "published_at": "2026-03-21T01:26:49Z"
+      },
+      "label": "Gemini CLI"
+    },
+    {
+      "repo": "opencode-ai/opencode",
+      "description": "A powerful AI coding agent. Built for the terminal.",
+      "stars": 11519,
+      "forks": 1134,
+      "open_issues": 158,
+      "updated_at": "2026-03-22T03:36:04Z",
+      "pushed_at": "2025-09-18T02:54:28Z",
+      "archived": true,
+      "latest_release": {
+        "tag": "v0.0.55",
+        "name": "v0.0.55",
+        "published_at": "2025-06-27T06:51:34Z"
+      },
+      "label": "OpenCode (archived)"
+    }
+  ],
+  "cursor_signals_en": [
+    "Cursor added 30+ marketplace plugins from major SaaS partners.",
+    "Cursor Automations now support scheduled and event-triggered cloud agents.",
+    "Cursor can be used in JetBrains IDEs via ACP integration."
+  ],
+  "cursor_signals_zh": [
+    "Cursor 新增 30+ 个市场插件，覆盖多家主流 SaaS 生态。",
+    "Cursor Automations 已支持定时与事件触发的云端代理。",
+    "Cursor 通过 ACP 接入 JetBrains IDE。"
+  ]
+}
