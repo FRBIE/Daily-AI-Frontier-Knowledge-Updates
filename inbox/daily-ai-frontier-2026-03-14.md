@@ -2,22 +2,22 @@
 
 ## 今日高价值资讯（4条）
 
-1. **美国白宫发布国家级 AI 政策框架（面向国会立法）**  
-   - 要点：推动联邦层面的统一立法，重点覆盖儿童保护、社区能源影响与州级规则协调，意味着美国 AI 治理将从“行政引导”进一步转向“立法落地”。  
-   - 来源：https://www.reuters.com/world/us/white-house-releases-national-ai-framework-2026-03-20/
+1. **OpenAI 在 ChatGPT 推出 GPT-5.4 Thinking（3月5日）并完成 GPT-5.1 退役（3月11日）**  
+   - 要点：前沿能力从“多模型并存”进一步向新一代模型收敛；对团队来说，评测基线、提示词资产和自动化流程都需要随版本迭代同步更新。  
+   - 来源：https://help.openai.com/en/articles/9624314-model-release-notes
 
-2. **美国商务部撤回原定 AI 芯片出口规则草案**  
-   - 要点：出口管制路线出现阶段性调整，短期内有利于跨境算力与供应链预期修复，但中长期不确定性依然高，企业需准备多套合规与供应链方案。  
-   - 来源：https://www.reuters.com/business/us-commerce-department-withdraws-planned-rule-ai-chip-exports-government-website-2026-03-13/
+2. **OpenAI 与美国能源部（DOE）签署 MOU，推动 AI for Science 与 Genesis Mission 协作**  
+   - 要点：国家实验室 + 前沿模型的协作模式正在制度化，AI 在科研（能源、材料、基础科学）中的“生产力工具”属性显著增强。  
+   - 来源：https://openai.com/index/us-department-of-energy-collaboration/
 
-3. **NVIDIA 在 GTC 周期强调下一代全栈 AI 路线（推理/Agent/网络/AI 工厂）**  
-   - 要点：行业竞争焦点从“训练性能”加速转向“推理效率 + Agent 工程化 + 数据中心系统协同”，对模型公司和企业 IT 的采购结构影响明显。  
-   - 来源：https://www.reuters.com/technology/nvidia-focus-competition-beating-ai-advances-megaconference-2026-03-13/
-
-4. **Google 在 Workspace 端推进 Gemini 深度集成（Docs/Sheets/Slides/Drive）**  
-   - 要点：生产力 AI 进入“默认内嵌”阶段，企业价值评估从“是否可用 AI”转向“流程改造深度与组织采纳率”。  
+3. **Google 将 Gemini 深度推进到 Workspace（Docs/Sheets/Slides/Drive，3月10日）**  
+   - 要点：办公 AI 从“可选插件”走向“默认工作流层”，企业竞争点转向流程重构能力与组织级采纳效率，而非单点工具试用。  
    - 来源：https://blog.google/products-and-platforms/products/workspace/gemini-workspace-updates-march-2026/
+
+4. **NVIDIA GTC 2026 聚焦 Agentic AI、Physical AI 与 AI Factory 全栈路线（3月16-19日）**  
+   - 要点：产业焦点持续从“训练峰值性能”转向“推理效率 + 系统工程 + 行业落地速度”，对算力采购和平台选型影响直接。  
+   - 来源：https://blogs.nvidia.com/blog/gtc-2026-news/
 
 ## 一句话判断
 
-本周核心信号是：**政策与算力两端同时重塑节奏（监管框架 + 芯片供给预期），应用端则进入全面内嵌期（Gemini/Workspace）**。
+本期核心信号：**基础模型迭代（OpenAI）+ 办公场景渗透（Google）+ 算力与系统平台升级（NVIDIA）+ 科研国家级协作（DOE）正在同步推进，AI 产业进入“工程化提速期”。**
