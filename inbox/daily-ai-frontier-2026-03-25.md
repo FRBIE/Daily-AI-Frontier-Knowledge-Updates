@@ -13,3 +13,6 @@
 
 - **Reuters: OpenAI is set to discontinue Sora, ending a recently announced Disney-linked video initiative**: Reuters reports a major product and partnership reversal around generative video. This matters because it signals sharper portfolio prioritization and changing economics in frontier AI media products.
   - Source: https://www.reuters.com/technology/openai-set-discontinue-sora-video-platform-app-wsj-reports-2026-03-24/
+
+- **Reuters: OpenAI reportedly sweetened its private-equity pitch amid enterprise competition with Anthropic**: Reuters says OpenAI is adjusting financing/partner terms while competing for enterprise distribution and deployment. This matters because capital structure and go-to-market pressure are becoming as decisive as model quality in frontier AI.
+  - Source: https://www.reuters.com/technology/openai/
