@@ -8,5 +8,5 @@
 - **OpenAI release-note signal: legacy Deep Research mode scheduled for removal (Mar 26)**: Release-note tracking indicates OpenAI is deprecating legacy deep research mode while preserving current experience and historical chats. This matters because workflow continuity now depends on quickly adapting to product-surface migrations.
   - Source: https://releasebot.io/updates/openai
 
-- **Agile Robots and Google DeepMind announced a strategic robotics research partnership**: A March 24 announcement says both sides will collaborate on next-generation AI robotics. This matters because frontier model labs are moving further into embodied-AI partnerships beyond pure software deployment.
-  - Source: https://www.adnkronos.com/immediapress/pr-newswire/agile-robots-and-google-deepmind-partner-to-bring-intelligence-to-robotics_6HpnNx1SLA7ggZedzze55u
+- **Reuters: OpenAI announced key nonprofit leadership appointments and pledged at least $1B via its nonprofit arm over the next year**: Reuters reports the restructuring includes new nonprofit governance and a large near-term capital commitment. This matters because frontier labs are formalizing governance and public-interest investment while scaling capabilities.
+  - Source: https://www.reuters.com/technology/openai/
