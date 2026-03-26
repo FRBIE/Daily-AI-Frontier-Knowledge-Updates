@@ -2,31 +2,31 @@
 
 ## 今日高价值资讯（4条）
 
-1. **Anthropic 起诉五角大楼“供应链风险”认定，AI 军用合规争议升级**  
-   - 关键信息：Anthropic 针对美方限制措施发起诉讼，事件已触及 AI 厂商与国防体系的合作边界。  
-   - 影响判断：将直接影响美国政企客户对模型供应商的选择、合规审查与采购流程。  
-   - 来源：Reuters（2026-03-09）  
-   - 链接：https://www.reuters.com/world/anthropic-sues-block-pentagon-blacklisting-over-ai-use-restrictions-2026-03-09/
+1. **美国撤回拟议 AI 芯片出口规则，监管路径出现阶段性调整**
+   - 关键信息：美国商务部撤回原计划中的 AI 芯片出口规则，反映“国家安全约束 vs. 产业竞争力”博弈仍在继续。
+   - 影响判断：短期有利于供应链预期修复，但中期政策不确定性仍高，跨境算力与硬件布局需保留冗余方案。
+   - 来源：Reuters（2026-03-13）
+   - 链接：https://www.reuters.com/business/us-commerce-department-withdraws-planned-rule-ai-chip-exports-government-website-2026-03-13/
 
-2. **OpenAI 与国防合作后出现高层离职，组织治理与安全边界受关注**  
-   - 关键信息：Reuters 报道 OpenAI 机器人业务负责人在相关合作后离职，并公开提及对部署节奏的担忧。  
-   - 影响判断：头部模型公司在“商业化速度 vs. 安全治理”间的张力加大，可能影响人才稳定和客户信心。  
-   - 来源：Reuters（2026-03-07）  
-   - 链接：https://www.reuters.com/business/openai-robotics-head-resigns-after-deal-with-pentagon-2026-03-07/
+2. **Meta 被曝为 AI 投入进行大规模组织收缩，资本开支优先级继续上移**
+   - 关键信息：Reuters 报道 Meta 计划裁员并将资源进一步向 AI 训练与基础设施倾斜。
+   - 影响判断：头部互联网公司“以组织换算力”的趋势强化，AI 成本结构将持续挤压非核心业务预算。
+   - 来源：Reuters（2026-03-14）
+   - 链接：https://www.reuters.com/business/world-at-work/meta-planning-sweeping-layoffs-ai-costs-mount-2026-03-14/
 
-3. **Google Workspace 宣布 Gemini 深度重构内容生产流程**  
-   - 关键信息：Google 在 Docs/Sheets/Slides/Drive 中推进 Gemini 协作式创作能力，强调工作流内嵌而非外挂助手。  
-   - 影响判断：企业 AI 竞争从“模型参数”转向“生产力套件渗透率”，对席位增长和付费转化更关键。  
-   - 来源：Google Workspace Blog（2026-03-10）  
-   - 链接：https://workspace.google.com/blog/product-announcements/reimagining-content-creation
+3. **OpenAI 开发者生态发布“一年 Responses API”复盘，Agent 产品化进入工程化阶段**
+   - 关键信息：OpenAI 开发者博客总结 Responses API 上线一年后的落地案例，重点转向“可用、可靠、可运营”的 Agent 系统实践。
+   - 影响判断：企业采购与技术选型重心从“模型演示能力”进一步转向“生产级集成与稳定性指标”。
+   - 来源：OpenAI Developers Blog（2026-03-11）
+   - 链接：https://developers.openai.com/blog/one-year-of-responses
 
-4. **NVIDIA GTC 2026 聚焦本地 Agent 与开源模型落地**  
-   - 关键信息：NVIDIA 在 GTC 期间披露 RTX PC 与 DGX Spark 本地运行开源模型/Agent 的生态进展。  
-   - 影响判断：端侧推理与本地智能体能力提升，有望加速企业私有部署与开发者工具链迁移。  
-   - 来源：NVIDIA Blog（GTC 2026）  
-   - 链接：https://blogs.nvidia.com/blog/rtx-ai-garage-gtc-2026-nemoclaw/
+4. **NVIDIA 发布 Physical AI 模型与数据工厂蓝图，机器人训练栈加速标准化**
+   - 关键信息：NVIDIA 在 3 月中旬发布 Physical AI Data Factory Blueprint，并同步推进机器人相关模型与工具链。
+   - 影响判断：具身智能从“单点 demo”向“数据-训练-评测”流水线迁移，行业门槛从算法转向工程系统能力。
+   - 来源：NVIDIA Investor Relations（2026-03-16）
+   - 链接：https://investor.nvidia.com/news/press-release-details/2026/NVIDIA-Announces-Open-Physical-AI-Data-Factory-Blueprint-to-Accelerate-Robotics-Vision-AI-Agents-and-Autonomous-Vehicle-Development/default.aspx
 
 ## 观察结论
 
-- 2026 年 3 月中旬的主线是：**国防合规冲突 + 生产力套件内嵌 AI + 端侧 Agent 化**。
-- 对业务最直接的信号：合规风险与产品分发渠道（办公套件、端侧硬件）正成为比“单次榜单成绩”更重要的竞争位。
+- 2026 年 3 月中旬的主线是：**政策扰动 + 组织重配 + Agent 工程化 + 具身智能基础设施化**。
+- 对业务端最关键：比起“模型参数竞赛”，**合规确定性、成本控制、生产级交付能力**更决定中短期胜负。
