@@ -2,31 +2,31 @@
 
 ## 今日高价值资讯（4条）
 
-1. **美国撤回拟议 AI 芯片出口规则，监管路径出现阶段性调整**
-   - 关键信息：美国商务部撤回原计划中的 AI 芯片出口规则，反映“国家安全约束 vs. 产业竞争力”博弈仍在继续。
-   - 影响判断：短期有利于供应链预期修复，但中期政策不确定性仍高，跨境算力与硬件布局需保留冗余方案。
-   - 来源：Reuters（2026-03-13）
-   - 链接：https://www.reuters.com/business/us-commerce-department-withdraws-planned-rule-ai-chip-exports-government-website-2026-03-13/
+1. **OpenAI 发布 GPT-4.1 系列（API）**
+   - 关键信息：OpenAI 推出 GPT-4.1 / 4.1 mini / 4.1 nano，强调在代码能力、指令跟随与长上下文理解上的整体提升。
+   - 影响判断：企业侧可在“性能-延迟-成本”上做更细分的模型分层部署，Agent 与代码自动化场景受益明显。
+   - 来源：OpenAI（官方）
+   - 链接：https://openai.com/index/gpt-4-1/
 
-2. **Meta 被曝为 AI 投入进行大规模组织收缩，资本开支优先级继续上移**
-   - 关键信息：Reuters 报道 Meta 计划裁员并将资源进一步向 AI 训练与基础设施倾斜。
-   - 影响判断：头部互联网公司“以组织换算力”的趋势强化，AI 成本结构将持续挤压非核心业务预算。
-   - 来源：Reuters（2026-03-14）
-   - 链接：https://www.reuters.com/business/world-at-work/meta-planning-sweeping-layoffs-ai-costs-mount-2026-03-14/
+2. **Anthropic 发布 Claude 3.7 Sonnet 与 Claude Code**
+   - 关键信息：Anthropic 将 Claude 3.7 Sonnet定义为混合推理模型，可在快速响应与延展思考之间切换，并同步推出面向开发者的 Claude Code。
+   - 影响判断：模型竞争从“单次问答能力”转向“可控推理 + 工程工作流集成”，对研发团队落地更友好。
+   - 来源：Anthropic（官方）
+   - 链接：https://www.anthropic.com/news/claude-3-7-sonnet
 
-3. **OpenAI 开发者生态发布“一年 Responses API”复盘，Agent 产品化进入工程化阶段**
-   - 关键信息：OpenAI 开发者博客总结 Responses API 上线一年后的落地案例，重点转向“可用、可靠、可运营”的 Agent 系统实践。
-   - 影响判断：企业采购与技术选型重心从“模型演示能力”进一步转向“生产级集成与稳定性指标”。
-   - 来源：OpenAI Developers Blog（2026-03-11）
-   - 链接：https://developers.openai.com/blog/one-year-of-responses
+3. **Google 更新 Gemini 2.5 Pro Preview（I/O 版）**
+   - 关键信息：Google 发布 Gemini 2.5 Pro Preview（I/O edition），重点强化编码能力与开发者可用性，并推进在 AI Studio/Vertex AI 的可用进程。
+   - 影响判断：云厂商模型迭代节奏继续加快，多模型策略将成为企业技术栈默认配置。
+   - 来源：Google Developers Blog（官方）
+   - 链接：https://developers.googleblog.com/en/gemini-2-5-pro-io-improved-coding-performance/
 
-4. **NVIDIA 发布 Physical AI 模型与数据工厂蓝图，机器人训练栈加速标准化**
-   - 关键信息：NVIDIA 在 3 月中旬发布 Physical AI Data Factory Blueprint，并同步推进机器人相关模型与工具链。
-   - 影响判断：具身智能从“单点 demo”向“数据-训练-评测”流水线迁移，行业门槛从算法转向工程系统能力。
-   - 来源：NVIDIA Investor Relations（2026-03-16）
-   - 链接：https://investor.nvidia.com/news/press-release-details/2026/NVIDIA-Announces-Open-Physical-AI-Data-Factory-Blueprint-to-Accelerate-Robotics-Vision-AI-Agents-and-Autonomous-Vehicle-Development/default.aspx
+4. **NVIDIA 推进 Blackwell Ultra“AI Factory”平台**
+   - 关键信息：NVIDIA 公布 Blackwell Ultra 作为下一代 AI 工厂平台，主打推理时代的吞吐与成本效率改进。
+   - 影响判断：算力层面的“性价比”竞争进一步前置，模型能力之外，推理基础设施将直接决定商业化速度。
+   - 来源：NVIDIA Newsroom（官方）
+   - 链接：https://nvidianews.nvidia.com/news/nvidia-blackwell-ultra-ai-factory-platform-paves-way-for-age-of-ai-reasoning
 
 ## 观察结论
 
-- 2026 年 3 月中旬的主线是：**政策扰动 + 组织重配 + Agent 工程化 + 具身智能基础设施化**。
-- 对业务端最关键：比起“模型参数竞赛”，**合规确定性、成本控制、生产级交付能力**更决定中短期胜负。
+- 当前主线：**模型能力升级 + 开发者工具化 + 推理基础设施竞争**。
+- 对落地团队最关键：把关注点从“单模型最强”转向“系统级效率（模型路由、成本、稳定性、交付速度）”。
