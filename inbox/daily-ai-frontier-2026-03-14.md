@@ -1,32 +1,32 @@
-# AI Frontier 日更（2026-03-14）
+# Daily AI Frontier - 2026-03-14
 
-## 今日高价值资讯（4条）
+## 今日高价值 AI 资讯（4条）
 
-1. **OpenAI 发布 GPT-4.1 系列（API）**
-   - 关键信息：OpenAI 推出 GPT-4.1 / 4.1 mini / 4.1 nano，强调在代码能力、指令跟随与长上下文理解上的整体提升。
-   - 影响判断：企业侧可在“性能-延迟-成本”上做更细分的模型分层部署，Agent 与代码自动化场景受益明显。
-   - 来源：OpenAI（官方）
-   - 链接：https://openai.com/index/gpt-4-1/
+1. **OpenAI 在 3 月上旬密集迭代 GPT-5.x，产品形态快速向“可执行工作流”收敛**  
+   - 关键信息：3/5 上线 GPT-5.4 Thinking；3/11 退役 GPT-5.1 系列；3/16 更新 GPT-5.3 Instant；3/18 推出 GPT-5.4 mini（含免费/降级兜底路径）。  
+   - 影响判断：头部模型竞争已从“单次回答质量”转向“推理稳定性 + 成本分层 + 真实任务完成率”。  
+   - 来源：OpenAI Model Release Notes  
+     https://help.openai.com/en/articles/9624314-model-release-notes
 
-2. **Anthropic 发布 Claude 3.7 Sonnet 与 Claude Code**
-   - 关键信息：Anthropic 将 Claude 3.7 Sonnet定义为混合推理模型，可在快速响应与延展思考之间切换，并同步推出面向开发者的 Claude Code。
-   - 影响判断：模型竞争从“单次问答能力”转向“可控推理 + 工程工作流集成”，对研发团队落地更友好。
-   - 来源：Anthropic（官方）
-   - 链接：https://www.anthropic.com/news/claude-3-7-sonnet
+2. **Google 发布 Gemini 3.1 Flash-Lite（预览），继续压低高并发 AI 成本曲线**  
+   - 关键信息：面向高吞吐工作负载，标价约 $0.25/百万输入 token、$1.50/百万输出 token，并强调相对前代更低延迟与更高吞吐。  
+   - 影响判断：当“可接受智能 + 超低时延 + 低单价”叠加，AI 应用会从“功能试点”加速进入“规模化上线”。  
+   - 来源：Google 官方博客  
+     https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-1-flash-lite/
 
-3. **Google 更新 Gemini 2.5 Pro Preview（I/O 版）**
-   - 关键信息：Google 发布 Gemini 2.5 Pro Preview（I/O edition），重点强化编码能力与开发者可用性，并推进在 AI Studio/Vertex AI 的可用进程。
-   - 影响判断：云厂商模型迭代节奏继续加快，多模型策略将成为企业技术栈默认配置。
-   - 来源：Google Developers Blog（官方）
-   - 链接：https://developers.googleblog.com/en/gemini-2-5-pro-io-improved-coding-performance/
+3. **NVIDIA 在 GTC 2026 强化 AI 基础设施叙事，Blackwell 生态进入更大范围部署阶段**  
+   - 关键信息：围绕数据中心、企业 AI 工厂、工作站与云侧方案持续扩展，强调从训练到推理的端到端基础设施能力。  
+   - 影响判断：2026 年企业 AI 的约束将更多落在“供给链与集成效率”，而不是“是否有模型可用”。  
+   - 来源：NVIDIA GTC 2026 News  
+     https://blogs.nvidia.com/blog/gtc-2026-news/
 
-4. **NVIDIA 推进 Blackwell Ultra“AI Factory”平台**
-   - 关键信息：NVIDIA 公布 Blackwell Ultra 作为下一代 AI 工厂平台，主打推理时代的吞吐与成本效率改进。
-   - 影响判断：算力层面的“性价比”竞争进一步前置，模型能力之外，推理基础设施将直接决定商业化速度。
-   - 来源：NVIDIA Newsroom（官方）
-   - 链接：https://nvidianews.nvidia.com/news/nvidia-blackwell-ultra-ai-factory-platform-paves-way-for-age-of-ai-reasoning
+4. **欧盟推进 AI 生成内容标识实践细则，合规重心从原则进入执行阶段**  
+   - 关键信息：AI Office 推进《Code of Practice on marking and labelling of AI-generated content》，围绕提供方与部署方两类义务展开（机器可读标识、深度伪造披露等）。  
+   - 影响判断：对面向欧洲市场的产品，2026 年起“内容水印/标记 + 披露机制 + 审计留痕”将成为默认能力，而非可选项。  
+   - 来源：European Commission（Shaping Europe’s digital future）  
+     https://digital-strategy.ec.europa.eu/en/policies/code-practice-ai-generated-content
 
-## 观察结论
+---
 
-- 当前主线：**模型能力升级 + 开发者工具化 + 推理基础设施竞争**。
-- 对落地团队最关键：把关注点从“单模型最强”转向“系统级效率（模型路由、成本、稳定性、交付速度）”。
+## 备注
+- 本文为日更版前沿摘要，优先选取“可影响产品路线/部署成本/合规策略”的资讯。
