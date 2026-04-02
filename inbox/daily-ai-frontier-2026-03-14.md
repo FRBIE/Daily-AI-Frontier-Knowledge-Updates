@@ -1,27 +1,28 @@
-# AI Frontier 日更 - 2026-03-14
+# Daily AI Frontier — 2026-03-14
 
-更新时间：2026-04-01（补录）
+## 1) NVIDIA GTC 2026 聚焦 Agentic AI 与下一代算力路线
+- **要点**：NVIDIA 在 GTC 2026 的核心叙事转向“Agentic AI + 全栈加速计算”，并继续强化 Blackwell / Vera Rubin 路线图与企业级 AI 基础设施定位。
+- **为什么重要**：这直接影响未来 12–24 个月的 AI 训练/推理成本曲线与企业部署节奏。
+- **来源**：
+  - NVIDIA 官方汇总：https://blogs.nvidia.com/blog/gtc-2026-news/
+  - CNBC 现场报道：https://www.cnbc.com/2026/03/16/nvidia-gtc-2026-ceo-jensen-huang-keynote-blackwell-vera-rubin.html
 
-## 今日高价值 AI 资讯（4 条）
+## 2) Google 发布 2026 年 3 月 AI 更新汇总（Search Live / Gemini 迁移工具等）
+- **要点**：Google 在 3 月集中更新了 AI 产品线，覆盖 Search 与 Gemini 生态的可达性和迁移体验。
+- **为什么重要**：这反映了“消费级入口 + 办公场景渗透”的平台级竞争策略，影响开发者与企业选型。
+- **来源**：
+  - Google 官方博客：https://blog.google/innovation-and-ai/technology/ai/google-ai-updates-march-2026/
 
-1. **OpenAI 宣布收购 Astral，并持续发布安全与产品更新**
-   - 关键点：OpenAI 新闻页在 2026-03 中连续更新，包含 “OpenAI to acquire Astral”（3/19）以及多项安全治理动作，显示其在模型能力与生态布局上同步推进。
-   - 来源：https://openai.com/news/
+## 3) 美政府采购与 AI 供应链风险争议升温（Anthropic 诉讼）
+- **要点**：围绕 DoD 供应链风险认定，Anthropic 与政府采购流程的法律博弈升温，并引发行业人才与竞品公司的公开站队。
+- **为什么重要**：AI 不再只比模型能力，合规、供应链与政企准入正成为“第二战场”。
+- **来源**：
+  - TechCrunch：https://techcrunch.com/2026/03/09/openai-and-google-employees-rush-to-anthropics-defense-in-dod-lawsuit/
+  - Axios：https://www.axios.com/2026/03/11/openai-anthropic-pentagon-google
 
-2. **Anthropic 发布 Claude Opus 4.6，强调 agentic coding 与工具调用能力**
-   - 关键点：Anthropic 官方公告称 Opus 4.6 在代理式编码、工具使用、检索与金融任务等场景表现领先，代表前沿模型竞争从“通用问答”转向“可执行工作流”。
-   - 来源：https://www.anthropic.com/news
-
-3. **IBM 完成对 Confluent 的收购，押注“实时数据 + 企业 AI 代理”**
-   - 关键点：IBM 官方宣布完成收购 Confluent，并将其与 watsonx.data 等产品做 Day-1 集成，强化企业 AI 从试点走向生产的实时数据底座。
-   - 来源：https://newsroom.ibm.com/2026-03-17-ibm-completes-acquisition-of-confluent,-making-real-time-data-the-engine-of-enterprise-ai-and-agents
-
-4. **Shield AI 宣布 20 亿美元融资/融资承诺并计划收购 Aechelon**
-   - 关键点：Shield AI 公告显示其通过大额融资与并购强化“仿真训练 + 自主系统”能力，反映 AI 在国防与高可靠行业的资本与落地加速。
-   - 来源：https://shield.ai/shield-ai-to-acquire-software-simulation-company-aechelon-and-raise-2b-at-12-7b-valuation/
-
-## 观察
-
-- 前沿模型厂商（OpenAI、Anthropic）继续“能力迭代 + 安全治理”并行。
-- 企业侧正在补齐 AI 生产化最短板：实时、可信、可治理的数据基础设施。
-- 垂直高门槛行业（国防/仿真）出现超大额资金与并购，AI 商业化进入深水区。
+## 4) 行业信号：企业 AI 进入“部署深水区”
+- **要点**：从 GTC 与大厂月度更新看，叙事重心已从“模型发布”转向“可落地的 agent 工作流、工具链与 ROI”。
+- **为什么重要**：对团队而言，2026 年更关键的是集成与运营能力，而非单点模型尝鲜。
+- **来源**：
+  - NVIDIA GTC 2026 官方汇总：https://blogs.nvidia.com/blog/gtc-2026-news/
+  - Google 3 月 AI 更新：https://blog.google/innovation-and-ai/technology/ai/google-ai-updates-march-2026/
