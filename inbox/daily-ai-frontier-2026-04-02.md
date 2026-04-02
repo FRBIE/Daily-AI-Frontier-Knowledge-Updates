@@ -2,17 +2,14 @@
 
 ## High-signal updates (3-5)
 
-- **OpenAI updated ChatGPT apps and product UX (Mar 25–27).** Recent release notes highlight updated Box/Notion/Linear/Dropbox app integrations (including more write actions), mobile sidebar simplification, optional device location sharing, and Codex plugin directory updates. **Why it matters:** ChatGPT is moving further from “chat UI” to an integrated AI workspace with stronger app/action surfaces.
-  - Source: https://help.openai.com/en/articles/6825453-chatgpt-release-notes
+- **OpenAI announced a massive new funding round to scale frontier AI.** OpenAI says it raised **$122B** to expand global infrastructure, next-generation compute, and enterprise/consumer product capacity. **Why it matters:** capital intensity and compute access are now direct strategic moats in frontier model competition.
+  - Source: https://openai.com/index/accelerating-the-next-phase-ai/
 
-- **Anthropic announced Claude Opus 4.6 (Feb 5) as its flagship upgrade.** Anthropic positions Opus 4.6 as leading across agentic coding, tool use, search, and finance tasks. **Why it matters:** Competitive pressure at the frontier is increasingly benchmarked on real agent/tool workflows, not just static text quality.
-  - Source: https://www.anthropic.com/news
+- **Google DeepMind highlighted Gemini 3 Pro capability gains.** The official Gemini model page states major benchmark-task improvements over prior generation and positions Gemini 3 as a deeper reasoning/reliability step for developer workflows. **Why it matters:** lab progress is increasingly measured by agentic developer-task performance, not only chat quality.
+  - Source: https://deepmind.google/models/gemini/
 
-- **Google’s Gemini channel shows a major Gemini app/model cycle underway.** Google’s official Gemini updates hub and product posts indicate continued Gemini 3-era rollout cadence across app + model surfaces. **Why it matters:** Google is coordinating model launches and product distribution together, accelerating user-level adoption speed.
-  - Source: https://blog.google/products-and-platforms/products/gemini/
+- **NVIDIA announced ecosystem expansion via NVLink Fusion + Marvell partnership.** NVIDIA Newsroom describes tighter integration between ecosystem partners and NVIDIA AI factory/AI-RAN infrastructure. **Why it matters:** the frontier stack is consolidating around interoperable high-bandwidth infra standards, affecting vendor lock-in and deployment options.
+  - Source: https://nvidianews.nvidia.com/news/nvidia-ai-ecosystem-expands-as-marvell-joins-forces-through-nvlink-fusion
 
-- **Google DeepMind highlighted AI safety risk area: harmful manipulation (Mar 26).** A new DeepMind post focuses on risks from increasingly natural AI interaction and the need for mitigations. **Why it matters:** Frontier labs are publicly shifting from capability-only messaging to concrete behavioral-risk governance.
-  - Source: https://deepmind.google/blog/protecting-people-from-harmful-manipulation/
-
-- **NVIDIA GTC 2026 emphasized full-stack AI expansion.** NVIDIA’s GTC live updates stress AI infrastructure depth (CUDA at 20 years, ecosystem breadth, cloud/industry stack expansion). **Why it matters:** The compute/platform layer remains the bottleneck and strategic control point for frontier AI deployment.
-  - Source: https://blogs.nvidia.com/blog/gtc-2026-news/
+- **NVIDIA published new MLPerf Inference v6.0 performance claims.** NVIDIA Technical Blog reports fresh records across LLM/VLM/recommender workloads on Blackwell platforms. **Why it matters:** inference throughput-per-watt and latency are now critical for profitable large-scale AI services.
+  - Source: https://developer.nvidia.com/blog/nvidia-extreme-co-design-delivers-new-mlperf-inference-records/
